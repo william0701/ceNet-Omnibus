@@ -6,13 +6,13 @@ print(options('shiny.maxRequestSize'))
 shinyServer(function(input,output,session) {
   source('www/R/input_tabServer.R')
   basepath = getwd();
-
+  
   sect_output_rna.exp=""
   sect_output_micro.exp=""
   sect_output_target=""
   sect_output_geneinfo=""
-
-  load('ph1.RData')
+  
+  load('testdata/ph1.RData')
   #Input Page Action
   observeEvent(input$onclick,{
     isolate({msg=fromJSON(input$onclick)})
@@ -214,7 +214,7 @@ shinyServer(function(input,output,session) {
     output$geneinfo_preview_panel=renderTable({
       return(geneinfo)
     },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
-   # session$sendCustomMessage('geneinfo',toJSON(geneinfo))
+    # session$sendCustomMessage('geneinfo',toJSON(geneinfo))
   })
   #Process Page Action
   observeEvent(input$interclick,{
@@ -312,6 +312,6 @@ shinyServer(function(input,output,session) {
       print(normalizePath(paste(basepath,"www/templePlot",'ph1.svg',sep="/")))
       list(src=normalizePath(paste(basepath,"www/templePlot",'ph1.svg',sep="/")))    
     })
-      
+    
   })
 })

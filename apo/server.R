@@ -1,0 +1,362 @@
+####################################
+#### Google Analytics - server.R ###
+####################################
+
+print(options('shiny.maxRequestSize'))
+shinyServer(function(input,output,session) {
+  updateEnsembl=function(special,url,session)
+  {
+    print(paste('Input:',special,url))
+    print(paste('Current:',currentSpecial,currentURL))
+    if(currentSpecial!=special|currentURL!=url)
+    {
+      currentSpecial<<-special
+      currentURL<<-url
+      session$sendCustomMessage('filter_loading',list(div='modalbody',status='ongoing'))
+      ensembl=useMart(biomart='ensembl',dataset = currentSpecial,host = currentURL,ensemblRedirect = T)
+      print('connection finish')
+      Sys.sleep(1)
+      session$sendCustomMessage('filter_loading',list(div='modalbody',status='finish'))
+      specials<<-listDatasets(ensembl)
+      filters<<-listFilters(ensembl)
+      attributions<<-listAttributes(ensembl)
+      addAttribution(session)
+    }
+  }
+  addAttribution=function(session)
+  {
+    attr=attributions
+    group=unique(attr$page)
+    result=list()
+    for(g in group)
+    {
+      tmpattr=attr[which(attr$page==g),]
+      tmpattr=data.frame(id=paste(g,tmpattr$name,sep=":"),text=paste(tmpattr$name,tmpattr$description,sep=": "),stringsAsFactors = F)
+      dd=list(text=g,children=tmpattr)
+      result=c(result,list(dd))
+    }
+    result=list(results=result)
+    session$sendCustomMessage('attribution_list',toJSON(result,auto_unbox = T))
+  }
+  basepath = getwd();
+  ## basicObj:保存运算需要的变量
+  # rna.exp=""
+  # micro.exp=""
+  # target=""
+  # geneinfo=""
+  # select.gene=""
+  sect_output_rna.exp=""
+  sect_output_micro.exp=""
+  sect_output_target=""
+  sect_output_geneinfo=""
+  ## ensemblObj：保存ensembl需要的变量
+  # ensembl=useMart(biomart='ensembl',dataset = 'hsapiens_gene_ensembl',host='asia.ensembl.org',ensemblRedirect=T)
+  # archieves=listEnsemblArchives()
+  # specials=listDatasets(ensembl)
+  # filters=listFilters(ensembl)
+  # attributions=listAttributes(ensembl)
+  # currentSpecial="hsapiens_gene_ensembl"
+  # currentURL="www.ensembl.org"
+  load('ph1.RData')
+  #Input Page Action
+  observeEvent(input$onclick,{
+    isolate({msg=fromJSON(input$onclick)})
+    if(msg$id=='express_preview')
+    {
+      ### ceRNA_preview
+      session$sendCustomMessage('reading',list(div='ceRNA_preview',status='ongoing'))
+      isolate({
+        sep_cus=input$ceRNA_seprator_cus;
+        sep=input$ceRNA_seperator;
+        filepath=input$ceRNA$datapath;
+        header=as.logical(input$ceRNA_header);
+        quote=input$ceRNA_quote
+        row=as.logical(input$ceRNA_row_col)
+        rowname=as.logical(input$ceRNA_first_col)
+      })
+      if(sep_cus!="")
+      {
+        sep=sep_cus
+      }
+      if(is.null(filepath))
+      {
+        rna.exp<<-'No Data'
+      }else
+      {
+        rna.exp<<-read.table(file = filepath,header = header,sep = sep,quote = quote,nrow=-1,stringsAsFactors = F)
+      }
+      if(!row)
+      {
+        rna.exp<<-t(rna.exp)
+      }
+      if(rowname)
+      {
+        rownames(rna.exp)<<-rna.exp[,1];
+        rna.exp<<-rna.exp[,-1]
+      }
+      select.gene<<-rownames(rna.exp)
+      Sys.sleep(2)
+      session$sendCustomMessage('reading',list(div='ceRNA_preview',status='finish'))
+      output$ceRNA_preview=renderTable({
+        return(head(rna.exp,n = 20))
+      },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      ### micro_preview
+      session$sendCustomMessage('reading',list(div='microRNA_preview',status='ongoing'))
+      isolate({
+        sep_cus=input$micro_seprator_cus;
+        sep=input$micro_seperator;
+        filepath=input$micro$datapath;
+        header=as.logical(input$micro_header);
+        quote=input$micro_quote
+        row=as.logical(input$micro_row_col)
+        rowname=as.logical(input$micro_first_col)
+      })
+      if(sep_cus!="")
+      {
+        sep=sep_cus
+      }
+      if(is.null(filepath))
+      {
+        micro.ex<<-'No Data'
+      }else
+      {
+        micro.exp<<-read.table(file = filepath,header = header,sep = sep,quote = quote,nrow=-1,stringsAsFactors = F)
+      }
+      if(!row)
+      {
+        micro.exp<<-t(micro.exp)
+      }
+      if(rowname)
+      {
+        rownames(micro.exp)<<-micro.exp[,1]
+        micro.exp<<-micro.exp[,-1]
+      }
+      Sys.sleep(2)
+      session$sendCustomMessage('reading',list(div='microRNA_preview',status='finish'))
+      output$microRNA_preview=renderTable({
+        return(head(micro.exp,n = 20))
+      },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+    }
+    else if(msg$id=='target_preview')
+    {
+      session$sendCustomMessage('reading',list(div='target_preview_panel',status='ongoing'))
+      isolate({
+        sep_cus=input$target_seprator_cus;
+        sep=input$target_seperator;
+        filepath=input$target$datapath;
+        header=as.logical(input$target_header);
+        quote=input$target_quote
+      })
+      if(sep_cus!="")
+      {
+        sep=sep_cus
+      }
+      if(is.null(filepath))
+      {
+        target<<-'No Data'
+      }else
+      {
+        target<<-read.table(file = filepath,header = header,sep = sep,quote = quote,stringsAsFactors = F)
+      }
+      Sys.sleep(2)
+      session$sendCustomMessage('reading',list(div='target_preview_panel',status='finish'))
+      output$target_preview_panel=renderTable({
+        return(head(target,n = 20))
+      },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+    }
+    else if(msg$id=='geneinfo_preview')
+    {
+      session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='ongoing'))
+      isolate({
+        sep_cus=input$geneinfo_seprator_cus;
+        sep=input$geneinfo_seperator;
+        filepath=input$geneinfo$datapath;
+        header=as.logical(input$geneinfo_header);
+        quote=input$geneinfo_quote
+      })
+      if(sep_cus!="")
+      {
+        sep=sep_cus
+      }
+      if(is.null(filepath))
+      {
+        geneinfo<<-'No Data'
+      }else
+      {
+        geneinfo<<-read.table(file = filepath,header = header,sep = sep,quote = quote,nrow=-1,stringsAsFactors = F)
+      }
+      Sys.sleep(2);
+      session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='finish'))
+      output$geneinfo_preview_panel=renderTable({
+        return(head(geneinfo,n = 20))
+      },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+    }
+  })
+  observeEvent(input$ensembl_info,{
+    isolate({
+      msg=fromJSON(input$ensembl_info)
+    })
+    print(msg)
+    if(msg$id=='database_choose')
+    {
+      session$sendCustomMessage('ensembl_database_info',list(title='Database',body=toJSON(specials)))
+    }
+    else if(msg$id=='archieve_choose')
+    {
+      session$sendCustomMessage('ensembl_archieve_info',list(title='Archieve',body=toJSON(archieves)))
+    }
+    else if(msg$id=='filter_choose')
+    {
+      session$sendCustomMessage('ensembl_filter_info',list(title='Input Type',body=toJSON(filters)))
+    }
+    else if(msg$id=='gene_choose')
+    {
+      session$sendCustomMessage('select_gene',list(title='Gene',body=toJSON(list(all=data.frame(gene=rownames(rna.exp),stringsAsFactors = F),select=select.gene))))
+    }
+  })
+  observeEvent(input$Update_Ensembl,{
+    isolate({
+      special=input$database
+      url=input$archieve
+    })
+    print(paste(special,url))
+    Sys.sleep(1)
+    updateEnsembl(special,url,session)
+  })
+  observeEvent(input$attribution_update,{
+    print('attribution_update')
+    addAttribution(session)
+  })
+  observeEvent(input$Update_Select_Gene,{
+    isolate({
+      msg=input$Update_Select_Gene
+    })
+    select.gene<<-unlist(msg$select_gene)
+  })
+  observeEvent(input$sweetAlert,{
+    isolate({
+      msg=input$sweetAlert
+    })
+    sendSweetAlert(session = session,title = msg$title,text = msg$text,type = msg$type)
+  })
+  observeEvent(input$ensembl_gene_info,{
+    isolate({
+      msg=input$ensembl_gene_info
+    })
+    filter=msg$filter
+    attr=unlist(msg$attr)
+    attr=attr[which(attr!="")]
+    attr=unlist(strsplit(x = attr,split = ":"))
+    attr=attr[seq(2,length(attr),2)]
+    gene=unlist(msg$gene)
+    select.gene<<-gene
+    attr=unique(c(filter,attr))
+    session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='ongoing'))
+    feature=getBM(attributes = attr,filters = filter,values = select.gene,mart = ensembl)
+    rownames(feature)=feature[,filter]
+    session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='finish'))
+    geneinfo<<-feature
+    output$geneinfo_preview_panel=renderTable({
+      return(geneinfo)
+    },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+   # session$sendCustomMessage('geneinfo',toJSON(geneinfo))
+  })
+  #Process Page Action
+  observeEvent(input$interclick,{
+    if(is.character(rna.exp)){
+      sendSweetAlert(session = session,title = "Error..",text = "ceRNA Not Exist!",type = "error");
+      return();
+    }
+    else if(is.character(micro.exp)){
+      sendSweetAlert(session = session,title = "Error..",text = "microRNA Not Exist!",type = "error");
+      return();
+    }
+    else if(is.character(target)){
+      sendSweetAlert(session = session,title = "Error..",text = "Target Not Exist!",type = "error");
+      return();
+    }
+    else if(is.character(geneinfo)){
+      sendSweetAlert(session = session,title = "Error..",text = "Geneinfo Not Exist!",type = "error");
+      return();
+    }
+    else{
+      sect_gene=intersect(rownames(rna.exp),rownames(target));
+      sect_gene=intersect(sect_gene,rownames(geneinfo));
+      sect_micro=intersect(rownames(micro.exp),names(target));
+      sect_sample=intersect(names(rna.exp),names(micro.exp));
+      sect_output_rna.exp<<-rna.exp[sect_gene,sect_sample];
+      sect_output_micro.exp<<-micro.exp[sect_micro,sect_sample]
+      sect_output_target<<-target[sect_gene,sect_micro];
+      sect_output_geneinfo<<-geneinfo[sect_gene,]
+      validNum1 = length(sect_gene);
+      validNum2 = length(sect_micro);
+      validNum3 = length(sect_sample);
+      ValidNum = data.frame(rnaNum = validNum1,microNum = validNum2,sampleNum = validNum3,stringsAsFactors = F);
+      session$sendCustomMessage('Valid-Num',ValidNum);
+    }
+  })
+  observeEvent(input$process_showdetails,{
+    isolate({
+      msg=input$process_showdetails;
+    })
+    if(msg$id=='Rnaoutput'){
+      obj=list(title='Valid ceRNA',details=toJSON(data.frame(detail= rownames(sect_output_rna.exp),stringsAsFactors =F)));
+      session$sendCustomMessage('outdetails',obj);
+    }
+    if(msg$id=='MicroRnaoutput'){
+      obj=list(title='Valid microRNA',details=toJSON(data.frame(detail= rownames(sect_output_micro.exp),stringsAsFactors =F)));
+      session$sendCustomMessage('outdetails',obj);
+    }
+    if(msg$id=='Sampleoutput'){
+      obj=list(title='Valid Sample',details=toJSON(data.frame(detail= names(sect_output_rna.exp),stringsAsFactors =F)));
+      session$sendCustomMessage('outdetails',obj);
+    }
+  })
+  observeEvent(input$Update_Biotype_Map,{
+    choice=colnames(geneinfo)
+    updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Which Column is Gene Biotype?',choices = choice,selected = NULL,inline=T,prettyOptions=list(shape='round',status='success'))
+  })
+  observe({
+    biotype=input$biotype_map
+    if(biotype!='None')
+    {
+      choice=unique(geneinfo[,biotype])
+      if(length(choice)>200)
+      {
+        sendSweetAlert(session = session,title = 'Warning...',text = 'Too Many Biotypes, Choose Carefully!',type = 'warning')
+        return()
+      }
+      session$sendCustomMessage('update_candidate_biotype',sort(choice))
+    }
+  })
+  observeEvent(input$show_biotype_group,{
+    isolate({
+      biotype=input$biotype_map
+      msg=input$show_biotype_group
+      data=msg$data
+    })
+    sect_output_geneinfo$.group=NULL
+    for(group in names(data))
+    {
+      subset=unlist(data[[group]])
+      sect_output_geneinfo[sect_output_geneinfo[,biotype] %in% subset,'.group']=group
+    }
+    
+    output$biotype_group_statics_graph=renderImage({
+      
+      p=ggplot(data =sect_output_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill=biotype))+
+        labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
+        theme(legend.position = 'bottom')
+      # ggplotly(p) %>%
+      #   layout(title = list(text="Gene Counts Statistics in Groups",font=list(family='serif')),
+      #          legend = list(orientation = "h",font=list(family='Georgia')),
+      #          autosize=T)
+      svg(filename = paste(basepath,"www/templePlot",'ph1.svg',sep="/"),family = 'serif')
+      print(p)
+      dev.off()
+      print(normalizePath(paste(basepath,"www/templePlot",'ph1.svg',sep="/")))
+      list(src=normalizePath(paste(basepath,"www/templePlot",'ph1.svg',sep="/")))    
+    })
+      
+  })
+})

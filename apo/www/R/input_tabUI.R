@@ -4,9 +4,11 @@ input_tab= tabItem(tabName = "input",
                      box(#第一部分
                        title = "Expression",collapsible = T,collapsed = F,status = 'success',solidHeader=T,footer = tags$button(id = 'express_preview', type = "button",class = "btn btn-success action-button pull-right",HTML('Preview'),width='20'), 
                        fileInput('ceRNA',label='mRNA/lncRNA/circRNA Expression'),
-                       div(prettyRadioButtons(inputId = 'ceRNA_seperator',label = 'Seprator',choices = c("Tab"="\t",'Common'=',','Space'=' ','Semicolon'=';'),status='success',inline=T),
-                           style='display:inline-block;'),
-                       div(textInput('ceRNA_seprator_cus',label='Custom Seprator'),style='display:inline-block;padding-left:20px'),
+                       div(class='col-lg-6',style='display:inline-block;padding:0px',
+                           prettyRadioButtons(inputId = 'ceRNA_seperator',label = 'Seprator',choices = c("Tab"="\t",'Common'=',','Space'=' ','Semicolon'=';'),status='success',inline=T)
+                       ),
+                       div(class='col-lg-6',style='display:inline-block;padding:0px',
+                           textInput('ceRNA_seprator_cus',label='Custom Seprator')),
                        prettyRadioButtons(inputId = 'ceRNA_quote',label = 'Quote',choices = c("None"="",'Double Quote'='\"','Single Quote'='\''),selected='',status='success',inline=T),
                        prettyRadioButtons(inputId = 'ceRNA_header',label = 'Header',choices = c("With header"=T,'Without header'=F),selected=T,status='success',inline=T),
                        prettyRadioButtons(inputId = 'ceRNA_row_col',label = 'Representation',choices = c("Rows For Genes"=T,'Columns For Genes'=F),selected=T,status='success',inline=T),
@@ -29,7 +31,7 @@ input_tab= tabItem(tabName = "input",
                                     tableOutput('ceRNA_preview')
                                     
                            ),
-                           tabPanel(title='MicorRNA',
+                           tabPanel(title='MicroRNA',
                                     div(
                                       tableOutput('microRNA_preview')
                                     )
@@ -46,9 +48,7 @@ input_tab= tabItem(tabName = "input",
                              style='display:inline-block;'),
                          div(textInput('target_seprator_cus',label='Custom Seprator'),style='display:inline-block;padding-left:20px'),
                          prettyRadioButtons(inputId = 'target_quote',label = 'Quote',choices = c("None"="",'Double Quote'='\"','Single Quote'='\''),selected='',status='danger',inline=T),
-                         prettyRadioButtons(inputId = 'target_header',label = 'Header',choices = c("With header"=T,'Without header'=F),selected=T,status='danger',inline=T),
-                         prettyRadioButtons(inputId = 'target_row_col',label = 'Representation',choices = c("Rows For microRNA"=T,'Columns For microRNA'=F),selected=F,status='danger',inline=T),
-                         prettyRadioButtons(inputId = 'target_first_col',label = 'First Column For Row Name?',choices = c("Yes"=T,'No'=F),selected=F,status='danger',inline=T)
+                         prettyRadioButtons(inputId = 'target_header',label = 'Header',choices = c("With header"=T,'Without header'=F),selected=T,status='danger',inline=T)
                      ),
                      box(title = 'MicroRNA Target Preview',collapsible = T,collapsed = F,status = 'danger',solidHeader = T,
                          tableOutput('target_preview_panel')

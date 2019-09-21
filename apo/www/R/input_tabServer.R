@@ -46,4 +46,5 @@ addAttribution=function(session)
 # attributions=listAttributes(ensembl)
 # currentSpecial="hsapiens_gene_ensembl"
 # currentURL="www.ensembl.org"
+# select.gene=""
 #Input Page Action

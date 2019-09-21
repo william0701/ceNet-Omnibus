@@ -7,7 +7,6 @@ shinyServer(function(input,output,session) {
   source('www/R/input_tabServer.R')
   basepath = getwd();
 
-  # select.gene=""
   sect_output_rna.exp=""
   sect_output_micro.exp=""
   sect_output_target=""

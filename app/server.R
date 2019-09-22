@@ -5,10 +5,13 @@
 print(options('shiny.maxRequestSize'))
 shinyServer(function(input,output,session) {
   source('www/R/input_tabServer.R')
-  dir.create(path = paste('session_tmp_file',session$token,sep=""))
+  ##创建临时文件夹
+  tmpdir=tempdir()
+  basepath = paste(tmpdir,'/session_tmp_file',session$token,sep="");
+  dir.create(path = basepath)
   print(paste("Session:",session$token,'is started!'))
-  basepath = paste('session_tmp_file',session$token);
   dir.create(paste(basepath,'Plot',sep="/"))
+  ##
   sect_output_rna.exp=""
   sect_output_micro.exp=""
   sect_output_target=""

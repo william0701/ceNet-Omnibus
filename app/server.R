@@ -5,8 +5,10 @@
 print(options('shiny.maxRequestSize'))
 shinyServer(function(input,output,session) {
   source('www/R/input_tabServer.R')
-  basepath = getwd();
-  
+  dir.create(path = paste('session_tmp_file',session$token))
+  print(paste("Session:",session$token,'is started!'))
+  basepath = paste('session_tmp_file',session$token);
+  dir.create(paste(basepath,'Plot',sep="/"))
   sect_output_rna.exp=""
   sect_output_micro.exp=""
   sect_output_target=""
@@ -306,11 +308,11 @@ shinyServer(function(input,output,session) {
       #   layout(title = list(text="Gene Counts Statistics in Groups",font=list(family='serif')),
       #          legend = list(orientation = "h",font=list(family='Georgia')),
       #          autosize=T)
-      svg(filename = paste(basepath,"www/templePlot",'ph1.svg',sep="/"),family = 'serif')
+      svg(filename = paste(basepath,"Plot",'ph1.svg',sep="/"),family = 'serif')
       print(p)
       dev.off()
-      print(normalizePath(paste(basepath,"www/templePlot",'ph1.svg',sep="/")))
-      list(src=normalizePath(paste(basepath,"www/templePlot",'ph1.svg',sep="/")))    
+      print(normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))
+      list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))    
     })
     
   })

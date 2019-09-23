@@ -5,6 +5,7 @@
 print(options('shiny.maxRequestSize'))
 shinyServer(function(input,output,session) {
   source('www/R/input_tabServer.R')
+  source('www/R/construct_tabServer.R')
   ##创建临时文件夹
   tmpdir=tempdir()
   basepath = paste(tmpdir,'/session_tmp_file',session$token,sep="");
@@ -284,7 +285,7 @@ shinyServer(function(input,output,session) {
       if(length(choice)>100)
       {
         sendSweetAlert(session = session,title = 'Warning...',text = 'Too Many Biotypes, Choose Carefully!',type = 'warning')
-        return()
+        #return()
       }
       session$sendCustomMessage('update_candidate_biotype',sort(choice))
     }
@@ -318,5 +319,40 @@ shinyServer(function(input,output,session) {
       list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))    
     },deleteFile=F)
     
+  })
+  observeEvent(input$add_new_condition,{
+    choice=c(condition[which(!condition$used),'abbr'],'custom')
+    names(choice)=c(condition[which(!condition$used),'description'],'Custom')
+    
+    removeUI(selector = '#modalbody>',immediate = T)
+    insertUI(selector = '#modalbody',where = 'beforeEnd',immediate = T,
+             ui=div(
+                    selectInput(inputId = 'condition_type',label = 'Choose New Condition',choices = choice,multiple = F),
+                    conditionalPanel(condition = 'input.condition_type=="custom"',
+                                     hr(),
+                                     div(class='col-lg-3 col-xs-12',style="padding:0px",
+                                         textInput(inputId = 'custom_condition_name',label = 'New Condition Full Name')
+                                     ),
+                                     div(class='col-lg-3 col-xs-12',
+                                         textInput(inputId = 'custom_condition_description',label = 'New Condition Abbreviation')
+                                     ),
+                                     div(class='col-lg-6 col-xs-12',
+                                         div(class='form-group',
+                                             tags$label(HTML('Available Variables')),
+                                             tags$ul(class='form-control',style="border-color:#fff;padding:0px",
+                                                     tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('rna.exp'),style="display:inline-block;padding-left:0px;padding-right:5px"),
+                                                     tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('micro.exp'),style="display:inline-block;padding-left:0px;padding-right:5px"),
+                                                     tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('target'),style="display:inline-block;padding-left:0px;padding-right:5px")
+                                                    )
+                                         )
+                                     ),
+                                     div(class='row',
+                                         div(class='col-lg-12',
+                                             textAreaInput(inputId = 'condition_code',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='860px')
+                                         )
+                                     )
+                                  )
+                    )
+             )
   })
 })

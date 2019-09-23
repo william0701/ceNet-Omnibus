@@ -2,6 +2,7 @@
 ### Google Analytics - ui.R ###
 ###############################
 source('www/R/input_tabUI.R')
+source('www/R/construct_tabUI.R')
 includeScript('www/js/all.js')
 options(shiny.maxRequestSize = 1000*1024^2)
 header=dashboardHeader(
@@ -61,7 +62,10 @@ process_tab=tabItem(tabName = "process",
                     )
 )
 construction_tab=tabItem(tabName = "construction",
-                         h2("Network Construction")
+                         h2("Step1: Choose Conditions",style='font-family:Georgia',
+                            tags$button(tags$i(class='fa fa-plus-square'),HTML('Add New'),class='btn btn-success',id='add_new_condition')),
+                         div(id='conditiaon_panel')
+                         
 )
 visual_tab=tabItem(tabName = "visualization",
                    h2("Network Visualization")
@@ -86,7 +90,7 @@ dashboardPage(
     tags$link(href = 'skins/all.css',rel="stylesheet"),tags$link(href='css/bootstrap-table.min.css',rel='stylesheet'),tags$link(href = 'css/select2.min.css',rel="stylesheet"),tags$link(href='css/select2-bootstrap-theme.css',rel="stylesheet"),
     tags$link(href = 'css/bootstrap-editable.css',rel="stylesheet"),tags$link(href='shinyWidgets/multi/multi.min.css',rel='stylesheet'),
     tags$script(src="js/all.js"),tags$script(src="js/icheck.min.js"),tags$script(src='js/bootstrap-table.min.js'),tags$script(src='js/select2.min.js'),tags$script(src='js/customerUI.js'),
-    tags$script(src='js/bootstrap-editable.js'),tags$script(src="js/process.js")
+    tags$script(src='js/bootstrap-editable.js'),tags$script(src="js/process.js"),tags$script(src="js/construction.js")
     ),
   header=header,
   sidebar = sidebar,

@@ -1,5 +1,5 @@
 input_tab= tabItem(tabName = "input",
-                   h2("STEP1: Expression Input"),
+                   h2("Step1: Expression Input",style='font-family:Georgia'),
                    fluidRow(
                      box(#第一部分
                        title = "Expression",collapsible = T,collapsed = F,status = 'success',solidHeader=T,footer = tags$button(id = 'express_preview', type = "button",class = "btn btn-success action-button pull-right",HTML('Preview'),width='20'), 
@@ -40,7 +40,7 @@ input_tab= tabItem(tabName = "input",
                          )
                      )
                    ),
-                   h2("STEP2: Target Input"),
+                   h2("Step2: Target Input",style='font-family:Georgia'),
                    fluidRow(
                      box(title = "MicroRNA Target",collapsible = T,collapsed = F,status = 'danger',solidHeader=T,footer = tags$button(id = 'target_preview', type = "button",class = "btn btn-danger action-button pull-right",HTML('Preview'),width='20'),
                          fileInput('target',label='MicroRNA Target'),
@@ -54,7 +54,7 @@ input_tab= tabItem(tabName = "input",
                          tableOutput('target_preview_panel')
                      )
                    ),
-                   h2('STEP3: Gene Information Input'),
+                   h2('Step3: Gene Information Input',style='font-family:Georgia'),
                    fluidRow(
                      box(title = "Gene Information",collapsible = T,collapsed = F,status = 'warning',solidHeader=T,footer = tags$button(id = 'geneinfo_preview', type = "button",class = "btn btn-warning action-button pull-right",HTML('Preview'),width='20'),
                          selectInput('geneinfo_source',label='Gene Information Source',choices = c('Biomart'='biomart','Custom'='custom'),selected='biomart'),

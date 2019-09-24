@@ -322,12 +322,20 @@ shinyServer(function(input,output,session) {
   })
   observeEvent(input$add_new_condition,{
     choice=c(condition[which(!condition$used),'abbr'],'custom')
-    names(choice)=c(condition[which(!condition$used),'description'],'Custom')
+    if(length(choice)>1)
+      names(choice)=c(paste(condition[which(!condition$used),'description'],'(',condition[which(!condition$used),'abbr'],')',sep=""),'Custom')
+    else
+      names(choice)='Custom'
     
     removeUI(selector = '#modalbody>',immediate = T)
     insertUI(selector = '#modalbody',where = 'beforeEnd',immediate = T,
              ui=div(
-                    selectInput(inputId = 'condition_type',label = 'Choose New Condition',choices = choice,multiple = F),
+                    div(class='col-lg-6',
+                        selectInput(inputId = 'condition_type',label = 'Choose New Condition',choices = choice,multiple = F)
+                    ),
+                    div(class='col-lg-6',
+                        selectInput(inputId = 'use_core',label = 'Choose Parallel Cores',choices = seq(1,validcore-sum(condition$core)),multiple = F)
+                    ),
                     conditionalPanel(condition = 'input.condition_type=="custom"',
                                      hr(),
                                      div(class='col-lg-3 col-xs-12',style="padding:0px",
@@ -354,41 +362,29 @@ shinyServer(function(input,output,session) {
                                   )
                     )
              )
+    session$sendCustomMessage('conditions',condition)
   })
-  observe({
-    description=input$custom_condition_description
-    abbr=input$custom_condition_abbr
-    if(is.null(description))
+  observeEvent(input$choose_new_condition,{
+    isolate({
+      msg=input$choose_new_condition
+      core=input$use_core
+    })
+    if(msg$type=='custom')
     {
-      return()
-    }
-    if(description=="")
-    {
-      return()
-    }
-    if(is.null(abbr))
-    {
-      return()
-    }
-    if(abbr=="")
-    {
-      return()
-    }
-    if(description%in%condition$description)
-    {
-      session$sendCustomMessage('redundent_condition',list(id='custom_condition_description',type='error'))
+      
     }
     else
     {
-      session$sendCustomMessage('redundent_condition',list(id='custom_condition_description',type='ok')) 
+      chosed_condition=msg$type
+      condition[chosed_condition,'used']<<-T
+      condition[chosed_condition,'core']<<-as.numeric(core)
     }
-    if(abbr%in%condition$abbr)
-    {
-      session$sendCustomMessage('redundent_condition',list(id='custom_condition_abbr',type='error'))
-    }
-    else
-    {
-      session$sendCustomMessage('redundent_condition',list(id='custom_condition_abbr',type='ok'))
-    }
+  })
+  observeEvent(input$remove_condition,{
+    isolate({
+      msg=input$remove_condition
+    })
+    condition[msg$type,'used']<<-F
+    condition[msg$type,'core']<<-0
   })
 })

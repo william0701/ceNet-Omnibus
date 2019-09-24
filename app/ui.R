@@ -64,7 +64,7 @@ process_tab=tabItem(tabName = "process",
 construction_tab=tabItem(tabName = "construction",
                          h2("Step1: Choose Conditions",style='font-family:Georgia',
                             tags$button(tags$i(class='fa fa-plus-square'),HTML('Add New'),class='btn btn-success',id='add_new_condition')),
-                         div(id='conditiaon_panel')
+                         div(id='condition_panel')
                          
 )
 visual_tab=tabItem(tabName = "visualization",

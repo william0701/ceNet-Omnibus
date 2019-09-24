@@ -96,8 +96,8 @@ create_modal=function()
   $header.append($title);
   $body.append($table);
   $foot.append($close).append($submit);
-  $submit.on('click',function(e){
-  /*  if($('#infolist').attr('currenttarget')=='gene')
+  /*$submit.on('click',function(e){
+    if($('#infolist').attr('currenttarget')=='gene')
     {
       $('#'+$('#infolist').attr('currentTarget').toLowerCase()).val('Current Selected Gene#: '+select_gene.length)
       var obj={}
@@ -116,8 +116,8 @@ create_modal=function()
      $('#'+$('#infolist').attr('currentTarget').toLowerCase()).trigger('change');
     }
     if($('#infolist').attr('currenttarget')=='archieve'||$('#infolist').attr('currenttarget')=='database')
-     Shiny.setInputValue('Update_Ensembl',Math.random())*/
-  });
+     Shiny.setInputValue('Update_Ensembl',Math.random())
+  });*/
   $('body').append($modal);
 
 }
@@ -173,7 +173,7 @@ Shiny.addCustomMessageHandler('ensembl_database_info',function(msg){
     clickToSelect:true
     //height: 500
   });
-  $('#modalSubmit').on('click',function(e){
+  $('#modalSubmit').off('click').on('click',function(e){
     var value=$('#modaltable tr.selected>td:nth-child(2)').text();
     if(value!="")
     {
@@ -236,7 +236,7 @@ Shiny.addCustomMessageHandler('ensembl_archieve_info',function(msg){
     clickToSelect:true
     //height: 500
   });
-  $('#modalSubmit').on('click',function(e){
+  $('#modalSubmit').off('click').on('click',function(e){
     var value=$('#modaltable tr.selected>td:nth-child(4)').text();
     if(value!="")
     {
@@ -287,7 +287,7 @@ Shiny.addCustomMessageHandler('ensembl_filter_info',function(msg){
     clickToSelect:true
     //height: 500
   });
-  $('#modalSubmit').on('click',function(e){
+  $('#modalSubmit').off('click').on('click',function(e){
     var value=$('#modaltable tr.selected>td:nth-child(2)').text();
     if(value!="")
     {

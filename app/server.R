@@ -331,10 +331,10 @@ shinyServer(function(input,output,session) {
                     conditionalPanel(condition = 'input.condition_type=="custom"',
                                      hr(),
                                      div(class='col-lg-3 col-xs-12',style="padding:0px",
-                                         textInput(inputId = 'custom_condition_name',label = 'New Condition Full Name')
+                                         textInput(inputId = 'custom_condition_description',label = 'New Condition Full Name')
                                      ),
                                      div(class='col-lg-3 col-xs-12',
-                                         textInput(inputId = 'custom_condition_description',label = 'New Condition Abbreviation')
+                                         textInput(inputId = 'custom_condition_abbr',label = 'New Condition Abbreviation')
                                      ),
                                      div(class='col-lg-6 col-xs-12',
                                          div(class='form-group',
@@ -348,11 +348,47 @@ shinyServer(function(input,output,session) {
                                      ),
                                      div(class='row',
                                          div(class='col-lg-12',
-                                             textAreaInput(inputId = 'condition_code',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='860px')
+                                             textAreaInput(inputId = 'custom_condition_code',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='860px')
                                          )
                                      )
                                   )
                     )
              )
+  })
+  observe({
+    description=input$custom_condition_description
+    abbr=input$custom_condition_abbr
+    if(is.null(description))
+    {
+      return()
+    }
+    if(description=="")
+    {
+      return()
+    }
+    if(is.null(abbr))
+    {
+      return()
+    }
+    if(abbr=="")
+    {
+      return()
+    }
+    if(description%in%condition$description)
+    {
+      session$sendCustomMessage('redundent_condition',list(id='custom_condition_description',type='error'))
+    }
+    else
+    {
+      session$sendCustomMessage('redundent_condition',list(id='custom_condition_description',type='ok')) 
+    }
+    if(abbr%in%condition$abbr)
+    {
+      session$sendCustomMessage('redundent_condition',list(id='custom_condition_abbr',type='error'))
+    }
+    else
+    {
+      session$sendCustomMessage('redundent_condition',list(id='custom_condition_abbr',type='ok'))
+    }
   })
 })

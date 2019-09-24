@@ -432,7 +432,7 @@ Shiny.addCustomMessageHandler('geneinfo',function(msg){
 
 sweetAlert=function(type,title,text)
 {
-  var obj={} s
+  var obj={}
   obj['stamp']=Math.random()
   obj['type']=type
   obj['title']=title

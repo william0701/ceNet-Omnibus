@@ -318,7 +318,6 @@ shinyServer(function(input,output,session) {
     }
     
     output$biotype_group_statics_graph=renderImage({
-      browser()
       p=ggplot(data =sect_output_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill=biotype))+
         labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
         theme(legend.position = 'bottom')
@@ -340,6 +339,12 @@ shinyServer(function(input,output,session) {
       names(choice)=c(paste(condition[which(!condition$used),'description'],'(',condition[which(!condition$used),'abbr'],')',sep=""),'Custom')
     else
       names(choice)='Custom'
+    
+    if(is.null(sect_output_geneinfo$.group))
+    {
+      sect_output_geneinfo$.group='Default'
+      sendSweetAlert(session = session,title = "Warning",text = 'Group All Genes in Defaut',type = 'warning')
+    }
     
     groupstaistic=as.data.frame(table(sect_output_geneinfo$.group))
     rownames(groupstaistic)=groupstaistic$Var1

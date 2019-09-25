@@ -17,6 +17,7 @@ shinyServer(function(input,output,session) {
   sect_output_micro.exp=""
   sect_output_target=""
   sect_output_geneinfo=""
+  biotype_map=""
   
   load('testdata/ph1.RData')
   #Input Page Action
@@ -274,14 +275,27 @@ shinyServer(function(input,output,session) {
     }
   })
   observeEvent(input$Update_Biotype_Map,{
-    choice=colnames(geneinfo)
-    updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Which Column is Gene Biotype?',choices = choice,selected = NULL,inline=T,prettyOptions=list(shape='round',status='success'))
+    choice=colnames(sect_output_geneinfo)
+    choicenum=lapply(X = sect_output_geneinfo,FUN = unique)
+    choicenum=lapply(X = choicenum,FUN = length)
+    names(choicenum)=choice
+    choicenum=unlist(choicenum)
+    invalidchoice=names(choicenum)[which(choicenum>100)]
+    if(biotype_map=="None")
+    {
+      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Which Column is Gene Biotype?',choices = choice,selected = names(sort(choicenum))[1],inline=T,prettyOptions=list(shape='round',status='success'))
+    }
+    else
+    {
+      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Which Column is Gene Biotype?',choices = choice,selected = biotype_map,inline=T,prettyOptions=list(shape='round',status='success'))
+    }
+    session$sendCustomMessage('invalidColumn',data.frame(choice=invalidchoice,stringsAsFactors = F))
   })
   observe({
-    biotype=input$biotype_map
-    if(biotype!='None')
+    biotype_map<<-input$biotype_map
+    if(biotype_map!='None')
     {
-      choice=unique(geneinfo[,biotype])
+      choice=unique(geneinfo[,biotype_map])
       if(length(choice)>100)
       {
         sendSweetAlert(session = session,title = 'Warning...',text = 'Too Many Biotypes, Choose Carefully!',type = 'warning')
@@ -304,7 +318,7 @@ shinyServer(function(input,output,session) {
     }
     
     output$biotype_group_statics_graph=renderImage({
-      
+      browser()
       p=ggplot(data =sect_output_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill=biotype))+
         labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
         theme(legend.position = 'bottom')
@@ -326,12 +340,16 @@ shinyServer(function(input,output,session) {
       names(choice)=c(paste(condition[which(!condition$used),'description'],'(',condition[which(!condition$used),'abbr'],')',sep=""),'Custom')
     else
       names(choice)='Custom'
-    groupcounts=as.data.frame(table(sect_output_geneinfo$.group))
-    groupcounts=paste(groupcounts$Var1,'(',groupcounts$Freq,')',sep="")
-    pairchoice=data.frame(v1=rep(groupcounts,times=length(groupcounts)),v2=rep(groupcounts,each=length(groupcounts)),stringsAsFactors = F)
-    pairchoice=unique(t(apply(X = pairchoice,MARGIN = 1,FUN = sort)))
-    pairchoice=paste(pairchoice[,1],'vs',pairchoice[,2])
-    names(pairchoice)=pairchoice
+    
+    groupstaistic=as.data.frame(table(sect_output_geneinfo$.group))
+    rownames(groupstaistic)=groupstaistic$Var1
+    pairs=data.frame(v1=rep(groupstaistic$Var1,times=dim(groupstaistic)[1]),v2=rep(groupstaistic$Var1,each=dim(groupstaistic)[1]),stringsAsFactors = F)
+    pairs=unique(t(apply(X = pairs,MARGIN = 1,FUN = sort)))
+    show=paste(pairs[,1],'(',groupstaistic[pairs[,1],'Freq'],') vs ',pairs[,2],'(',groupstaistic[pairs[,2],'Freq'],')',sep="")
+    values=paste(pairs[,1],"---",pairs[,2],sep="")
+    show=c('All',show)
+    values=c('all',values)
+    
     removeUI(selector = '#modalbody>',immediate = T)
     insertUI(selector = '#modalbody',where = 'beforeEnd',immediate = T,
              ui=div(
@@ -345,7 +363,7 @@ shinyServer(function(input,output,session) {
                     ),
                     div(class='row',
                         div(class="col-lg-12",
-                            multiInput(inputId = 'group_pairs',label = 'Group Pairs',choices = pairchoice,width = "100%")
+                            multiInput(inputId = 'group_pairs',label = 'Group Pairs',choiceNames = show,choiceValues = values,selected = 'all',width = "100%")
                         )
                     ),
                     conditionalPanel(condition = 'input.condition_type=="custom"',

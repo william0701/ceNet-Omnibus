@@ -1,6 +1,8 @@
 var select_gene=new Array();
 $(document).ready(function(){
- 
+  $('a[href="#shiny-tab-input"]').on('click',function(e){
+    initial(0)
+  })
   create_modal();
   $.fn.select2.defaults.set('width','100%');
   $('#database').attr('readonly','readonly');

@@ -45,17 +45,17 @@ process_tab=tabItem(tabName = "process",
                                            )
                                        ),
                                        div(class='multi-wrapper',
-                                           div(class='col-lg-6 non-selected-wrapper',style="height:500px;overflow-y:auto",id='group_biotype',
+                                           div(class='col-lg-6 non-selected-wrapper',style="height:350px;overflow-y:auto",id='group_biotype',
                                                div(class='header',HTML('Groups'))
                                            ),
-                                           div(class='col-lg-6 non-selected-wrapper',style="height:500px;overflow-y:auto",id='candidate_biotype',
+                                           div(class='col-lg-6 non-selected-wrapper',style="height:350px;overflow-y:auto",id='candidate_biotype',
                                                div(class='header',HTML('Candidate Biotypes'))
                                            )
                                        )
                                    )
                             ),
                              div(class='col-lg-6',
-                                 imageOutput(outputId = 'biotype_group_statics_graph',height = "100%")
+                                 imageOutput(outputId = 'biotype_group_statics_graph',height = "100%",width="100%")
                             ),
                             footer = tags$button(id = 'biotype_group_statics', type = "button",class = "btn btn-success action-button pull-right",HTML('Preview'),width='20')
                         )

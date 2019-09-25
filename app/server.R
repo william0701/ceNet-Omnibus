@@ -296,11 +296,11 @@ shinyServer(function(input,output,session) {
       msg=input$show_biotype_group
       data=msg$data
     })
-    sect_output_geneinfo$.group=NULL
+    sect_output_geneinfo$.group<<-NULL
     for(group in names(data))
     {
       subset=unlist(data[[group]])
-      sect_output_geneinfo[sect_output_geneinfo[,biotype] %in% subset,'.group']=group
+      sect_output_geneinfo[sect_output_geneinfo[,biotype] %in% subset,'.group']<<-group
     }
     
     output$biotype_group_statics_graph=renderImage({
@@ -316,7 +316,7 @@ shinyServer(function(input,output,session) {
       print(p)
       dev.off()
       print(normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))
-      list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))    
+      list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")),height="100%",width="100%")    
     },deleteFile=F)
     
   })
@@ -326,37 +326,53 @@ shinyServer(function(input,output,session) {
       names(choice)=c(paste(condition[which(!condition$used),'description'],'(',condition[which(!condition$used),'abbr'],')',sep=""),'Custom')
     else
       names(choice)='Custom'
-    
+    groupcounts=as.data.frame(table(sect_output_geneinfo$.group))
+    groupcounts=paste(groupcounts$Var1,'(',groupcounts$Freq,')',sep="")
+    pairchoice=data.frame(v1=rep(groupcounts,times=length(groupcounts)),v2=rep(groupcounts,each=length(groupcounts)),stringsAsFactors = F)
+    pairchoice=unique(t(apply(X = pairchoice,MARGIN = 1,FUN = sort)))
+    pairchoice=paste(pairchoice[,1],'vs',pairchoice[,2])
+    names(pairchoice)=pairchoice
     removeUI(selector = '#modalbody>',immediate = T)
     insertUI(selector = '#modalbody',where = 'beforeEnd',immediate = T,
              ui=div(
-                    div(class='col-lg-6',
-                        selectInput(inputId = 'condition_type',label = 'Choose New Condition',choices = choice,multiple = F)
+                    div(class='row',
+                        div(class='col-lg-6',
+                            selectInput(inputId = 'condition_type',label = 'Choose New Condition',choices = choice,multiple = F)
+                        ),
+                        div(class='col-lg-6',
+                            selectInput(inputId = 'use_core',label = 'Choose Parallel Cores',choices = seq(1,validcore-sum(condition$core)),multiple = F)
+                        )
                     ),
-                    div(class='col-lg-6',
-                        selectInput(inputId = 'use_core',label = 'Choose Parallel Cores',choices = seq(1,validcore-sum(condition$core)),multiple = F)
+                    div(class='row',
+                        div(class="col-lg-12",
+                            multiInput(inputId = 'group_pairs',label = 'Group Pairs',choices = pairchoice,width = "100%")
+                        )
                     ),
                     conditionalPanel(condition = 'input.condition_type=="custom"',
                                      hr(),
-                                     div(class='col-lg-3 col-xs-12',style="padding:0px",
-                                         textInput(inputId = 'custom_condition_description',label = 'New Condition Full Name')
-                                     ),
-                                     div(class='col-lg-3 col-xs-12',
-                                         textInput(inputId = 'custom_condition_abbr',label = 'New Condition Abbreviation')
-                                     ),
-                                     div(class='col-lg-6 col-xs-12',
-                                         div(class='form-group',
-                                             tags$label(HTML('Available Variables')),
-                                             tags$ul(class='form-control',style="border-color:#fff;padding:0px",
-                                                     tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('rna.exp'),style="display:inline-block;padding-left:0px;padding-right:5px"),
-                                                     tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('micro.exp'),style="display:inline-block;padding-left:0px;padding-right:5px"),
-                                                     tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('target'),style="display:inline-block;padding-left:0px;padding-right:5px")
-                                                    )
+                                     div(class='row',
+                                         div(class='col-lg-3 col-xs-12',
+                                             textInput(inputId = 'custom_condition_description',label = 'New Condition Full Name')
+                                         ),
+                                         div(class='col-lg-3 col-xs-12',
+                                             textInput(inputId = 'custom_condition_abbr',label = 'New Condition Abbreviation')
+                                         ),
+                                     # ),
+                                     # div(class="row",
+                                         div(class='col-lg-6 col-xs-12',
+                                             div(class='form-group',
+                                                 tags$label(HTML('Available Variables')),
+                                                 tags$ul(class='form-control',style="border-color:#fff;padding:0px",
+                                                         tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('rna.exp'),style="display:inline-block;padding-left:0px;padding-right:5px"),
+                                                         tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('micro.exp'),style="display:inline-block;padding-left:0px;padding-right:5px"),
+                                                         tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('target'),style="display:inline-block;padding-left:0px;padding-right:5px")
+                                                        )
+                                             )
                                          )
-                                     ),
+                                      ),
                                      div(class='row',
                                          div(class='col-lg-12',
-                                             textAreaInput(inputId = 'custom_condition_code',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='860px')
+                                             textAreaInput(inputId = 'custom_condition_code',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='100%',resize='both')
                                          )
                                      )
                                   )

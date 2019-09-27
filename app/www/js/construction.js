@@ -10,6 +10,7 @@ $(document).ready(function(){
       var code=$('#custom_condition_code').val()
       var core=$('#use_core').val()
       var tasks=$('#group_pairs').val()
+      var type=$('#condition_type').val()
       if(tasks==null)
       {
         sweetAlert('warning','Warning..','Select Group Pairs!')
@@ -53,7 +54,6 @@ $(document).ready(function(){
           obj['description']=description
           obj['abbr']=abbr
           obj['code']=code
-          Shiny.setInputValue('choose_new_condition',obj)
         }
       }
       else
@@ -61,17 +61,24 @@ $(document).ready(function(){
         var obj={}
           obj['stamp']=Math.random()          
           obj['type']=$('#condition_type').val()
-          Shiny.setInputValue('choose_new_condition',obj)
-
       }
       
       if(tasks.indexOf('all')>=0)
       {
         tasks='all'
       }
-      var $box=create_condition($('#condition_type').val(),tasks,core)
-      $('#condition_panel').append($("<div class='col-lg-4'></div>").append($box))
-      $('#infolist').modal('hide')
+      if($('#body_'+type).length>0)
+      {
+        $('#task_'+type).text("Tasks:0/"+tasks.length)
+        $('#core_'+type).text("Core:"+core)
+      }
+      else
+      {
+        var $box=create_condition($('#condition_type').val(),tasks,core)
+        $('#condition_panel').append($("<div class='col-lg-4'></div>").append($box))
+        $('#infolist').modal('hide')
+      }
+      Shiny.setInputValue('choose_new_condition',obj)
     })
     if(!$('#infolist').hasClass('in'))
     {
@@ -100,18 +107,54 @@ create_condition=function(name,tasks,core)
   var $title=$('<span class="info-box-number">'+name+'</span>')
   var $remove=$('<div style="float:right"><a href="#"><i class="fa fa-times" style="color:#fff"></i></a></div>')
   var $taskpanel=$('<span class="info-box-text" style="text-transform:none;"></span>')
-  var $task=$('<a href="#" style="color:#fff;padding-right:5px"><i class="fa fa-tasks" style="text-decoration:underline;"> Tasks:0\/'+ $box.attr('tasks').split(';').length+'</i></a>')
-  var $core=$('<a href="#" style="color:#fff;padding-left:5px"><i class="fas fa-microchip" style="text-decoration:underline;"> Cores:'+core+"</a>")
+  var $task=$('<a href="#" style="color:#fff;padding-right:5px"><i class="fa fa-tasks" id="task_'+name+'" style="text-decoration:underline;"> Tasks:0\/'+ $box.attr('tasks').split(';').length+'</i></a>')
+  var $core=$('<a href="#" style="color:#fff;padding-left:5px"><i class="fas fa-microchip" id="core_'+name+'" style="text-decoration:underline;"> Cores:'+core+"</a>")
   $taskpanel.append($task).append($core)
   var $progress=$('<div class="progress"><div class="progress-bar" id="progress_'+name+'" style="width:0%"></div></div>')
   var $eta=$('<span class="progress-description" id="eta_'+name+'">ETA:</span>')
   $task.on('click',function(e){
     var $current=$(e.currentTarget)
     var type=$current.parent().prev().text()
+    var tasks=$current.parent().parent().parent().attr("tasks").split(";")
+    var core=$current.next().children().text()
+    var obj={}
+    obj['stamp']=Math.random()
+    obj['type']=type
+    obj['tasks']=tasks
+    obj['core']=core
+    Shiny.setInputValue('add_new_condition',obj)
     
+    if(!$('#infolist').hasClass('in'))
+    {
+      $('#infolist').modal({backdrop: 'static', keyboard: false});
+    }
+    else
+    {
+      $('#infolist').modal('hide');
+      $('#infolist').modal({backdrop: 'static', keyboard: false});
+    }
   })
   $core.on('click',function(e){
+    var $current=$(e.currentTarget)
+    var type=$current.parent().prev().text()
+    var tasks=$current.parent().parent().parent().attr("tasks").split(";")
+    var core=$current.next().children().text()
+    var obj={}
+    obj['stamp']=Math.random()
+    obj['type']=type
+    obj['tasks']=tasks
+    obj['core']=core
+    Shiny.setInputValue('add_new_condition',obj)
     
+    if(!$('#infolist').hasClass('in'))
+    {
+      $('#infolist').modal({backdrop: 'static', keyboard: false});
+    }
+    else
+    {
+      $('#infolist').modal('hide');
+      $('#infolist').modal({backdrop: 'static', keyboard: false});
+    }
   })
   $left.children('a').on('click',function(e){
     alert(123)

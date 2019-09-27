@@ -334,6 +334,10 @@ shinyServer(function(input,output,session) {
     
   })
   observeEvent(input$add_new_condition,{
+    isolate({
+      msg=input$add_new_condition
+    })
+
     choice=c(condition[which(!condition$used),'abbr'],'custom')
     if(length(choice)>1)
       names(choice)=c(paste(condition[which(!condition$used),'description'],'(',condition[which(!condition$used),'abbr'],')',sep=""),'Custom')
@@ -354,21 +358,37 @@ shinyServer(function(input,output,session) {
     values=paste(pairs[,1],"---",pairs[,2],sep="")
     show=c('All',show)
     values=c('all',values)
+    cores=seq(1,validcore-sum(condition$core))
+    
+    if(length(msg)>1)
+    {
+      choice=msg$type
+      cores=seq(1,validcore-sum(condition$core)+condition[msg$type,'core'])
+      type=msg$type
+      core=msg$core
+      tasks=msg$tasks
+    }
+    else
+    {
+      type=choice[1]
+      core=cores[1]
+      tasks='all'
+    }
     
     removeUI(selector = '#modalbody>',immediate = T)
     insertUI(selector = '#modalbody',where = 'beforeEnd',immediate = T,
              ui=div(
                     div(class='row',
                         div(class='col-lg-6',
-                            selectInput(inputId = 'condition_type',label = 'Choose New Condition',choices = choice,multiple = F)
+                            selectInput(inputId = 'condition_type',label = 'Choose New Condition',choices = choice,multiple = F,selected = type)
                         ),
                         div(class='col-lg-6',
-                            selectInput(inputId = 'use_core',label = 'Choose Parallel Cores',choices = seq(1,validcore-sum(condition$core)),multiple = F)
+                            selectInput(inputId = 'use_core',label = 'Choose Parallel Cores',choices = cores ,multiple = F,selected = core)
                         )
                     ),
                     div(class='row',
                         div(class="col-lg-12",
-                            multiInput(inputId = 'group_pairs',label = 'Group Pairs',choiceNames = show,choiceValues = values,selected = 'all',width = "100%")
+                            multiInput(inputId = 'group_pairs',label = 'Group Pairs',choiceNames = show,choiceValues = values,selected = tasks,width = "100%")
                         )
                     ),
                     conditionalPanel(condition = 'input.condition_type=="custom"',
@@ -404,6 +424,7 @@ shinyServer(function(input,output,session) {
     session$sendCustomMessage('conditions',condition)
   })
   observeEvent(input$choose_new_condition,{
+    browser()
     isolate({
       msg=input$choose_new_condition
       core=input$use_core

@@ -9,8 +9,8 @@ $(document).ready(function(){
       var abbr=$('#custom_condition_abbr').val()
       var code=$('#custom_condition_code').val()
       var core=$('#use_core').val()
-      var group_pairs=$('#group_pairs').val()
-      if(group_pairs==null)
+      var tasks=$('#group_pairs').val()
+      if(tasks==null)
       {
         sweetAlert('warning','Warning..','Select Group Pairs!')
         return
@@ -37,7 +37,7 @@ $(document).ready(function(){
       check('custom_condition_abbr',conditions.abbr)
       check('custom_condition_description',conditions.description)
       check('custom_condition_code',null)
-      
+      //自定义检查
       if($('#condition_type').val()=='custom')
       {
         if($('#modalbody .text-red').length>0)
@@ -64,10 +64,10 @@ $(document).ready(function(){
           Shiny.setInputValue('choose_new_condition',obj)
 
       }
-      var tasks=group_pairs.length
-      if(group_pairs.indexOf('all')>=0)
+      
+      if(tasks.indexOf('all')>=0)
       {
-        tasks=1
+        tasks='all'
       }
       var $box=create_condition($('#condition_type').val(),tasks,core)
       $('#condition_panel').append($("<div class='col-lg-4'></div>").append($box))
@@ -87,13 +87,32 @@ $(document).ready(function(){
 create_condition=function(name,tasks,core)
 {
   var $box=$('<div class="info-box bg-red" id="body_'+name+'"></div>')
+  if(tasks instanceof Array)
+  {
+    $box.attr('tasks',tasks.join(";"))
+  }
+  else
+  {
+     $box.attr('tasks',tasks)
+  }
   var $left=$('<span class="info-box-icon" id="icon_'+name+'"><a href="#"><i class="fa fa-play" style="color:#fff"></i></a></span>')
   var $right=$('<div class="info-box-content"></div>')
   var $title=$('<span class="info-box-number">'+name+'</span>')
   var $remove=$('<div style="float:right"><a href="#"><i class="fa fa-times" style="color:#fff"></i></a></div>')
-  var $task=$('<span class="info-box-text" style="text-transform:none">Tasks: <c id="complete_'+name+'">0\/</c>'+tasks+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Cores: '+core+'</span>')
+  var $taskpanel=$('<span class="info-box-text" style="text-transform:none;"></span>')
+  var $task=$('<a href="#" style="color:#fff;padding-right:5px"><i class="fa fa-tasks" style="text-decoration:underline;"> Tasks:0\/'+ $box.attr('tasks').split(';').length+'</i></a>')
+  var $core=$('<a href="#" style="color:#fff;padding-left:5px"><i class="fas fa-microchip" style="text-decoration:underline;"> Cores:'+core+"</a>")
+  $taskpanel.append($task).append($core)
   var $progress=$('<div class="progress"><div class="progress-bar" id="progress_'+name+'" style="width:0%"></div></div>')
   var $eta=$('<span class="progress-description" id="eta_'+name+'">ETA:</span>')
+  $task.on('click',function(e){
+    var $current=$(e.currentTarget)
+    var type=$current.parent().prev().text()
+    
+  })
+  $core.on('click',function(e){
+    
+  })
   $left.children('a').on('click',function(e){
     alert(123)
   })
@@ -107,7 +126,7 @@ create_condition=function(name,tasks,core)
     $(e.currentTarget).parent().parent().parent().parent().parent().remove()
   })
   $box.append($left).append($right)//.append($go)
-  $right.append($title).append($task).append($progress).append($eta)
+  $right.append($title).append($taskpanel).append($progress).append($eta)
   $title.append($remove)
   return($box)
 }

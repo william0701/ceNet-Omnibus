@@ -1,6 +1,7 @@
 var biotype_group=new Map();
 var remain=[];
 $(document).ready(function(){
+  creat_geneFilter("micro filter","microFilterPlot","micro");
   $("a[href='#shiny-tab-process']").on("click",function(e){
     Shiny.setInputValue("interclick",Math.random());
     Shiny.addCustomMessageHandler('Valid-Num', function(Num1) {
@@ -81,7 +82,9 @@ $(document).ready(function(){
     obj['stamp']=Math.random();
     obj['data']=strMapToObj(biotype_group);
     Shiny.setInputValue('show_biotype_group',obj)
+    Shiny.setInputValue('creatFilter_request',Math.random())
   })
+
 })
 create_editor=function(value)
 {

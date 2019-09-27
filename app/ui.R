@@ -57,7 +57,11 @@ process_tab=tabItem(tabName = "process",
                                  imageOutput(outputId = 'biotype_group_statics_graph',height = "100%")
                             ),
                             footer = tags$button(id = 'biotype_group_statics', type = "button",class = "btn btn-success action-button pull-right",HTML('Preview'),width='20')
-                        )
+                        ),
+                        box(title = "Gene Filter",status = 'danger',solidHeader = F,width = 12,id="123"
+                            
+                            )
+                            
                     )
 )
 construction_tab=tabItem(tabName = "construction",
@@ -84,9 +88,9 @@ dashboardPage(
   tags$head(
     tags$style(".shiny-input-container {margin-bottom: 0px} .shiny-file-input-progress {margin-bottom: 0px} .fa-spin {-webkit-animation:fa-spin 2s infinite linear;animation:fa-spin 2s infinite linear}"),
     tags$link(href = 'skins/all.css',rel="stylesheet"),tags$link(href='css/bootstrap-table.min.css',rel='stylesheet'),tags$link(href = 'css/select2.min.css',rel="stylesheet"),tags$link(href='css/select2-bootstrap-theme.css',rel="stylesheet"),
-    tags$link(href = 'css/bootstrap-editable.css',rel="stylesheet"),tags$link(href='shinyWidgets/multi/multi.min.css',rel='stylesheet'),
+    tags$link(href = 'css/bootstrap-editable.css',rel="stylesheet"),tags$link(href='shinyWidgets/multi/multi.min.css',rel='stylesheet'),tags$link(href='css/ion.rangeSlider.min.css',rel='stylesheet'),
     tags$script(src="js/all.js"),tags$script(src="js/icheck.min.js"),tags$script(src='js/bootstrap-table.min.js'),tags$script(src='js/select2.min.js'),tags$script(src='js/customerUI.js'),
-    tags$script(src='js/bootstrap-editable.js'),tags$script(src="js/process.js")
+    tags$script(src='js/bootstrap-editable.js'),tags$script(src="js/process.js"),tags$script(src="js/ion.rangeSlider.min.js"),tags$script(src="js/filterProcess.js")
     ),
   header=header,
   sidebar = sidebar,

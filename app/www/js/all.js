@@ -1,6 +1,6 @@
 var select_gene=new Array();
 $(document).ready(function(){
- 
+  
   create_modal();
   $.fn.select2.defaults.set('width','100%');
   $('#database').attr('readonly','readonly');

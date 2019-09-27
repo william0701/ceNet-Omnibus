@@ -13,6 +13,9 @@ shinyServer(function(input,output,session) {
   sect_output_micro.exp=""
   sect_output_target=""
   sect_output_geneinfo=""
+  after_slice_target=""
+  after_slice_micro.exp=""
+  after_slice_rna.exp=""
   
   load('testdata/ph1.RData')
   #Input Page Action
@@ -292,11 +295,11 @@ shinyServer(function(input,output,session) {
       msg=input$show_biotype_group
       data=msg$data
     })
-    sect_output_geneinfo$.group=NULL
+    sect_output_geneinfo$.group<<-NULL
     for(group in names(data))
     {
       subset=unlist(data[[group]])
-      sect_output_geneinfo[sect_output_geneinfo[,biotype] %in% subset,'.group']=group
+      sect_output_geneinfo[sect_output_geneinfo[,biotype] %in% subset,'.group']<<-group
     }
     
     output$biotype_group_statics_graph=renderImage({
@@ -309,11 +312,135 @@ shinyServer(function(input,output,session) {
       #          legend = list(orientation = "h",font=list(family='Georgia')),
       #          autosize=T)
       svg(filename = paste(basepath,"Plot",'ph1.svg',sep="/"),family = 'serif')
-      print(p)
       dev.off()
       print(normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))
       list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))    
     })
     
+  })
+  observeEvent(input$creatFilter_request,{
+  
+    level=unique(sect_output_geneinfo$.group)
+    level=level[!is.na(level)]
+    session$sendCustomMessage('gene_type_infomation',data.frame(group=level))
+  })
+  observeEvent(input$Gene_Filter_Signal,{
+    isolate({
+      msg=input$Gene_Filter_Signal
+      group=msg$group
+      group=sub(pattern = "gene_slice_value_",replacement = "",x = group)
+      type=msg$type
+      number=as.numeric(msg$number)
+      exist=msg$exist
+      line=msg$line
+    })
+    
+    #paint picture
+    if(type=="micro"){  
+      validGene=rownames(sect_output_micro.exp)
+      validSample = rowSums(sect_output_micro.exp>=number)
+      ratio=as.numeric(line)
+      xdata = data.frame(SampleRatio=validSample/length(colnames(sect_output_micro.exp)),stringsAsFactors = F)
+      ypoint=length(which(xdata$SampleRatio<=ratio))/length(validGene)
+      temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
+      
+      svg(filename = paste(basepath,"Plot","microStatistic.svg",sep = "/"),family = 'serif')
+      print(ggplot(xdata,aes(x=SampleRatio,))+stat_ecdf()+geom_segment(aes(x=x,xend=xend,y=y,yend=yend),data=temp.data))
+      dev.off()
+      file.copy(from = paste(basepath,"Plot","microStatistic.svg",sep = "/"),to = paste('www/templePlot/microStatistic',session$token,'.svg',sep = ""))
+
+      if(exist=="F"){
+        print(paste("#","gene_Group_",group,'_panel',sep=""))
+        insertUI(
+        selector = paste("#","gene_Group_",group,'_panel',sep=""),
+        where='beforeEnd',
+        ui=imageOutput(outputId = paste(group,'_plot',sep=""),height = "100%"),
+        immediate = T
+        )
+        insertUI(
+        selector = paste("#","gene_Group_",group,'_panel',sep=""),
+        where='beforeEnd',
+        ui=div(class="box-footer",
+               tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",onclick=paste("slice('#","gene_Group_",group,"_panel')",sep=""),style="margin:5px",height = "100%",HTML("Filter"))),
+        immediate = T
+      )
+      }
+      output[[paste(group,'_plot',sep="")]]=renderImage({
+        list(src=paste('www/templePlot/microStatistic',session$token,'.svg',sep = ""),width="100%",height="100%")
+      })
+      #qiefen
+      
+    }
+    else{
+      validGene=rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
+      validSample = rowSums(sect_output_rna.exp[validGene,]>=number)
+      ratio=as.numeric(line)
+      xdata = data.frame(SampleRatio=validSample/length(colnames(sect_output_rna.exp)),stringsAsFactors = F)
+      ypoint=length(which(xdata$SampleRatio<=ratio))/length(validGene)
+      temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
+      
+      svg(filename = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),family = 'serif')
+      print(ggplot(xdata,aes(x=SampleRatio,))+stat_ecdf()+geom_segment(aes(x=x,xend=xend,y=y,yend=yend),data=temp.data))
+      dev.off()
+      file.copy(from = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),to = paste('www/templePlot/',group,'Statistic',session$token,'.svg',sep = ""))
+      
+      if(exist=="F"){
+        print(paste("#","gene_Group_",group,'_panel',sep=""))
+        insertUI(
+          selector = paste("#","gene_Group_",group,'_panel',sep=""),
+          where='beforeEnd',
+          ui=imageOutput(outputId = paste(group,'_plot',sep=""),height = "100%"),
+          immediate = T
+        )
+        insertUI(
+          selector = paste("#","gene_Group_",group,'_panel',sep=""),
+          where='beforeEnd',
+          ui=div(class="box-footer",
+                 tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",onclick=paste("slice('#","gene_Group_",group,"_panel')",sep=""),style="margin:5px",height = "100%",HTML("Filter"))),
+          immediate = T
+        )
+      }
+      output[[paste(group,'_plot',sep="")]]=renderImage({
+        list(src= paste('www/templePlot/',group,'Statistic',session$token,'.svg',sep = ""),width="100%",height="100%")
+      })
+    }
+  })
+  observeEvent(input$Gene_Slice_Signal,{
+    isolate({
+      msg = input$Gene_Slice_Signal
+      group = msg$group
+      group=sub(pattern = "gene_slice_value_",replacement = "",x = group)
+      number=as.numeric(msg$number)
+      type = msg$type
+      line = msg$line
+      line = as.numeric(line)
+      first = msg$first
+    })
+
+    if(type=="micro"){
+      validGene=rownames(sect_output_micro.exp)
+      validSample = rowSums(sect_output_micro.exp>=number)
+      xdata = data.frame(SampleRatio=validSample/length(colnames(sect_output_micro.exp)),stringsAsFactors = F)
+      intersect_name = rownames(xdata)[which(xdata$SampleRatio>=line)]
+      after_slice_micro.exp<<- sect_output_micro.exp[intersect_name,]
+      
+    }
+    else{
+      if(first=="T"){
+        validGene=rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
+        validSample = rowSums(sect_output_rna.exp[validGene,]>=number)
+        xdata = data.frame(SampleRatio=validSample/length(colnames(sect_output_rna.exp)),stringsAsFactors = F)
+        intersect_name = rownames(xdata)[which(xdata$SampleRatio>=line)]
+        after_slice_rna.exp<<- sect_output_rna.exp[intersect_name,]
+      }
+      #qingkong xiangying rna
+      after_slice_rna.exp<<-after_slice_rna.exp[!(after_slice_rna.exp$.group==group),]
+      #append group gene to after_slice_rna.exp
+      validGene=rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
+      validSample = rowSums(sect_output_rna.exp[validGene,]>=number)
+      xdata = data.frame(SampleRatio=validSample/length(colnames(sect_output_rna.exp)),stringsAsFactors = F)
+      intersect_name = rownames(xdata)[which(xdata$SampleRatio>=line)]
+      rbind(after_slice_rna.exp,sect_output_rna.exp[intersect_name,])
+    }
   })
 })

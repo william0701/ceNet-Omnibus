@@ -69,15 +69,35 @@ $(document).ready(function(){
       }
       if($('#body_'+type).length>0)
       {
-        $('#task_'+type).text("Tasks:0/"+tasks.length)
         $('#core_'+type).text("Core:"+core)
+        if(tasks instanceof Array)
+        {
+          $('#task_'+type).text("Tasks:0/"+tasks.length)
+          $('#body_'+type).attr("tasks",tasks.join(";"))
+        }
+        else
+        {
+          $('#task_'+type).text("Tasks:0/1")
+          $('#body_'+type).attr("tasks",tasks)
+        }
       }
       else
       {
-        var $box=create_condition($('#condition_type').val(),tasks,core)
+        if($('#condition_type').val()=='custom')
+        {
+          var $box=create_condition($('#custom_condition_abbr').val(),tasks,core)
+        }
+        else
+        {
+          var $box=create_condition($('#condition_type').val(),tasks,core)
+        }
         $('#condition_panel').append($("<div class='col-lg-4'></div>").append($box))
-        $('#infolist').modal('hide')
       }
+      
+      obj['core']=core
+      obj['tasks']=tasks
+      
+      $('#infolist').modal('hide');
       Shiny.setInputValue('choose_new_condition',obj)
     })
     if(!$('#infolist').hasClass('in'))
@@ -173,6 +193,17 @@ create_condition=function(name,tasks,core)
   $title.append($remove)
   return($box)
 }
+
+Shiny.addCustomMessageHandler("clear_construction_task",function(msg){
+  var $select_conditions=$('#condition_panel').children()
+  for(var i=0;i<$select_conditions.length;++i)
+  {
+    var $cur=$($select_conditions.get(i)).children("div")
+    $cur.attr('tasks',"")
+    $("#"+$cur.attr("id").replace(/^body/,"task")).text('Tasks:0/0')
+  }
+  
+})
 
 Shiny.addCustomMessageHandler('conditions',function(msg){
   conditions=msg

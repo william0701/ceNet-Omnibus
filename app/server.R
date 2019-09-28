@@ -12,6 +12,7 @@ shinyServer(function(input,output,session) {
   dir.create(path = basepath)
   print(paste("Session:",session$token,'is started!'))
   dir.create(paste(basepath,'Plot',sep="/"))
+  dir.create(paste(basepath,'code',sep="/"))
   ##
   sect_output_rna.exp=""
   sect_output_micro.exp=""
@@ -331,7 +332,7 @@ shinyServer(function(input,output,session) {
       print(normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))
       list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")),height="100%",width="100%")    
     },deleteFile=F)
-    
+    session$sendCustomMessage('clear_construction_task',"")
   })
   observeEvent(input$add_new_condition,{
     isolate({
@@ -346,10 +347,9 @@ shinyServer(function(input,output,session) {
     
     if(is.null(sect_output_geneinfo$.group))
     {
-      sect_output_geneinfo$.group='Default'
+      sect_output_geneinfo$.group<<-'Default'
       sendSweetAlert(session = session,title = "Warning",text = 'Group All Genes in Defaut',type = 'warning')
     }
-    
     groupstaistic=as.data.frame(table(sect_output_geneinfo$.group))
     rownames(groupstaistic)=groupstaistic$Var1
     pairs=data.frame(v1=rep(groupstaistic$Var1,times=dim(groupstaistic)[1]),v2=rep(groupstaistic$Var1,each=dim(groupstaistic)[1]),stringsAsFactors = F)
@@ -383,7 +383,7 @@ shinyServer(function(input,output,session) {
                             selectInput(inputId = 'condition_type',label = 'Choose New Condition',choices = choice,multiple = F,selected = type)
                         ),
                         div(class='col-lg-6',
-                            selectInput(inputId = 'use_core',label = 'Choose Parallel Cores',choices = cores ,multiple = F,selected = core)
+                            selectInput(inputId = 'use_core',label = 'Choose Parallel Cores',choices = cores ,multiple = F,selected = as.character(core))
                         )
                     ),
                     div(class='row',
@@ -424,20 +424,27 @@ shinyServer(function(input,output,session) {
     session$sendCustomMessage('conditions',condition)
   })
   observeEvent(input$choose_new_condition,{
-    browser()
     isolate({
       msg=input$choose_new_condition
-      core=input$use_core
+      core=as.numeric(msg$core)
+      tasks=msg$tasks
+      type=msg$type
+      description=input$custom_condition_description
+      abbr=input$custom_condition_abbr
+      code=input$custom_condition_code
     })
-    if(msg$type=='custom')
+    if(type=='custom')
     {
-      
+      browser()
+      condition<<-rbind(condition,data.frame(description=description,abbr=abbr,used=T,core=core,task=msg$tasks,stringsAsFactors = F))
+      rownames(condition)<<-condition$abbr
+      write(x = code,file = paste(basepath,"/code/",abbr,'.R',sep=""))
     }
     else
     {
-      chosed_condition=msg$type
-      condition[chosed_condition,'used']<<-T
-      condition[chosed_condition,'core']<<-as.numeric(core)
+      condition[type,'used']<<-T
+      condition[type,'core']<<-core
+      condition[type,'task']<<-tasks
     }
   })
   observeEvent(input$remove_condition,{

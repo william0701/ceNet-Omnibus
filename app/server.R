@@ -337,6 +337,7 @@ shinyServer(function(input,output,session) {
   observeEvent(input$add_new_condition,{
     isolate({
       msg=input$add_new_condition
+      core=input$use_core
     })
 
     choice=c(condition[which(!condition$used),'abbr'],'custom')
@@ -358,14 +359,13 @@ shinyServer(function(input,output,session) {
     values=paste(pairs[,1],"---",pairs[,2],sep="")
     show=c('All',show)
     values=c('all',values)
-    cores=seq(1,validcore-sum(condition$core))
+    cores=seq(0,validcore-sum(condition$core))
     
     if(length(msg)>1)
     {
       choice=msg$type
-      cores=seq(1,validcore-sum(condition$core)+condition[msg$type,'core'])
+      cores=seq(0,validcore-sum(condition$core)+condition[msg$type,'core'])
       type=msg$type
-      core=msg$core
       tasks=msg$tasks
     }
     else

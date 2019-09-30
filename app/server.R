@@ -13,6 +13,8 @@ shinyServer(function(input,output,session) {
   print(paste("Session:",session$token,'is started!'))
   dir.create(paste(basepath,'Plot',sep="/"))
   dir.create(paste(basepath,'code',sep="/"))
+  dir.create(paste(basepath,'data',sep="/"))
+  dir.create(paste(basepath,'log',sep="/"))
   ##
   sect_output_rna.exp=""
   sect_output_micro.exp=""
@@ -334,6 +336,7 @@ shinyServer(function(input,output,session) {
     },deleteFile=F)
     session$sendCustomMessage('clear_construction_task',"")
   })
+  #Construction Page Action
   observeEvent(input$add_new_condition,{
     isolate({
       msg=input$add_new_condition
@@ -435,7 +438,6 @@ shinyServer(function(input,output,session) {
     })
     if(type=='custom')
     {
-      browser()
       condition<<-rbind(condition,data.frame(description=description,abbr=abbr,used=T,core=core,task=msg$tasks,stringsAsFactors = F))
       rownames(condition)<<-condition$abbr
       write(x = code,file = paste(basepath,"/code/",abbr,'.R',sep=""))
@@ -444,14 +446,71 @@ shinyServer(function(input,output,session) {
     {
       condition[type,'used']<<-T
       condition[type,'core']<<-core
-      condition[type,'task']<<-tasks
+      condition[type,'task']<<-paste(unlist(tasks),collapse = ";")
     }
   })
   observeEvent(input$remove_condition,{
+    browser()
     isolate({
       msg=input$remove_condition
     })
     condition[msg$type,'used']<<-F
     condition[msg$type,'core']<<-0
+  })
+  observeEvent(input$compute_condition,{
+    isolate({
+      type=input$compute_condition$type
+    })
+    tasks=unlist(strsplit(x = condition[type,'task'],split = ";"))
+    logpath=paste(basepath,'/log/',type,'.txt',sep="")
+    if(length(which(tasks=='all'))>0)
+    {
+      gene=rownames(sect_output_geneinfo)
+      if(type=="PCC")
+      {
+        cl=makeClusterPSOCK(workers=1)
+        plan(strategy = cluster,workers=cl)
+        
+        future({
+                 while(T)
+                 {
+                   if(file.exists(logpath))
+                   {
+                     content=readLines(logpath)
+                     session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg=content[length(content)],status='run'))
+                     if(grepl(pattern = "^Finish",x = content[length(content)]))
+                     {
+                       break
+                     }
+                   }
+                   Sys.sleep(1)
+                 }
+                 session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg=content[length(content)],status='stop'))
+        })%...>%then(onRejected = function(e){
+          browser()
+          print(e)
+        })
+      
+        
+        if(dir.exists(paths = paste(basepath,'/log/')))
+        {
+          dir.create(paths = paste(basepath,'/log/'),recursive = T)
+        }
+        print('start')
+        session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
+        filepath=paste(basepath,"/data/rna.exp.mat",sep="")
+        writeMat(con=filepath,x=as.matrix(sect_output_rna.exp[gene,]))
+        system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
+       
+      }
+      else
+      {
+        print(123)
+      }
+    }
+    else
+    {
+      
+    }
   })
 })

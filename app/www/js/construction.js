@@ -69,15 +69,15 @@ $(document).ready(function(){
       }
       if($('#body_'+type).length>0)
       {
-        $('#core_'+type).text("Core:"+core)
+        $('#core_'+type).text(" Cores:"+core)
         if(tasks instanceof Array)
         {
-          $('#task_'+type).text("Tasks:0/"+tasks.length)
+          $('#task_'+type).text(" Tasks:0/"+tasks.length)
           $('#body_'+type).attr("tasks",tasks.join(";"))
         }
         else
         {
-          $('#task_'+type).text("Tasks:0/1")
+          $('#task_'+type).text(" Tasks:0/1")
           $('#body_'+type).attr("tasks",tasks)
         }
       }
@@ -177,7 +177,22 @@ create_condition=function(name,tasks,core)
     }
   })
   $left.children('a').on('click',function(e){
-    alert(123)
+    if($("#"+$(e.currentTarget).parent().attr("id").replace(/icon/,"task")).text()==" Tasks:0/0")
+    {
+      sweetAlert('error','Error..','Non Tasks!')
+      return
+    }
+    if($("#"+$(e.currentTarget).parent().attr("id").replace(/icon/,"core")).text()==" Cores:0")
+    {
+      sweetAlert('error','Error..','Non Cores!')
+      return
+    }
+    $(e.currentTarget).parent().parent().attr('class','info-box bg-yellow')
+    $(e.currentTarget).children("i").attr("class","fa fa-spinner fa-pulse")
+    var obj={}
+    obj['stamp']=Math.random()
+    obj['type']=$(e.currentTarget).parent().attr("id").replace(/icon_/,"")
+    Shiny.setInputValue("compute_condition",obj)
   })
   $remove.children('a').on('click',function(e){
     var id=$(e.currentTarget).parent().parent().parent().parent().attr('id')
@@ -200,11 +215,20 @@ Shiny.addCustomMessageHandler("clear_construction_task",function(msg){
   {
     var $cur=$($select_conditions.get(i)).children("div")
     $cur.attr('tasks',"")
-    $("#"+$cur.attr("id").replace(/^body/,"task")).text('Tasks:0/0')
+    $("#"+$cur.attr("id").replace(/^body/,"task")).text(' Tasks:0/0')
   }
   
 })
 
 Shiny.addCustomMessageHandler('conditions',function(msg){
   conditions=msg
+})
+
+Shiny.addCustomMessageHandler('calculation_eta',function(msg){
+  $("#eta_"+msg.type).text("Task:"+msg.task+"   Status: "+msg.msg)
+  if(msg.status=='stop')
+  {
+    $('#body_'+msg.type).attr('class','info-box bg-green')
+    $('#icon_'+msg.type).find('i').attr('class','fa fa-check')
+  }
 })

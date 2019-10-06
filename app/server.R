@@ -461,6 +461,8 @@ shinyServer(function(input,output,session) {
     isolate({
       type=input$compute_condition$type
     })
+    core=condition[type,'core']
+   
     tasks=unlist(strsplit(x = condition[type,'task'],split = ";"))
     logpath=paste(basepath,'/log/',type,'.txt',sep="")
     if(length(which(tasks=='all'))>0)
@@ -468,30 +470,6 @@ shinyServer(function(input,output,session) {
       gene=rownames(sect_output_geneinfo)
       if(type=="PCC")
       {
-        cl=makeClusterPSOCK(workers=1)
-        plan(strategy = cluster,workers=cl)
-        
-        future({
-                 while(T)
-                 {
-                   if(file.exists(logpath))
-                   {
-                     content=readLines(logpath)
-                     session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg=content[length(content)],status='run'))
-                     if(grepl(pattern = "^Finish",x = content[length(content)]))
-                     {
-                       break
-                     }
-                   }
-                   Sys.sleep(1)
-                 }
-                 session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg=content[length(content)],status='stop'))
-        })%...>%then(onRejected = function(e){
-          browser()
-          print(e)
-        })
-      
-        
         if(dir.exists(paths = paste(basepath,'/log/')))
         {
           dir.create(paths = paste(basepath,'/log/'),recursive = T)
@@ -501,16 +479,97 @@ shinyServer(function(input,output,session) {
         filepath=paste(basepath,"/data/rna.exp.mat",sep="")
         writeMat(con=filepath,x=as.matrix(sect_output_rna.exp[gene,]))
         system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
-       
       }
       else
       {
-        print(123)
+        if(dir.exists(paths = paste(basepath,'/log/')))
+        {
+          dir.create(paths = paste(basepath,'/log/'),recursive = T)
+        }
+        logpath=paste(basepath,'/log/',type,'.txt',sep="")
+        file.create(logpath)
+        print('start')
+        session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
+        datapath=paste(basepath,"/data/tmpdatas.RData",sep="")
+        scriptpath="www/Program/ComputeCondition.R"
+        codepath=""
+        if(file.exists(paste(basepath,'/code/',type,'.R',sep="")))
+        {
+          codepath=paste(basepath,'/code/',type,'.R',sep="")
+        }
+        else if(file.exists(paste('www/Program/',type,'.R',sep="")))
+        {
+          codepath=paste('www/Program/',type,'.R',sep="")
+        }
+        else
+        {
+          sendSweetAlert(session = session,title = "Error..",text = "No Code",type = 'error')
+        }
+        
+        geneset1=gene[1:20]
+        geneset2=gene[1:20]
+        rna.exp=sect_output_rna.exp[gene,]
+        micro.exp=sect_output_micro.exp
+        target=sect_output_target[gene,]
+        save(rna.exp,micro.exp,target,geneset1=geneset1,geneset2=geneset2,file = datapath)
+        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
+        system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks),wait = F)
+        cat("All Finish!",file = logpath)
       }
     }
     else
     {
-      
+      for(task in tasks)
+      {
+        groups=unlist(strsplit(x = task,split = "---"))
+        geneset1=rownames(sect_output_geneinfo)[w]
+      }
+    }
+  })
+  observeEvent(input$compute_status,{
+    isolate({
+      msg=input$compute_status
+      type=msg$type
+    })
+    print("check status")
+    logpath=paste(basepath,'/log/',type,'.txt',sep="")
+    if(file.exists(logpath))
+    {
+      if(type=="PCC")
+      {
+        content=readLines(logpath)
+        lastline=content[length(content)]
+        if(grepl(pattern = "^Finish",x = lastline))
+        {
+          session$sendCustomMessage('calculation_eta',list(type=type,msg=lastline,status='stop'))
+        }
+        else
+        {
+          session$sendCustomMessage('calculation_eta',list(type=type,msg=lastline,status='run'))
+        }
+      }
+      else
+      {
+        content=readLines(logpath)
+        indexes=which(grepl(pattern = "task",x = content))
+        if(length(indexes)>0)
+        {
+          endtime=as.numeric(Sys.time())
+          index=max(indexes)
+          info=fromJSON(content[index])
+          complete=nchar(content[index+1])
+          eta=(endtime-starttime)/complete*(info$total-complete)
+          finish.task=length(indexes)-1
+        }
+        else
+        {
+          
+        }
+      }
+    }
+    else
+    {
+      session$sendCustomMessage('calculation_eta',list(type=type,msg="",status='run'))
     }
   })
 })

@@ -1,4 +1,5 @@
 var conditons
+var condition_status={}
 $(document).ready(function(){
   $("#add_new_condition").on('click',function(e){
     var obj={}
@@ -193,6 +194,8 @@ create_condition=function(name,tasks,core)
     obj['stamp']=Math.random()
     obj['type']=$(e.currentTarget).parent().attr("id").replace(/icon_/,"")
     Shiny.setInputValue("compute_condition",obj)
+    condition_status[obj['type']]='run'
+    updateState(obj['type'])
   })
   $remove.children('a').on('click',function(e){
     var id=$(e.currentTarget).parent().parent().parent().parent().attr('id')
@@ -225,10 +228,23 @@ Shiny.addCustomMessageHandler('conditions',function(msg){
 })
 
 Shiny.addCustomMessageHandler('calculation_eta',function(msg){
-  $("#eta_"+msg.type).text("Task:"+msg.task+"   Status: "+msg.msg)
+  $("#eta_"+msg.type).text("Status: "+msg.msg)
+  condition_status[msg.type]=msg.status
   if(msg.status=='stop')
   {
     $('#body_'+msg.type).attr('class','info-box bg-green')
     $('#icon_'+msg.type).find('i').attr('class','fa fa-check')
   }
 })
+
+async function updateState(type)
+{
+  var obj={}
+  obj['type']=type
+  while(condition_status[type]!='stop')
+  {
+    obj['stamp']=Math.random()
+    Shiny.setInputValue('compute_status',obj)
+    await sleep(2000)
+  }
+}

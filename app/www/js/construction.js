@@ -87,12 +87,15 @@ $(document).ready(function(){
         if($('#condition_type').val()=='custom')
         {
           var $box=create_condition($('#custom_condition_abbr').val(),tasks,core)
+          var $box2=create_condition_plot($('#custom_condition_abbr').val(),tasks)
         }
         else
         {
           var $box=create_condition($('#condition_type').val(),tasks,core)
+          var $box2=create_condition_plot($('#condition_type').val(),tasks)
         }
         $('#condition_panel').append($("<div class='col-lg-4'></div>").append($box))
+        $("#condition_preview").append($("<div class='col-lg-12'></div>").append($box2))
       }
       
       obj['core']=core
@@ -132,7 +135,7 @@ create_condition=function(name,tasks,core)
   var $core=$('<a href="#" style="color:#fff;padding-left:5px"><i class="fas fa-microchip" id="core_'+name+'" style="text-decoration:underline;"> Cores:'+core+"</a>")
   $taskpanel.append($task).append($core)
   var $progress=$('<div class="progress"><div class="progress-bar" id="progress_'+name+'" style="width:0%"></div></div>')
-  var $eta=$('<span class="progress-description" id="eta_'+name+'">ETA:</span>')
+  var $eta=$('<span class="progress-description" id="eta_'+name+'"></span>')
   $task.on('click',function(e){
     var $current=$(e.currentTarget)
     var type=$current.parent().prev().text()
@@ -205,10 +208,47 @@ create_condition=function(name,tasks,core)
     obj['type']=type
     Shiny.setInputValue('remove_condition',obj)
     $(e.currentTarget).parent().parent().parent().parent().parent().remove()
+    $("#density_plot_"+type).parent().remove()
   })
   $box.append($left).append($right)//.append($go)
   $right.append($title).append($taskpanel).append($progress).append($eta)
   $title.append($remove)
+  return($box)
+}
+create_condition_plot=function(name,tasks)
+{
+  var $box=$("<div></div>")
+  $box.attr("class",'box box-primary')
+  $box.attr("id","density_plot_"+name)
+  var $head=$("<div></div>")
+  $head.attr("class","box-header with-border")
+  var $title=$("<h4>"+name+"</h4>")
+  var $tool=$("<div></div>")
+  $tool.attr("class","box-tools pull-right")
+  var $icon=$("<button class='btn btn-box-tool' type='button' data-widget='collapse'><i class='fa fa-minus'></i></button>")
+  var $body=$("<div></div>")
+  $body.attr("class","box-body")
+  
+  $tool.append($icon)
+  $head.append($title).append($tool)
+  $box.append($head).append($body)
+  
+  if(tasks instanceof Array)
+  {
+    for(var i=0;i<tasks.length;++i)
+    {
+      var task=tasks[i]
+      var $task_plot=$("<div class='col-lg-4'></div>")
+      $task_plot.attr("id","density_plot_"+name+"_"+task)
+      $body.append($task_plot)
+    }
+  }
+  else
+  {
+    var $task_plot=$("<div class='col-lg-4'></div>")
+    $task_plot.attr("id","density_plot_"+name+"_"+tasks)
+    $body.append($task_plot)
+  }
   return($box)
 }
 
@@ -228,12 +268,18 @@ Shiny.addCustomMessageHandler('conditions',function(msg){
 })
 
 Shiny.addCustomMessageHandler('calculation_eta',function(msg){
-  $("#eta_"+msg.type).text("Status: "+msg.msg)
+  $("#eta_"+msg.type).html(msg.msg)
   condition_status[msg.type]=msg.status
+  $("#progress_"+msg.type).css("width",msg.progress)
+  $("#task_"+msg.type).text(" Tasks:"+msg.complete)
   if(msg.status=='stop')
   {
     $('#body_'+msg.type).attr('class','info-box bg-green')
     $('#icon_'+msg.type).find('i').attr('class','fa fa-check')
+    var obj={}
+    obj['stamp']=Math.random()
+    obj['type']=msg.type
+    Shiny.setInputValue('condition_finish',obj)
   }
 })
 
@@ -245,6 +291,6 @@ async function updateState(type)
   {
     obj['stamp']=Math.random()
     Shiny.setInputValue('compute_status',obj)
-    await sleep(2000)
+    await sleep(5000)
   }
 }

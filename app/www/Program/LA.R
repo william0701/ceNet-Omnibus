@@ -1,6 +1,5 @@
 LA=function(g2,g1)
 {
-  print(paste(g1,g2))
   normalize=function(x)
   {
     x=as.numeric(as.vector(x))

@@ -450,7 +450,6 @@ shinyServer(function(input,output,session) {
     }
   })
   observeEvent(input$remove_condition,{
-    browser()
     isolate({
       msg=input$remove_condition
     })
@@ -463,67 +462,54 @@ shinyServer(function(input,output,session) {
     })
     core=condition[type,'core']
    
-    tasks=unlist(strsplit(x = condition[type,'task'],split = ";"))
+    tasks=condition[type,'task']
     logpath=paste(basepath,'/log/',type,'.txt',sep="")
-    if(length(which(tasks=='all'))>0)
+    
+    if(type=="PCC")
     {
-      gene=rownames(sect_output_geneinfo)
-      if(type=="PCC")
+      if(dir.exists(paths = paste(basepath,'/log/')))
       {
-        if(dir.exists(paths = paste(basepath,'/log/')))
-        {
-          dir.create(paths = paste(basepath,'/log/'),recursive = T)
-        }
-        print('start')
-        session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
-        filepath=paste(basepath,"/data/rna.exp.mat",sep="")
-        writeMat(con=filepath,x=as.matrix(sect_output_rna.exp[gene,]))
-        system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
+        dir.create(paths = paste(basepath,'/log/'),recursive = T)
       }
-      else
-      {
-        if(dir.exists(paths = paste(basepath,'/log/')))
-        {
-          dir.create(paths = paste(basepath,'/log/'),recursive = T)
-        }
-        logpath=paste(basepath,'/log/',type,'.txt',sep="")
-        file.create(logpath)
-        print('start')
-        session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
-        datapath=paste(basepath,"/data/tmpdatas.RData",sep="")
-        scriptpath="www/Program/ComputeCondition.R"
-        codepath=""
-        if(file.exists(paste(basepath,'/code/',type,'.R',sep="")))
-        {
-          codepath=paste(basepath,'/code/',type,'.R',sep="")
-        }
-        else if(file.exists(paste('www/Program/',type,'.R',sep="")))
-        {
-          codepath=paste('www/Program/',type,'.R',sep="")
-        }
-        else
-        {
-          sendSweetAlert(session = session,title = "Error..",text = "No Code",type = 'error')
-        }
-        
-        geneset1=gene[1:20]
-        geneset2=gene[1:20]
-        rna.exp=sect_output_rna.exp[gene,]
-        micro.exp=sect_output_micro.exp
-        target=sect_output_target[gene,]
-        save(rna.exp,micro.exp,target,geneset1=geneset1,geneset2=geneset2,file = datapath)
-        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
-        system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks),wait = F)
-        cat("All Finish!",file = logpath)
-      }
+      print('start')
+      session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
+      filepath=paste(basepath,"/data/rna.exp.mat",sep="")
+      writeMat(con=filepath,x=as.matrix(sect_output_rna.exp))
+      system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
     }
     else
     {
-      for(task in tasks)
+      if(dir.exists(paths = paste(basepath,'/log/')))
       {
-        groups=unlist(strsplit(x = task,split = "---"))
-        geneset1=rownames(sect_output_geneinfo)[w]
+        dir.create(paths = paste(basepath,'/log/'),recursive = T)
       }
+      file.create(logpath)
+      print('start')
+      session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
+      datapath=paste(basepath,"/data/tmpdatas.RData",sep="")
+      scriptpath="www/Program/ComputeCondition.R"
+      codepath=""
+      resultpath=paste(basepath,'/',type,'.RData',sep="")
+      if(file.exists(paste(basepath,'/code/',type,'.R',sep="")))
+      {
+        codepath=paste(basepath,'/code/',type,'.R',sep="")
+      }
+      else if(file.exists(paste('www/Program/',type,'.R',sep="")))
+      {
+        codepath=paste('www/Program/',type,'.R',sep="")
+      }
+      else
+      {
+        sendSweetAlert(session = session,title = "Error..",text = "No Code",type = 'error')
+      }
+      
+      rna.exp=sect_output_rna.exp
+      micro.exp=sect_output_micro.exp
+      target=sect_output_target
+      geneinfo=sect_output_geneinfo
+      save(rna.exp,micro.exp,target,geneinfo,file = datapath)
+      print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
+      system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
     }
   })
   observeEvent(input$compute_status,{
@@ -531,39 +517,73 @@ shinyServer(function(input,output,session) {
       msg=input$compute_status
       type=msg$type
     })
+    time=function(s)
+    {
+      s=floor(s)
+      out=""
+      if(s>=86400)
+      {
+        out=paste0(out,floor(s/86400),'d')
+        s=s%%86400
+      }
+      if(s>=3600)
+      {
+        out=paste0(out,floor(s/3600),'h')
+        s=s%%3600
+      }
+      if(s>=60)
+      {
+        out=paste0(out,floor(s/60),'m')
+        s=s%%60
+      }
+      out=paste0(out,s,'s')
+      return(out)
+    }
     print("check status")
     logpath=paste(basepath,'/log/',type,'.txt',sep="")
     if(file.exists(logpath))
     {
+      tasks=unlist(strsplit(x = condition[type,'task'],split = ";"))
       if(type=="PCC")
       {
         content=readLines(logpath)
         lastline=content[length(content)]
-        if(grepl(pattern = "^Finish",x = lastline))
+        progress=min(length(content),3)/3*100
+        
+        if(grepl(pattern = "^All Finish.$",x = lastline))
         {
-          session$sendCustomMessage('calculation_eta',list(type=type,msg=lastline,status='stop'))
+          session$sendCustomMessage('calculation_eta',
+                                    list(type=type,msg=lastline,status='stop',progress=paste(progress,"%",sep=""),complete=paste(length(tasks),"/",length(tasks),sep="")))
         }
         else
         {
-          session$sendCustomMessage('calculation_eta',list(type=type,msg=lastline,status='run'))
+          session$sendCustomMessage('calculation_eta',list(type=type,msg=lastline,status='run',progress=paste(progress,"%",sep=""),complete=paste(0,"/",length(tasks),sep="")))
         }
       }
       else
       {
         content=readLines(logpath)
-        indexes=which(grepl(pattern = "task",x = content))
+        indexes=which(grepl(pattern = "^\\[\\{\"task",x = content))
         if(length(indexes)>0)
         {
           endtime=as.numeric(Sys.time())
           index=max(indexes)
           info=fromJSON(content[index])
-          complete=nchar(content[index+1])
-          eta=(endtime-starttime)/complete*(info$total-complete)
-          finish.task=length(indexes)-1
-        }
-        else
-        {
-          
+          complete=nchar(content[index+1])#完成数
+          if(is.na(complete))
+            complete=1
+          eta=(endtime-info$time)/complete*(info$total-complete)#预计时间
+          finish.task=length(which(grepl(pattern = "^Finish",x = content)))#总完成任务数
+          status="run"
+          msg=paste("Running:",info$task,"&nbsp;&nbsp;&nbsp;&nbsp;ETA:",time(eta))
+          progress=format(x = complete/info$total*100,nsmall=2)
+          if(length(which(grepl(pattern = "^All Finish.$",x = content)))>0)
+          {
+            msg="All Finish."
+            status='stop'
+          }
+          session$sendCustomMessage('calculation_eta',
+                                    list(type=type,msg=msg,progress=paste(progress,"%",sep=""),status=status,complete=paste(finish.task,"/",length(tasks),sep="")))
         }
       }
     }
@@ -571,5 +591,84 @@ shinyServer(function(input,output,session) {
     {
       session$sendCustomMessage('calculation_eta',list(type=type,msg="",status='run'))
     }
+  })
+  observeEvent(input$condition_finish,{
+    isolate({
+      type=input$condition_finish$type
+    })
+    tasks=condition[type,'task']
+    tasks=unlist(strsplit(x = tasks,split = ";"))
+    if(type=="PCC")
+    {
+      result=readMat(paste(basepath,'/all.cor.mat',sep=""))
+      cor=result$cor
+      pvalue=result$pvalue
+      gene=rownames(sect_output_rna.exp)
+      rownames(cor)=gene
+      colnames(cor)=gene
+      rownames(pvalue)=gene
+      colnames(pvalue)=gene
+      if(length(which(tasks=='all'))==1)
+      {
+        cor=list(cor)
+        names(cor)='all'
+        corlist=list(cor)
+        names(corlist)='PCC'
+        
+        pvalue=list(pvalue)
+        names(pvalue)="all"
+        pvaluelist=list(pvalue)
+        names(pvaluelist)='PCC.pvalue'
+      }
+      else
+      {
+        corlist=list()
+        pvaluelist=list()
+        for(task in tasks)
+        {
+          groups=unlist(strsplit(x = task,split = "---"))
+          group1=rownames(sect_output_geneinfo)[which(sect_output_geneinfo$.group==groups[1])]
+          group2=rownames(sect_output_geneinfo)[which(sect_output_geneinfo$.group==groups[2])]
+          
+          tmp=list(cor[group1,group2])
+          names(tmp)=task
+          corlist=c(corlist,tmp)
+          tmp=list(pvalue[group1,group2])
+          names(tmp)=task
+          pvaluelist=c(pvaluelist,tmp)
+        }
+        corlist=list(corlist)
+        names(corlist)="PCC"
+        
+        pvaluelist=list(pvaluelist)
+        names(pvaluelist)="PCC.pvalue"
+        #condition.values<<-c(condition.values,corlist,pvaluelist)
+      }
+
+      if(is.null(condition.values[['PCC']]))
+      {
+        condition.values<<-c(condition.values,corlist)
+      }
+      else
+      {
+        condition.values[['PCC']]<<-corlist
+      }
+      if(is.null(condition.values[['PCC.pvalue']]))
+      {
+        condition.values<<-c(condition.values,pvaluelist)
+      }
+      else
+      {
+        condition.values[['PCC.pvalue']]<<-pvaluelist
+      }
+    }
+    else
+    {
+      result=readRDS(paste(basepath,'/',type,'.RData',sep=""))
+      result=list(result)
+      names(result)=type
+      condition.values<<-c(condition.values,result)
+    }
+    draw_density(basepath,output,session,type,tasks)
   })
 })

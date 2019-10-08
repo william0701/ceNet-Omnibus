@@ -84,7 +84,9 @@ $(document).ready(function(){
     Shiny.setInputValue('show_biotype_group',obj)
     Shiny.setInputValue('creatFilter_request',Math.random())
   })
-
+  
+  $('#Sample_Filter_all').append(creat_sampleFilter("Micro RNA Sample Filter","micro_invalid_name"));
+  $('#Sample_Filter_all').append(creat_sampleFilter("Ce RNA Sample Filter","ce_invalid_name"));
 })
 create_editor=function(value)
 {

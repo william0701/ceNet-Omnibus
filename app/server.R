@@ -13,10 +13,10 @@ shinyServer(function(input,output,session) {
   sect_output_micro.exp=""
   sect_output_target=""
   sect_output_geneinfo=""
-  after_slice_target=""
   after_slice_micro.exp=""
   after_slice_rna.exp=""
-  
+  expressgene_num=""
+  expressgene_num2=""
   load('testdata/ph1.RData')
   #Input Page Action
   observeEvent(input$onclick,{
@@ -318,12 +318,223 @@ shinyServer(function(input,output,session) {
     })
     
   })
+  
+  observeEvent(input$Sample_Filter,{
+    isolate({
+      msg=input$Sample_Filter
+      sep=msg$sep
+      group=msg$group
+      exist=msg$exist
+      value=msg$value
+      
+    })
+    
+    if(group=="micro_invalid_name"){
+    len_sep<-length(sep)
+    #这需要判断传进来的是字符串还是数字。。和字符串的比较好像不能直接！= 然后还要统一大小写，全转换为大写toupper(states)
+    browser()
+    if(len_sep==1){
+      myfunc<-function(x){
+        if(is.character(x)){
+          x<-toupper(x)
+        }
+        # x<-as.character(x)
+        sum(x!=sep[[1]])
+      }
+      # expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
+      expressgene_num<<-colSums(sect_output_micro.exp!=0) 
+    }
+    else if(len_sep==2){
+      myfunc<-function(x){
+        if(is.character(x)){
+          x<-toupper(x)
+        }
+        # x<-as.character(x)
+        sum(x!=sep[[1]]&x!=sep[[2]])
+      }  
+      expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
+     
+    }
+    else if(len_sep==3){
+      myfunc<-function(x){
+        if(is.character(x)){
+          x<-toupper(x)
+        }
+        # x<-as.character(x)
+        sum(x!=sep[[1]]&x!=sep[[2]]&x!=sep[[3]])
+      }
+      expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
+    }
+    
+    else if(len_sep==4){
+      myfunc<-function(x){
+        if(is.character(x)){
+          x<-toupper(x)
+        }
+        # x<-as.character(x)
+        sum(x!=sep[[1]]&x!=sep[[2]]&x!=sep[[3]]&x!=sep[[4]])
+      }
+      expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
+    }
+    # expressgene_num<<-expressgene_num/(dim(sect_output_micro.exp)[1])
+    # browser()
+    process_sample<-data.frame(
+      x=expressgene_num
+    )
+    
+    value=as.numeric(value)
+    draw_x<-(max(expressgene_num)+min(expressgene_num))/2  
+    #通过quantile函数找  
+    x2<-quantile(expressgene_num,value,type=3) 
+    svg(filename = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),family = 'serif')
+    print(ggplot(process_sample, aes(x = x))+stat_ecdf()+
+      geom_hline(aes(yintercept=value), colour="#990000", linetype="dashed")+
+      geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")+
+      geom_point(x=x2,y=value)+geom_text(label=paste0("(",x2,",",value,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5))
+    dev.off()
+    file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),
+              to = paste('www/templePlot/microSampleFilter',session$token,'.svg',sep = ""))
+    if(exist=="F"){
+      print(paste("#","sample_Group_",group,'_panel',sep=""))
+      insertUI(
+        selector = paste("#","sample_Group_",group,'_panel',sep=""),
+        where='beforeEnd',
+        ui=imageOutput(outputId = paste(group,'_plot',sep=""),height = "100%"),
+        immediate = T
+      )
+      
+       insertUI(
+         selector = paste("#","sample_Group_",group,'_panel',sep=""),
+         where='beforeEnd',
+         ui=div(class="box-footer",
+                tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",
+                            onclick=paste("slice('#","sample_Group_",group,"_panel')",sep=""),
+                            style="margin:5px",height = "100%",HTML("Filter"))),
+         immediate = T
+       )
+    }
+    output[[paste(group,'_plot',sep="")]]=renderImage({
+      list(src=paste('www/templePlot/microSampleFilter',session$token,'.svg',sep = ""),width="100%",height="100%")
+    })
+    }
+    
+    else if(group=="ce_invalid_name"){
+      len_sep<-length(sep)
+      #这需要判断传进来的是字符串还是数字。。和字符串的比较好像不能直接！= 然后还要统一大小写，全转换为大写toupper(states)
+      if(len_sep==1){
+        myfunc<-function(x){
+          if(is.character(x)){
+            x<-toupper(x)
+          }
+          # x<-as.character(x)
+          sum(x!=sep[[1]])
+        }
+        # expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
+        expressgene_num2<<-colSums(sect_output_rna.exp!=0) 
+       
+      }
+      else if(len_sep==2){
+        myfunc<-function(x){
+          if(is.character(x)){
+            x<-toupper(x)
+          }
+          # x<-as.character(x)
+          sum(x!=sep[[1]]&x!=sep[[2]])
+        }  
+        expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
+        
+      }
+      else if(len_sep==3){
+        myfunc<-function(x){
+          if(is.character(x)){
+            x<-toupper(x)
+          }
+          # x<-as.character(x)
+          sum(x!=sep[[1]]&x!=sep[[2]]&x!=sep[[3]])
+        }
+        expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
+      }
+      
+      else if(len_sep==4){
+        myfunc<-function(x){
+          if(is.character(x)){
+            x<-toupper(x)
+          }
+          # x<-as.character(x)
+          sum(x!=sep[[1]]&x!=sep[[2]]&x!=sep[[3]]&x!=sep[[4]])
+        }
+        expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
+      }
+      expressgene_num2<<-expressgene_num2/(dim(sect_output_rna.exp)[1])
+      process_sample<-data.frame(
+        x=c(expressgene_num2)
+      )
+      
+      value=as.numeric(value)
+      draw_x<-(max(expressgene_num2)+min(expressgene_num2))/2  
+      #通过quantile函数找  
+      x2<-quantile(expressgene_num2,value,type=3) 
+      svg(filename = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),family = 'serif')
+      print(ggplot(process_sample, aes(x = x))+stat_ecdf()+
+              geom_hline(aes(yintercept=value), colour="#990000", linetype="dashed")+
+              geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")+
+              geom_point(x=x2,y=value)+geom_text(label=paste0("(",x2,",",value,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5))
+      dev.off()
+      file.copy(from = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),to = paste('www/templePlot/RNASampleFilter',session$token,'.svg',sep = ""))
+      if(exist=="F"){
+        print(paste("#","sample_Group_",group,'_panel',sep=""))
+        insertUI(
+          selector = paste("#","sample_Group_",group,'_panel',sep=""),
+          where='beforeEnd',
+          ui=imageOutput(outputId = paste(group,'_plot',sep=""),height = "100%"),
+          immediate = T
+        )
+        
+        insertUI(
+          selector = paste("#","sample_Group_",group,'_panel',sep=""),
+          where='beforeEnd',
+          ui=div(class="box-footer",
+                 tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",
+                             onclick=paste("slice('#","sample_Group_",group,"_panel')",sep=""),
+                             style="margin:5px",height = "100%",HTML("Filter"))),
+          immediate = T
+        )
+      }
+      output[[paste(group,'_plot',sep="")]]=renderImage({
+        list(src=paste('www/templePlot/RNASampleFilter',session$token,'.svg',sep = ""),width="100%",height="100%")
+      })
+    }
+  
+  })
+  observeEvent(input$Sample_Slice_Signal,{
+    isolate({
+      msg=input$Sample_Slice_Signal
+      group=msg$group
+      line=msg$line
+      line=as.numeric(line)
+    })
+    
+    if(group=="sample_Group_micro_invalid_name_panel"){
+      #这里需要讨论确定删选比例的意思.1:样本基因表达数除以总基因数2：学长说的按照分布函数？
+      x2<-quantile(expressgene_num,line,type=3) 
+      which(expressgene_num>=x2)
+      after_slice_micro.exp<-sect_output_micro.exp[,which(expressgene_num>=x2)]
+      browser()
+    }
+    else{
+      x2<-quantile(expressgene_num2,line,type=3) 
+      which(expressgene_num2>=x2)
+      after_slice_rna.exp<-sect_output_rna.exp[,which(expressgene_num2>=x2)]
+    }
+  })
   observeEvent(input$creatFilter_request,{
   
     level=unique(sect_output_geneinfo$.group)
     level=level[!is.na(level)]
     session$sendCustomMessage('gene_type_infomation',data.frame(group=level))
+  
   })
+  
   observeEvent(input$Gene_Filter_Signal,{
     isolate({
       msg=input$Gene_Filter_Signal

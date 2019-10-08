@@ -2,7 +2,7 @@
 //creat filter modal
 creat_geneFilter = function(title,inputId,type)
 { 
-  var $modal = $('<div class="gene_filter construct col-lg-4" style="border:1px solid #ccc" id="gene_Group_'+inputId+'_panel"></div>');
+  var $modal = $('<div class="gene_filter construct col-lg-6" style="border:1px solid #ccc" id="gene_Group_'+inputId+'_panel"></div>');
   var $title = $('<h4>'+title+'</h4><hr style="margin-top:0px;margin-bottom:0px">');
   var $body = $('<div class="form-group col-lg-6" style="padding:0px"></div>')
   var $label = $('<label class="control-label">Minimal expression value</label> ')
@@ -17,7 +17,9 @@ creat_geneFilter = function(title,inputId,type)
   $body.append($label).append($inputModal);
   $inputModal.append($buttonMinus).append($inPut).append($span1);
   $span1.append($buttonPlus).append($button1);
-  $('#123').append($modal);
+ 
+    $('#123').append($modal);
+  
   $inPut.on("change",function(e){
     var reg=/^[0-9]+(\.[0-9]+)?$/;
     if(!$(e.currentTarget).val().match(reg)){

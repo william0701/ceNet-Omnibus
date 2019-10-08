@@ -81,6 +81,10 @@ $(document).ready(function(){
           $('#task_'+type).text(" Tasks:0/1")
           $('#body_'+type).attr("tasks",tasks)
         }
+        $("#density_plot_"+type).parent().remove()
+        var $box2=create_condition_plot($('#condition_type').val(),tasks)
+        $("#condition_preview").append($("<div class='col-lg-12'></div>").append($box2))
+
       }
       else
       {

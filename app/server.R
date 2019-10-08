@@ -644,14 +644,13 @@ shinyServer(function(input,output,session) {
         names(pvaluelist)="PCC.pvalue"
         #condition.values<<-c(condition.values,corlist,pvaluelist)
       }
-
       if(is.null(condition.values[['PCC']]))
       {
         condition.values<<-c(condition.values,corlist)
       }
       else
       {
-        condition.values[['PCC']]<<-corlist
+        condition.values['PCC']<<-corlist
       }
       if(is.null(condition.values[['PCC.pvalue']]))
       {
@@ -659,7 +658,7 @@ shinyServer(function(input,output,session) {
       }
       else
       {
-        condition.values[['PCC.pvalue']]<<-pvaluelist
+        condition.values['PCC.pvalue']<<-pvaluelist
       }
     }
     else
@@ -670,5 +669,14 @@ shinyServer(function(input,output,session) {
       condition.values<<-c(condition.values,result)
     }
     draw_density(basepath,output,session,type,tasks)
+    
+    for(task in tasks)
+    {
+      figurepath=paste(basepath,'/Plot/density_plot_',type,"_",task,".svg",sep="")
+      output[[paste("#density_plot_",type,task,"image",sep="_")]]= renderImage({
+        list(src=figurepath,width="100%",height="100%")
+      },deleteFile = F)
+    }
+    
   })
 })

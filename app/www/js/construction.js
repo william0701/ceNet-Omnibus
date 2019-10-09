@@ -261,6 +261,37 @@ create_condition_plot=function(name,tasks)
   return($box)
 }
 
+step_change=function(e)
+{
+  if($(e).children('i').attr("class")=="fa fa-plus")
+  {
+    var currentvalue=parseFloat($(e).parent().prev().val())
+    var step=parseFloat($(e).parent().parent().parent().prev().children("input").val())
+    var newvalue=currentvalue+step
+    $(e).parent().prev().val(newvalue)
+    $(e).parent().prev().trigger("onchange")
+  }
+  else
+  {
+    var currentvalue=parseFloat($(e).parent().next().val())
+    var step=parseFloat($(e).parent().parent().parent().prev().children("input").val())
+    var newvalue=currentvalue-step
+    $(e).parent().next().val(newvalue)
+    $(e).parent().next().trigger("onchange")
+  }
+  
+}
+
+thresh_change=function(e)
+{
+  var obj={}
+  obj['stamp']=Math.random()
+  obj['value']=parseFloat($(e).val())
+  obj['type']=$(e).parent().parent().parent().parent().attr('type')
+  obj['task']=$(e).parent().parent().parent().parent().attr('task')
+  Shiny.setInputValue("update_condition_thresh",obj)
+}
+
 Shiny.addCustomMessageHandler("clear_construction_task",function(msg){
   var $select_conditions=$('#condition_panel').children()
   for(var i=0;i<$select_conditions.length;++i)
@@ -268,6 +299,8 @@ Shiny.addCustomMessageHandler("clear_construction_task",function(msg){
     var $cur=$($select_conditions.get(i)).children("div")
     $cur.attr('tasks',"")
     $("#"+$cur.attr("id").replace(/^body/,"task")).text(' Tasks:0/0')
+    $cur.children('span').children('a').children('i').attr('class','fa fa-play')
+    $cur.attr('class','info-box bg-red')
   }
   
 })

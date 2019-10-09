@@ -687,17 +687,16 @@ shinyServer(function(input,output,session) {
       }    
     }
     draw_density(basepath,output,session,type,tasks)
-    Map(function(task){
-            removeUI(selector = paste("#density_plot",type,task,"image",sep="_"),immediate = T)
-            insertUI(selector = paste("#density_plot",type,task,sep="_"),
-                     where = 'beforeEnd',
-                     ui = imageOutput(outputId = paste("density_plot",type,task,"image",sep="_"),width = "100%",height = "100%"),
-                     immediate = T,session = session
-            )
-            figurepath=paste(basepath,'/Plot/density_plot_',type,"_",task,".svg",sep="")
-            output[[paste("density_plot",type,task,"image",sep="_")]]<- renderImage({
-                    list(src=figurepath,width="100%",height="100%")
-                  },deleteFile = F)
-            },tasks)
+  })
+  observeEvent(input$update_condition_thresh,{
+    isolate({
+      msg=input$update_condition_thresh
+      direction=input[[paste("direction",msg$type,msg$task,sep="_")]]
+    })
+    condition_density_plot(basepath = basepath,type = msg$type,task = msg$task,value = msg$value,direction = direction)
+    output[[paste("density_plot",msg$type,msg$task,"image",sep="_")]]=renderImage({
+      figurepath=paste(basepath,'/Plot/density_plot_',msg$type,"_",msg$task,".svg",sep="")
+      list(src=figurepath,width="100%",height="100%")
+    },deleteFile = F)
   })
 })

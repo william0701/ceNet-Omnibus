@@ -325,8 +325,8 @@ shinyServer(function(input,output,session) {
       subset=unlist(data[[group]])
       sect_output_geneinfo[sect_output_geneinfo[,biotype] %in% subset,'.group']<<-group
     }
-    
     output$biotype_group_statics_graph=renderImage({
+      browser()
       p=ggplot(data =sect_output_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill=biotype))+
         labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
         theme(legend.position = 'bottom')
@@ -335,6 +335,7 @@ shinyServer(function(input,output,session) {
       #          legend = list(orientation = "h",font=list(family='Georgia')),
       #          autosize=T)
       svg(filename = paste(basepath,"Plot",'ph1.svg',sep="/"),family = 'serif')
+      print(p)
       dev.off()
       print(normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))
       list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))    

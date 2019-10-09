@@ -1,6 +1,7 @@
 var biotype_group=new Map();
 var remain=[];
 $(document).ready(function(){
+  creat_geneFilter("micro filter","microFilterPlot","micro");
   $("a[href='#shiny-tab-process']").on("click",function(e){
     Shiny.setInputValue("interclick",Math.random());
     Shiny.addCustomMessageHandler('Valid-Num', function(Num1) {
@@ -10,15 +11,6 @@ $(document).ready(function(){
       });
     Shiny.setInputValue('Update_Biotype_Map',Math.random());
   });
-  Shiny.addCustomMessageHandler('Update_valueBox_micro', function(Num1) {
-        $("#MicroRnaoutput").find("h3").text(Num1["microNum"]);
-      });
-  Shiny.addCustomMessageHandler('Update_valueBox_rna', function(Num1) {
-        $("#Rnaoutput").find("h3").text(Num1["rnaNum"]);
-      });
-  Shiny.addCustomMessageHandler('Update_valueBox_sample', function(Num1) {
-        $("#Sampleoutput").find("h3").text(Num1["sampleNum"]);
-      });
   $('.value_BoxInput a').on("click",function(e){
     var obj={}
     obj['stamp']=Math.random()
@@ -95,7 +87,6 @@ $(document).ready(function(){
   
   $('#Sample_Filter_all').append(creat_sampleFilter("Micro RNA Sample Filter","micro_invalid_name"));
   $('#Sample_Filter_all').append(creat_sampleFilter("Ce RNA Sample Filter","ce_invalid_name"));
-  creat_geneFilter("Micro Filter","microFilterPlot","micro");
 })
 create_editor=function(value)
 {

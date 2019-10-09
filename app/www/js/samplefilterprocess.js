@@ -4,7 +4,7 @@ creat_sampleFilter = function(inputId,inputName)
 { 
   
   var $modal = $('<div class="gene_filter construct col-lg-6" exist="F" style="border:1px solid #ccc" id="sample_Group_'+inputName+'_panel"></div>');
-  var $dabiaoti=$('<h4>"'+inputId+'"</h4><hr style="margin-top:0px;margin-bottom:0px">')
+  var $dabiaoti=$('<h4>'+inputId+'</h4><hr style="margin-top:0px;margin-bottom:0px">')
   var $invalid_value=$('<div class="form-group col-lg-6" shiny-input-radiogroup shiny-input-container shiny-input-container-inline shiny-bound-input></div>')
   var $titlevalid = $('<label class="control-label">Invalid Value</label>')
   var $div1=$('<div class="input-group margin"></div>')

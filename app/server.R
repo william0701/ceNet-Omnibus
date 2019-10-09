@@ -332,7 +332,6 @@ shinyServer(function(input,output,session) {
     if(group=="micro_invalid_name"){
     len_sep<-length(sep)
     #这需要判断传进来的是字符串还是数字。。和字符串的比较好像不能直接！= 然后还要统一大小写，全转换为大写toupper(states)
-    browser()
     if(len_sep==1){
       myfunc<-function(x){
         if(is.character(x)){
@@ -376,7 +375,7 @@ shinyServer(function(input,output,session) {
       }
       expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
     }
-    # expressgene_num<<-expressgene_num/(dim(sect_output_micro.exp)[1])
+    expressgene_num<<-expressgene_num/(dim(sect_output_micro.exp)[1])
     # browser()
     process_sample<-data.frame(
       x=expressgene_num
@@ -384,13 +383,15 @@ shinyServer(function(input,output,session) {
     
     value=as.numeric(value)
     draw_x<-(max(expressgene_num)+min(expressgene_num))/2  
+    # draw_x<-round(draw_x,2)
     #通过quantile函数找  
     x2<-quantile(expressgene_num,value,type=3) 
+    draw_x2<-round(x2,2)
     svg(filename = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),family = 'serif')
     print(ggplot(process_sample, aes(x = x))+stat_ecdf()+
       geom_hline(aes(yintercept=value), colour="#990000", linetype="dashed")+
       geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")+
-      geom_point(x=x2,y=value)+geom_text(label=paste0("(",x2,",",value,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5))
+      geom_point(x=x2,y=value)+geom_text(label=paste0("(",draw_x2,",",value,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5))
     dev.off()
     file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),
               to = paste('www/templePlot/microSampleFilter',session$token,'.svg',sep = ""))
@@ -474,11 +475,12 @@ shinyServer(function(input,output,session) {
       draw_x<-(max(expressgene_num2)+min(expressgene_num2))/2  
       #通过quantile函数找  
       x2<-quantile(expressgene_num2,value,type=3) 
+      draw_x2<-round(x2,2)
       svg(filename = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),family = 'serif')
       print(ggplot(process_sample, aes(x = x))+stat_ecdf()+
               geom_hline(aes(yintercept=value), colour="#990000", linetype="dashed")+
               geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")+
-              geom_point(x=x2,y=value)+geom_text(label=paste0("(",x2,",",value,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5))
+              geom_point(x=x2,y=value)+geom_text(label=paste0("(",draw_x2,",",value,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5))
       dev.off()
       file.copy(from = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),to = paste('www/templePlot/RNASampleFilter',session$token,'.svg',sep = ""))
       if(exist=="F"){
@@ -506,6 +508,7 @@ shinyServer(function(input,output,session) {
     }
   
   })
+  
   observeEvent(input$Sample_Slice_Signal,{
     isolate({
       msg=input$Sample_Slice_Signal
@@ -515,16 +518,35 @@ shinyServer(function(input,output,session) {
     })
     
     if(group=="sample_Group_micro_invalid_name_panel"){
-      #这里需要讨论确定删选比例的意思.1:样本基因表达数除以总基因数2：学长说的按照分布函数？
+      #这里需要讨论确定删选比例的意思.1:样本基因表达数除以总基因数2：学长说的按照分布函数
       x2<-quantile(expressgene_num,line,type=3) 
-      which(expressgene_num>=x2)
-      after_slice_micro.exp<-sect_output_micro.exp[,which(expressgene_num>=x2)]
-      browser()
+      
+      liuxiasum<-length(colnames(sect_output_micro.exp[,which(expressgene_num>x2)]))
+      liuxiabaifenbi<-liuxiasum/(dim(sect_output_micro.exp)[1])
+      if(abs((1-line)-liuxiabaifenbi)<=0.05){
+        after_slice_micro.exp<<-sect_output_micro.exp[,which(expressgene_num>x2)]
+      }
+      else{
+        print("tanchutishi") #tanchutishi..
+      }
+      # which(expressgene_num>=x2)
+      # after_slice_micro.exp<-sect_output_micro.exp[,which(expressgene_num>=x2)]
+      
     }
     else{
       x2<-quantile(expressgene_num2,line,type=3) 
-      which(expressgene_num2>=x2)
-      after_slice_rna.exp<-sect_output_rna.exp[,which(expressgene_num2>=x2)]
+      liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num2>x2)]))
+      liuxiabaifenbi<-liuxiasum/(dim(sect_output_rna.exp)[1])
+      if(abs((1-line)-liuxiabaifenbi)<=0.05){
+        after_slice_rna.exp<<-sect_output_rna.exp[,which(expressgene_num2>x2)]
+      }
+      
+      else{
+        print("tanchutishi")
+      }
+      
+      # which(expressgene_num2>=x2)
+      # after_slice_rna.exp<-sect_output_rna.exp[,which(expressgene_num2>=x2)]
     }
   })
   observeEvent(input$creatFilter_request,{

@@ -331,7 +331,7 @@ shinyServer(function(input,output,session) {
     
     if(group=="micro_invalid_name"){
     len_sep<-length(sep)
-    #这需要判断传进来的是字符串还是数字。。和字符串的比较好像不能直接！= 然后还要统一大小写，全转换为大写toupper(states)
+
     if(len_sep==1){
       myfunc<-function(x){
         if(is.character(x)){
@@ -383,7 +383,7 @@ shinyServer(function(input,output,session) {
     
     value=as.numeric(value)
     draw_x<-(max(expressgene_num)+min(expressgene_num))/2  
-    # draw_x<-round(draw_x,2)
+
     x2<-quantile(expressgene_num,value,type=3) 
     draw_x2<-round(x2,2)
     svg(filename = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),family = 'serif')
@@ -420,6 +420,7 @@ shinyServer(function(input,output,session) {
     
     else if(group=="ce_invalid_name"){
       len_sep<-length(sep)
+
       if(len_sep==1){
         myfunc<-function(x){
           if(is.character(x)){
@@ -471,7 +472,7 @@ shinyServer(function(input,output,session) {
       
       value=as.numeric(value)
       draw_x<-(max(expressgene_num2)+min(expressgene_num2))/2  
-      #tongguo quantile find x2  
+
       x2<-quantile(expressgene_num2,value,type=3) 
       draw_x2<-round(x2,2)
       svg(filename = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),family = 'serif')
@@ -516,6 +517,7 @@ shinyServer(function(input,output,session) {
     })
     
     if(group=="sample_Group_micro_invalid_name_panel"){
+
       x2<-quantile(expressgene_num,line,type=3) 
       
       liuxiasum<-length(colnames(sect_output_micro.exp[,which(expressgene_num>x2)]))
@@ -526,6 +528,7 @@ shinyServer(function(input,output,session) {
       else{
         print("tanchutishi") #tanchutishi..
       }
+
     }
     else{
       x2<-quantile(expressgene_num2,line,type=3) 

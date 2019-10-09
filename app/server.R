@@ -592,6 +592,17 @@ shinyServer(function(input,output,session) {
       session$sendCustomMessage('calculation_eta',list(type=type,msg="",status='run'))
     }
   })
+  observeEvent(input$condition_filter_response,{
+    isolate({
+      type=input$condition_filter_response$type
+      tasks=input$condition_filter_response$tasks
+    })
+    removeUI(selector = paste("div.col-lg-12 > #density_plot_",type,sep=""),immediate = T)
+    insertUI(selector = "#condition_preview",where = 'beforeEnd',
+             ui =filter_box(type,tasks),
+             immediate = T
+            )
+  })
   observeEvent(input$condition_finish,{
     isolate({
       type=input$condition_finish$type
@@ -666,17 +677,27 @@ shinyServer(function(input,output,session) {
       result=readRDS(paste(basepath,'/',type,'.RData',sep=""))
       result=list(result)
       names(result)=type
-      condition.values<<-c(condition.values,result)
+      if(is.null(condition.values[[type]]))
+      {
+        condition.values<<-c(condition.values,result)
+      }
+      else
+      {
+        condition.values[type]<<-result
+      }    
     }
     draw_density(basepath,output,session,type,tasks)
-    
-    for(task in tasks)
-    {
-      figurepath=paste(basepath,'/Plot/density_plot_',type,"_",task,".svg",sep="")
-      output[[paste("#density_plot_",type,task,"image",sep="_")]]= renderImage({
-        list(src=figurepath,width="100%",height="100%")
-      },deleteFile = F)
-    }
-    
+    Map(function(task){
+            removeUI(selector = paste("#density_plot",type,task,"image",sep="_"),immediate = T)
+            insertUI(selector = paste("#density_plot",type,task,sep="_"),
+                     where = 'beforeEnd',
+                     ui = imageOutput(outputId = paste("density_plot",type,task,"image",sep="_"),width = "100%",height = "100%"),
+                     immediate = T,session = session
+            )
+            figurepath=paste(basepath,'/Plot/density_plot_',type,"_",task,".svg",sep="")
+            output[[paste("density_plot",type,task,"image",sep="_")]]<- renderImage({
+                    list(src=figurepath,width="100%",height="100%")
+                  },deleteFile = F)
+            },tasks)
   })
 })

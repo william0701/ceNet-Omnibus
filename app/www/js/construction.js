@@ -81,9 +81,9 @@ $(document).ready(function(){
           $('#task_'+type).text(" Tasks:0/1")
           $('#body_'+type).attr("tasks",tasks)
         }
-        $("#density_plot_"+type).parent().remove()
-        var $box2=create_condition_plot($('#condition_type').val(),tasks)
-        $("#condition_preview").append($("<div class='col-lg-12'></div>").append($box2))
+        //$("#density_plot_"+type).parent().remove()
+        //var $box2=create_condition_plot($('#condition_type').val(),tasks)
+        //$("#condition_preview").append($("<div class='col-lg-12'></div>").append($box2))
 
       }
       else
@@ -91,15 +91,15 @@ $(document).ready(function(){
         if($('#condition_type').val()=='custom')
         {
           var $box=create_condition($('#custom_condition_abbr').val(),tasks,core)
-          var $box2=create_condition_plot($('#custom_condition_abbr').val(),tasks)
+          //var $box2=create_condition_plot($('#custom_condition_abbr').val(),tasks)
         }
         else
         {
           var $box=create_condition($('#condition_type').val(),tasks,core)
-          var $box2=create_condition_plot($('#condition_type').val(),tasks)
+          //var $box2=create_condition_plot($('#condition_type').val(),tasks)
         }
         $('#condition_panel').append($("<div class='col-lg-4'></div>").append($box))
-        $("#condition_preview").append($("<div class='col-lg-12'></div>").append($box2))
+        //$("#condition_preview").append($("<div class='col-lg-12'></div>").append($box2))
       }
       
       obj['core']=core
@@ -107,6 +107,11 @@ $(document).ready(function(){
       
       $('#infolist').modal('hide');
       Shiny.setInputValue('choose_new_condition',obj)
+      var obj2={}
+      obj2['stamp']=Math.random()
+      obj2['type']=type
+      obj2['tasks']=tasks
+      Shiny.setInputValue("condition_filter_response",obj)
     })
     if(!$('#infolist').hasClass('in'))
     {

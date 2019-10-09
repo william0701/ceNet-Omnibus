@@ -340,8 +340,8 @@ shinyServer(function(input,output,session) {
         # x<-as.character(x)
         sum(x!=sep[[1]])
       }
-      # expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
-      expressgene_num<<-colSums(sect_output_micro.exp!=0) 
+      expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
+      # expressgene_num<<-colSums(sect_output_micro.exp!=0) 
     }
     else if(len_sep==2){
       myfunc<-function(x){
@@ -384,7 +384,6 @@ shinyServer(function(input,output,session) {
     value=as.numeric(value)
     draw_x<-(max(expressgene_num)+min(expressgene_num))/2  
     # draw_x<-round(draw_x,2)
-    #通过quantile函数找  
     x2<-quantile(expressgene_num,value,type=3) 
     draw_x2<-round(x2,2)
     svg(filename = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),family = 'serif')
@@ -421,7 +420,6 @@ shinyServer(function(input,output,session) {
     
     else if(group=="ce_invalid_name"){
       len_sep<-length(sep)
-      #这需要判断传进来的是字符串还是数字。。和字符串的比较好像不能直接！= 然后还要统一大小写，全转换为大写toupper(states)
       if(len_sep==1){
         myfunc<-function(x){
           if(is.character(x)){
@@ -430,8 +428,8 @@ shinyServer(function(input,output,session) {
           # x<-as.character(x)
           sum(x!=sep[[1]])
         }
-        # expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
-        expressgene_num2<<-colSums(sect_output_rna.exp!=0) 
+        expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
+        # expressgene_num2<<-colSums(sect_output_rna.exp!=0) 
        
       }
       else if(len_sep==2){
@@ -473,7 +471,7 @@ shinyServer(function(input,output,session) {
       
       value=as.numeric(value)
       draw_x<-(max(expressgene_num2)+min(expressgene_num2))/2  
-      #通过quantile函数找  
+      #tongguo quantile find x2  
       x2<-quantile(expressgene_num2,value,type=3) 
       draw_x2<-round(x2,2)
       svg(filename = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),family = 'serif')
@@ -518,7 +516,6 @@ shinyServer(function(input,output,session) {
     })
     
     if(group=="sample_Group_micro_invalid_name_panel"){
-      #这里需要讨论确定删选比例的意思.1:样本基因表达数除以总基因数2：学长说的按照分布函数
       x2<-quantile(expressgene_num,line,type=3) 
       
       liuxiasum<-length(colnames(sect_output_micro.exp[,which(expressgene_num>x2)]))
@@ -529,9 +526,6 @@ shinyServer(function(input,output,session) {
       else{
         print("tanchutishi") #tanchutishi..
       }
-      # which(expressgene_num>=x2)
-      # after_slice_micro.exp<-sect_output_micro.exp[,which(expressgene_num>=x2)]
-      
     }
     else{
       x2<-quantile(expressgene_num2,line,type=3) 
@@ -544,9 +538,6 @@ shinyServer(function(input,output,session) {
       else{
         print("tanchutishi")
       }
-      
-      # which(expressgene_num2>=x2)
-      # after_slice_rna.exp<-sect_output_rna.exp[,which(expressgene_num2>=x2)]
     }
   })
   observeEvent(input$creatFilter_request,{

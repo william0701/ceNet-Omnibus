@@ -259,17 +259,61 @@ shinyServer(function(input,output,session) {
     isolate({
       msg=input$process_showdetails;
     })
-    if(msg$id=='Rnaoutput'){
-      obj=list(title='Valid ceRNA',details=toJSON(data.frame(detail= rownames(sect_output_rna.exp),stringsAsFactors =F)));
-      session$sendCustomMessage('outdetails',obj);
+    if(is.data.frame(after_slice_micro.exp) && is.data.frame(after_slice_rna.exp)){
+      if(msg$id=='Rnaoutput'){
+        obj=list(title='Valid ceRNA',details=toJSON(data.frame(detail= rownames(after_slice_rna.exp),stringsAsFactors =F)));
+        session$sendCustomMessage('outdetails',obj);
+      }
+      if(msg$id=='MicroRnaoutput'){
+        obj=list(title='Valid microRNA',details=toJSON(data.frame(detail= rownames(after_slice_micro.exp),stringsAsFactors =F)));
+        session$sendCustomMessage('outdetails',obj);
+      }
+      if(msg$id=='Sampleoutput'){
+        obj=list(title='Valid Sample',details=toJSON(data.frame(detail= names(after_slice_micro.exp),stringsAsFactors =F)));
+        session$sendCustomMessage('outdetails',obj);
+      }
     }
-    if(msg$id=='MicroRnaoutput'){
-      obj=list(title='Valid microRNA',details=toJSON(data.frame(detail= rownames(sect_output_micro.exp),stringsAsFactors =F)));
-      session$sendCustomMessage('outdetails',obj);
+    else if(is.data.frame(after_slice_micro.exp) && !is.data.frame(after_slice_rna.exp)){
+      if(msg$id=='Rnaoutput'){
+        obj=list(title='Valid ceRNA',details=toJSON(data.frame(detail= rownames(sect_output_rna.exp),stringsAsFactors =F)));
+        session$sendCustomMessage('outdetails',obj);
+      }
+      if(msg$id=='MicroRnaoutput'){
+        obj=list(title='Valid microRNA',details=toJSON(data.frame(detail= rownames(after_slice_micro.exp),stringsAsFactors =F)));
+        session$sendCustomMessage('outdetails',obj);
+      }
+      if(msg$id=='Sampleoutput'){
+        obj=list(title='Valid Sample',details=toJSON(data.frame(detail= names(after_slice_micro.exp),stringsAsFactors =F)));
+        session$sendCustomMessage('outdetails',obj);
+      }
     }
-    if(msg$id=='Sampleoutput'){
-      obj=list(title='Valid Sample',details=toJSON(data.frame(detail= names(sect_output_rna.exp),stringsAsFactors =F)));
-      session$sendCustomMessage('outdetails',obj);
+    else if(!is.data.frame(after_slice_micro.exp) && is.data.frame(after_slice_rna.exp)){
+      if(msg$id=='Rnaoutput'){
+        obj=list(title='Valid ceRNA',details=toJSON(data.frame(detail= rownames(after_slice_rna.exp),stringsAsFactors =F)));
+        session$sendCustomMessage('outdetails',obj);
+      }
+      if(msg$id=='MicroRnaoutput'){
+        obj=list(title='Valid microRNA',details=toJSON(data.frame(detail= rownames(sect_output_micro.exp),stringsAsFactors =F)));
+        session$sendCustomMessage('outdetails',obj);
+      }
+      if(msg$id=='Sampleoutput'){
+        obj=list(title='Valid Sample',details=toJSON(data.frame(detail= names(after_slice_rna.exp),stringsAsFactors =F)));
+        session$sendCustomMessage('outdetails',obj);
+      }
+    }
+    else{
+      if(msg$id=='Rnaoutput'){
+        obj=list(title='Valid ceRNA',details=toJSON(data.frame(detail= rownames(sect_output_rna.exp),stringsAsFactors =F)));
+        session$sendCustomMessage('outdetails',obj);
+      }
+      if(msg$id=='MicroRnaoutput'){
+        obj=list(title='Valid microRNA',details=toJSON(data.frame(detail= rownames(sect_output_micro.exp),stringsAsFactors =F)));
+        session$sendCustomMessage('outdetails',obj);
+      }
+      if(msg$id=='Sampleoutput'){
+        obj=list(title='Valid Sample',details=toJSON(data.frame(detail= names(sect_output_rna.exp),stringsAsFactors =F)));
+        session$sendCustomMessage('outdetails',obj);
+      }
     }
   })
   observeEvent(input$Update_Biotype_Map,{
@@ -331,8 +375,8 @@ shinyServer(function(input,output,session) {
     
     if(group=="micro_invalid_name"){
     len_sep<-length(sep)
-    #这需要判断传进来的是字符串还是数字。。和字符串的比较好像不能直接！= 然后还要统一大小写，全转换为大写toupper(states)
-    browser()
+   
+   
     if(len_sep==1){
       myfunc<-function(x){
         if(is.character(x)){
@@ -384,7 +428,7 @@ shinyServer(function(input,output,session) {
     
     value=as.numeric(value)
     draw_x<-(max(expressgene_num)+min(expressgene_num))/2  
-    #通过quantile函数找  
+  
     x2<-quantile(expressgene_num,value,type=3) 
     svg(filename = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),family = 'serif')
     print(ggplot(process_sample, aes(x = x))+stat_ecdf()+
@@ -420,7 +464,7 @@ shinyServer(function(input,output,session) {
     
     else if(group=="ce_invalid_name"){
       len_sep<-length(sep)
-      #这需要判断传进来的是字符串还是数字。。和字符串的比较好像不能直接！= 然后还要统一大小写，全转换为大写toupper(states)
+     
       if(len_sep==1){
         myfunc<-function(x){
           if(is.character(x)){
@@ -472,7 +516,7 @@ shinyServer(function(input,output,session) {
       
       value=as.numeric(value)
       draw_x<-(max(expressgene_num2)+min(expressgene_num2))/2  
-      #通过quantile函数找  
+
       x2<-quantile(expressgene_num2,value,type=3) 
       svg(filename = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),family = 'serif')
       print(ggplot(process_sample, aes(x = x))+stat_ecdf()+
@@ -515,11 +559,11 @@ shinyServer(function(input,output,session) {
     })
     
     if(group=="sample_Group_micro_invalid_name_panel"){
-      #这里需要讨论确定删选比例的意思.1:样本基因表达数除以总基因数2：学长说的按照分布函数？
+      
       x2<-quantile(expressgene_num,line,type=3) 
       which(expressgene_num>=x2)
       after_slice_micro.exp<-sect_output_micro.exp[,which(expressgene_num>=x2)]
-      browser()
+
     }
     else{
       x2<-quantile(expressgene_num2,line,type=3) 
@@ -534,7 +578,7 @@ shinyServer(function(input,output,session) {
     session$sendCustomMessage('gene_type_infomation',data.frame(group=level))
   
   })
-  
+
   observeEvent(input$Gene_Filter_Signal,{
     isolate({
       msg=input$Gene_Filter_Signal
@@ -545,7 +589,7 @@ shinyServer(function(input,output,session) {
       exist=msg$exist
       line=msg$line
     })
-    
+
     #paint picture
     if(type=="micro"){  
       validGene=rownames(sect_output_micro.exp)
@@ -553,10 +597,13 @@ shinyServer(function(input,output,session) {
       ratio=as.numeric(line)
       xdata = data.frame(SampleRatio=validSample/length(colnames(sect_output_micro.exp)),stringsAsFactors = F)
       ypoint=length(which(xdata$SampleRatio<=ratio))/length(validGene)
-      temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
-      
+      draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2 
+      ypoint = round(ypoint,2)
       svg(filename = paste(basepath,"Plot","microStatistic.svg",sep = "/"),family = 'serif')
-      print(ggplot(xdata,aes(x=SampleRatio,))+stat_ecdf()+geom_segment(aes(x=x,xend=xend,y=y,yend=yend),data=temp.data))
+      print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
+              geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
+              geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
+              geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5))
       dev.off()
       file.copy(from = paste(basepath,"Plot","microStatistic.svg",sep = "/"),to = paste('www/templePlot/microStatistic',session$token,'.svg',sep = ""))
 
@@ -572,7 +619,7 @@ shinyServer(function(input,output,session) {
         selector = paste("#","gene_Group_",group,'_panel',sep=""),
         where='beforeEnd',
         ui=div(class="box-footer",
-               tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",onclick=paste("slice('#","gene_Group_",group,"_panel')",sep=""),style="margin:5px",height = "100%",HTML("Filter"))),
+               tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",onclick=paste("slice_gene('#","gene_Group_",group,"_panel')",sep=""),style="margin:5px",height = "100%",HTML("Filter"))),
         immediate = T
       )
       }
@@ -580,7 +627,7 @@ shinyServer(function(input,output,session) {
         list(src=paste('www/templePlot/microStatistic',session$token,'.svg',sep = ""),width="100%",height="100%")
       })
       #qiefen
-      
+   
     }
     else{
       validGene=rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
@@ -588,10 +635,14 @@ shinyServer(function(input,output,session) {
       ratio=as.numeric(line)
       xdata = data.frame(SampleRatio=validSample/length(colnames(sect_output_rna.exp)),stringsAsFactors = F)
       ypoint=length(which(xdata$SampleRatio<=ratio))/length(validGene)
-      temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
+      ypoint = round(ypoint,2)
+      draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2 
       
       svg(filename = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),family = 'serif')
-      print(ggplot(xdata,aes(x=SampleRatio,))+stat_ecdf()+geom_segment(aes(x=x,xend=xend,y=y,yend=yend),data=temp.data))
+      print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
+              geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
+              geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
+              geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5))
       dev.off()
       file.copy(from = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),to = paste('www/templePlot/',group,'Statistic',session$token,'.svg',sep = ""))
       
@@ -607,7 +658,7 @@ shinyServer(function(input,output,session) {
           selector = paste("#","gene_Group_",group,'_panel',sep=""),
           where='beforeEnd',
           ui=div(class="box-footer",
-                 tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",onclick=paste("slice('#","gene_Group_",group,"_panel')",sep=""),style="margin:5px",height = "100%",HTML("Filter"))),
+                 tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",onclick=paste("slice_gene('#","gene_Group_",group,"_panel')",sep=""),style="margin:5px",height = "100%",HTML("Filter"))),
           immediate = T
         )
       }
@@ -627,31 +678,32 @@ shinyServer(function(input,output,session) {
       line = as.numeric(line)
       first = msg$first
     })
-
     if(type=="micro"){
-      validGene=rownames(sect_output_micro.exp)
-      validSample = rowSums(sect_output_micro.exp>=number)
-      xdata = data.frame(SampleRatio=validSample/length(colnames(sect_output_micro.exp)),stringsAsFactors = F)
-      intersect_name = rownames(xdata)[which(xdata$SampleRatio>=line)]
-      after_slice_micro.exp<<- sect_output_micro.exp[intersect_name,]
-      
+      validGene=rownames(after_slice_micro.exp)
+      validSample = rowSums(after_slice_micro.exp>=number)
+      xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_micro.exp)),stringsAsFactors = F)
+      ypoint=length(which(xdata$SampleRatio<=line))/length(validGene)
+      intersect_name = rownames(xdata)[which(xdata$SampleRatio>line)]
+      ratio = sum(xdata$SampleRatio==line)/length(validGene)
+      if(xdata$SampleRatio<0.05){
+        after_slice_micro.exp<<- after_slice_micro.exp[intersect_name,]
+      }
+      else{
+        
+      }
+      ValidNum = data.frame(microNum = length(intersect_name),stringsAsFactors = F);
+      session$sendCustomMessage('Update_valueBox_micro',ValidNum);
     }
     else{
-      if(first=="T"){
-        validGene=rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
-        validSample = rowSums(sect_output_rna.exp[validGene,]>=number)
-        xdata = data.frame(SampleRatio=validSample/length(colnames(sect_output_rna.exp)),stringsAsFactors = F)
-        intersect_name = rownames(xdata)[which(xdata$SampleRatio>=line)]
-        after_slice_rna.exp<<- sect_output_rna.exp[intersect_name,]
-      }
-      #qingkong xiangying rna
-      after_slice_rna.exp<<-after_slice_rna.exp[!(after_slice_rna.exp$.group==group),]
       #append group gene to after_slice_rna.exp
       validGene=rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
       validSample = rowSums(sect_output_rna.exp[validGene,]>=number)
       xdata = data.frame(SampleRatio=validSample/length(colnames(sect_output_rna.exp)),stringsAsFactors = F)
-      intersect_name = rownames(xdata)[which(xdata$SampleRatio>=line)]
-      rbind(after_slice_rna.exp,sect_output_rna.exp[intersect_name,])
+      intersect_name = rownames(xdata)[which(xdata$SampleRatio>line)]
+      #qingkong xiangying rna
+      rbind_Rna = after_slice_rna.exp[intersect_name,]
+      after_slice_rna.exp<<-after_slice_rna.exp[!(after_slice_rna.exp$.group==group),]
+      rbind(after_slice_rna.exp,rbind_Rna)
     }
   })
 })

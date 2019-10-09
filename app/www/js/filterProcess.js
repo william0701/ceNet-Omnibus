@@ -2,7 +2,7 @@
 //creat filter modal
 creat_geneFilter = function(title,inputId,type)
 { 
-  var $modal = $('<div class="gene_filter construct col-lg-6" style="border:1px solid #ccc" id="gene_Group_'+inputId+'_panel"></div>');
+  var $modal = $('<div class="gene_filter construct col-lg-4" style="border:1px solid #ccc" id="gene_Group_'+inputId+'_panel"></div>');
   var $title = $('<h4>'+title+'</h4><hr style="margin-top:0px;margin-bottom:0px">');
   var $body = $('<div class="form-group col-lg-6" style="padding:0px"></div>')
   var $label = $('<label class="control-label">Minimal expression value</label> ')
@@ -74,7 +74,7 @@ creat_geneFilter = function(title,inputId,type)
   })
 }
 //qiefen
-slice=function(e){
+slice_gene=function(e){
     var number=$(e).children("div").children("div").find(".form-control").val();
     var obj={}
     var slider=$(e+">:nth-child(4)").children("div").children("input").data("from")

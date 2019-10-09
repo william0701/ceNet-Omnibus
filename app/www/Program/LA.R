@@ -1,0 +1,25 @@
+LA=function(g2,g1)
+{
+  normalize=function(x)
+  {
+    x=as.numeric(as.vector(x))
+    return((x-mean(x))/sd(x))
+  }
+  exp1=normalize(log(rna.exp[g1,]+1))
+  exp2=normalize(log(rna.exp[g2,]+1))
+  la=NA
+  share.micro=colnames(target)[which(target[g1,]&target[g2,])]
+  if(length(share.micro)>1)
+  {
+    Z=colSums(micro.exp[share.micro,])
+    tZ=qnorm(rank(Z)/(length(Z)+1))
+    la=mean(exp1*exp2*tZ)
+  }
+  else if(length(share.micro==1))
+  {
+    Z=colSums(micro.exp[share.micro,])
+    tZ=qnorm(rank(Z)/(length(Z)+1))
+    la=mean(exp1*exp2*tZ)
+  }
+  return(la)
+}

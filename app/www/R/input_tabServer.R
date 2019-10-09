@@ -32,7 +32,7 @@ addAttribution=function(session)
   result=list(results=result)
   session$sendCustomMessage('attribution_list',toJSON(result,auto_unbox = T))
 }
-## basicObj:保存运算需要的变量
+# ## basicObj:保存运算需要的变量
 # rna.exp=""
 # micro.exp=""
 # target=""
@@ -47,4 +47,4 @@ addAttribution=function(session)
 # currentSpecial="hsapiens_gene_ensembl"
 # currentURL="www.ensembl.org"
 # select.gene=""
-#Input Page Action
+# #Input Page Action

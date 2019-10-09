@@ -2,6 +2,7 @@
 ### Google Analytics - ui.R ###
 ###############################
 source('www/R/input_tabUI.R')
+source('www/R/construct_tabUI.R')
 includeScript('www/js/all.js')
 options(shiny.maxRequestSize = 1000*1024^2)
 header=dashboardHeader(
@@ -44,17 +45,17 @@ process_tab=tabItem(tabName = "process",
                                            )
                                        ),
                                        div(class='multi-wrapper',
-                                           div(class='col-lg-6 non-selected-wrapper',style="height:500px;overflow-y:auto",id='group_biotype',
+                                           div(class='col-lg-6 non-selected-wrapper',style="height:350px;overflow-y:auto",id='group_biotype',
                                                div(class='header',HTML('Groups'))
                                            ),
-                                           div(class='col-lg-6 non-selected-wrapper',style="height:500px;overflow-y:auto",id='candidate_biotype',
+                                           div(class='col-lg-6 non-selected-wrapper',style="height:350px;overflow-y:auto",id='candidate_biotype',
                                                div(class='header',HTML('Candidate Biotypes'))
                                            )
                                        )
                                    )
                             ),
                              div(class='col-lg-6',
-                                 imageOutput(outputId = 'biotype_group_statics_graph',height = "100%")
+                                 imageOutput(outputId = 'biotype_group_statics_graph',height = "100%",width="100%")
                             ),
                             footer = tags$button(id = 'biotype_group_statics', type = "button",class = "btn btn-success action-button pull-right",HTML('Preview'),width='20')
                         ),
@@ -68,7 +69,25 @@ process_tab=tabItem(tabName = "process",
                     )
 )
 construction_tab=tabItem(tabName = "construction",
-                         h2("Network Construction")
+                         h2("Step1: Choose Conditions",style='font-family:Georgia'),
+                         div(class='col-lg-12 callout callout-success',
+                             tags$p(style="font-size:14px;font-family:sans-serif",
+                                    HTML("Please choose conditions used for construct ceRNA network, e.g. Pearson Correlation(PCC), Shared MicroRNA Significance(MS), Liquid Association(LA).&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"),
+                                    tags$button(tags$i(class='fa fa-plus-square'),HTML('Add New'),class='btn btn-default',id='add_new_condition'))
+                             
+                         ),
+                         fluidRow(
+                                  div(id='condition_panel')
+                         ),
+                         h2("Step2: Condition Filter",style='font-family:Georgia'),
+                         div(class='col-lg-12 callout callout-success',
+                             tags$p(style="font-size:14px;font-family:sans-serif",
+                                    HTML("Please choose threshold for every condition and every task.")
+                             )
+                         ),
+                         fluidRow(
+                                  div(id="condition_preview")
+                         )
 )
 visual_tab=tabItem(tabName = "visualization",
                    h2("Network Visualization")
@@ -95,6 +114,7 @@ dashboardPage(
     tags$script(src="js/all.js"),tags$script(src="js/icheck.min.js"),tags$script(src='js/bootstrap-table.min.js'),tags$script(src='js/select2.min.js'),tags$script(src='js/customerUI.js'),
     tags$script(src='js/bootstrap-editable.js'),tags$script(src="js/process.js"),tags$script(src="js/ion.rangeSlider.min.js"),
     tags$script(src="js/filterProcess.js"),tags$script(src="js/samplefilterprocess.js")
+
     ),
   header=header,
   sidebar = sidebar,

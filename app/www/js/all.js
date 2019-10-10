@@ -1,6 +1,8 @@
 var select_gene=new Array();
 $(document).ready(function(){
-  
+  $('a[href="#shiny-tab-input"]').on('click',function(e){
+    initial(0)
+  })
   create_modal();
   $.fn.select2.defaults.set('width','100%');
   $('#database').attr('readonly','readonly');
@@ -89,14 +91,14 @@ create_modal=function()
   $table=$('<table id="modaltable"></table>');
   $foot=$('<div class="modal-footer"></div>');
   $close=$('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
-  $submit=$('<button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>');
+  $submit=$('<button type="button" class="btn btn-primary" id="modalSubmit">OK</button>');
   $modal.append($diag);
   $diag.append($content);
   $content.append($header).append($body).append($foot);
   $header.append($title);
   $body.append($table);
   $foot.append($close).append($submit);
-  $submit.on('click',function(e){
+  /*$submit.on('click',function(e){
     if($('#infolist').attr('currenttarget')=='gene')
     {
       $('#'+$('#infolist').attr('currentTarget').toLowerCase()).val('Current Selected Gene#: '+select_gene.length)
@@ -117,7 +119,7 @@ create_modal=function()
     }
     if($('#infolist').attr('currenttarget')=='archieve'||$('#infolist').attr('currenttarget')=='database')
      Shiny.setInputValue('Update_Ensembl',Math.random())
-  });
+  });*/
   $('body').append($modal);
 
 }
@@ -173,6 +175,16 @@ Shiny.addCustomMessageHandler('ensembl_database_info',function(msg){
     clickToSelect:true
     //height: 500
   });
+  $('#modalSubmit').off('click').on('click',function(e){
+    var value=$('#modaltable tr.selected>td:nth-child(2)').text();
+    if(value!="")
+    {
+     $('#'+$('#infolist').attr('currentTarget').toLowerCase()).val(value);
+     $('#'+$('#infolist').attr('currentTarget').toLowerCase()).trigger('change');
+    }
+    if($('#infolist').attr('currenttarget')=='archieve'||$('#infolist').attr('currenttarget')=='database')
+      Shiny.setInputValue('Update_Ensembl',Math.random())
+  })
   if(!$('#infolist').hasClass('in'))
   {
     $('#infolist').modal({backdrop: 'static', keyboard: false});
@@ -226,6 +238,16 @@ Shiny.addCustomMessageHandler('ensembl_archieve_info',function(msg){
     clickToSelect:true
     //height: 500
   });
+  $('#modalSubmit').off('click').on('click',function(e){
+    var value=$('#modaltable tr.selected>td:nth-child(4)').text();
+    if(value!="")
+    {
+     $('#'+$('#infolist').attr('currentTarget').toLowerCase()).val(value);
+     $('#'+$('#infolist').attr('currentTarget').toLowerCase()).trigger('change');
+    }
+    if($('#infolist').attr('currenttarget')=='archieve'||$('#infolist').attr('currenttarget')=='database')
+     Shiny.setInputValue('Update_Ensembl',Math.random())
+  })
   if(!$('#infolist').hasClass('in'))
   {
     $('#infolist').modal({backdrop: 'static', keyboard: false});
@@ -267,6 +289,14 @@ Shiny.addCustomMessageHandler('ensembl_filter_info',function(msg){
     clickToSelect:true
     //height: 500
   });
+  $('#modalSubmit').off('click').on('click',function(e){
+    var value=$('#modaltable tr.selected>td:nth-child(2)').text();
+    if(value!="")
+    {
+     $('#'+$('#infolist').attr('currentTarget').toLowerCase()).val(value);
+     $('#'+$('#infolist').attr('currentTarget').toLowerCase()).trigger('change');
+    }
+  })
   if(!$('#infolist').hasClass('in'))
   {
     $('#infolist').modal({backdrop: 'static', keyboard: false});
@@ -381,6 +411,13 @@ Shiny.addCustomMessageHandler('select_gene',function(msg){
       }
     })
     $("#modalbody .fixed-height").css('padding-bottom','36px')
+    $('#modalSubmit').on('click',function(e){
+      $('#'+$('#infolist').attr('currentTarget').toLowerCase()).val('Current Selected Gene#: '+select_gene.length)
+      var obj={}
+      obj['select_gene']=select_gene
+      obj['stamp']=Math.random()
+      Shiny.setInputValue('Update_Select_Gene',obj)
+    })
     if(!$('#infolist').hasClass('in'))
     {
       $('#infolist').modal({backdrop: 'static', keyboard: false});

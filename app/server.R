@@ -5,18 +5,28 @@
 print(options('shiny.maxRequestSize'))
 shinyServer(function(input,output,session) {
   source('www/R/input_tabServer.R')
-  dir.create(path = paste('session_tmp_file',session$token))
+  source('www/R/construct_tabServer.R')
+  ##创建临时文件�?
+  tmpdir=tempdir()
+  basepath = paste(tmpdir,'/session_tmp_file',session$token,sep="");
+  dir.create(path = basepath)
   print(paste("Session:",session$token,'is started!'))
-  basepath = paste('session_tmp_file',session$token);
   dir.create(paste(basepath,'Plot',sep="/"))
+  dir.create(paste(basepath,'code',sep="/"))
+  dir.create(paste(basepath,'data',sep="/"))
+  dir.create(paste(basepath,'log',sep="/"))
+  ##
   sect_output_rna.exp=""
   sect_output_micro.exp=""
   sect_output_target=""
   sect_output_geneinfo=""
+
   after_slice_micro.exp=""
   after_slice_rna.exp=""
   expressgene_num=""
   expressgene_num2=""
+
+  biotype_map=""
   load('testdata/ph1.RData')
   #Input Page Action
   observeEvent(input$onclick,{
@@ -276,18 +286,32 @@ shinyServer(function(input,output,session) {
     }
   })
   observeEvent(input$Update_Biotype_Map,{
-    choice=colnames(geneinfo)
-    updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Which Column is Gene Biotype?',choices = choice,selected = NULL,inline=T,prettyOptions=list(shape='round',status='success'))
+    choice=colnames(sect_output_geneinfo)
+    choicenum=lapply(X = sect_output_geneinfo,FUN = unique)
+    choicenum=lapply(X = choicenum,FUN = length)
+    names(choicenum)=choice
+    choicenum=unlist(choicenum)
+    invalidchoice=names(choicenum)[which(choicenum>100)]
+    if(biotype_map=="None")
+    {
+      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Which Column is Gene Biotype?',choices = choice,selected = names(sort(choicenum))[1],inline=T,prettyOptions=list(shape='round',status='success'))
+    }
+    else
+    {
+      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Which Column is Gene Biotype?',choices = choice,selected = biotype_map,inline=T,prettyOptions=list(shape='round',status='success'))
+    }
+    session$sendCustomMessage('invalidColumn',data.frame(choice=invalidchoice,stringsAsFactors = F))
   })
   observe({
-    biotype=input$biotype_map
-    if(biotype!='None')
+    biotype_map<<-input$biotype_map
+    if(biotype_map!='None')
     {
-      choice=unique(geneinfo[,biotype])
-      if(length(choice)>200)
+
+      choice=unique(geneinfo[,biotype_map])
+      if(length(choice)>100)
       {
         sendSweetAlert(session = session,title = 'Warning...',text = 'Too Many Biotypes, Choose Carefully!',type = 'warning')
-        return()
+        #return()
       }
       session$sendCustomMessage('update_candidate_biotype',sort(choice))
     }
@@ -304,9 +328,8 @@ shinyServer(function(input,output,session) {
       subset=unlist(data[[group]])
       sect_output_geneinfo[sect_output_geneinfo[,biotype] %in% subset,'.group']<<-group
     }
-    
     output$biotype_group_statics_graph=renderImage({
-      
+      browser()
       p=ggplot(data =sect_output_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill=biotype))+
         labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
         theme(legend.position = 'bottom')
@@ -315,11 +338,12 @@ shinyServer(function(input,output,session) {
       #          legend = list(orientation = "h",font=list(family='Georgia')),
       #          autosize=T)
       svg(filename = paste(basepath,"Plot",'ph1.svg',sep="/"),family = 'serif')
+      print(p)
       dev.off()
       print(normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))
-      list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))    
-    })
-    
+      list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")),height="100%",width="100%")    
+    },deleteFile=F)
+    session$sendCustomMessage('clear_construction_task',"")
   })
   
   observeEvent(input$Sample_Filter,{
@@ -343,8 +367,8 @@ shinyServer(function(input,output,session) {
         # x<-as.character(x)
         sum(x!=sep[[1]])
       }
-      # expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
-      expressgene_num<<-colSums(sect_output_micro.exp!=0) 
+      expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
+      # expressgene_num<<-colSums(sect_output_micro.exp!=0) 
     }
     else if(len_sep==2){
       myfunc<-function(x){
@@ -432,8 +456,8 @@ shinyServer(function(input,output,session) {
           # x<-as.character(x)
           sum(x!=sep[[1]])
         }
-        # expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
-        expressgene_num2<<-colSums(sect_output_rna.exp!=0) 
+        expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
+        # expressgene_num2<<-colSums(sect_output_rna.exp!=0) 
        
       }
       else if(len_sep==2){
@@ -522,7 +546,6 @@ shinyServer(function(input,output,session) {
     if(group=="sample_Group_micro_invalid_name_panel"){
 
 
-     
       x2<-quantile(expressgene_num,line,type=3) 
       
       liuxiasum<-length(colnames(sect_output_micro.exp[,which(expressgene_num>x2)]))
@@ -536,10 +559,6 @@ shinyServer(function(input,output,session) {
         print("tanchutishi") #tanchutishi..
         after_slice_micro.exp<<-sect_output_micro.exp
       }
-      # which(expressgene_num>=x2)
-      # after_slice_micro.exp<-sect_output_micro.exp[,which(expressgene_num>=x2)]
-      
-
 
     }
     else{
@@ -555,9 +574,6 @@ shinyServer(function(input,output,session) {
       else{
         print("tanchutishi1")
       }
-      
-      # which(expressgene_num2>=x2)
-      # after_slice_rna.exp<-sect_output_rna.exp[,which(expressgene_num2>=x2)]
     }
   })
   observeEvent(input$creatFilter_request,{
@@ -704,5 +720,371 @@ shinyServer(function(input,output,session) {
         print("tishi")
       }
     }
+    #   list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")),height="100%",width="100%")    
+    # },deleteFile=F)
+    session$sendCustomMessage('clear_construction_task',"")
+  })
+  #Construction Page Action
+  observeEvent(input$add_new_condition,{
+    isolate({
+      msg=input$add_new_condition
+      core=input$use_core
+    })
+
+    choice=c(condition[which(!condition$used),'abbr'],'custom')
+    if(length(choice)>1)
+      names(choice)=c(paste(condition[which(!condition$used),'description'],'(',condition[which(!condition$used),'abbr'],')',sep=""),'Custom')
+    else
+      names(choice)='Custom'
+    
+    if(is.null(sect_output_geneinfo$.group))
+    {
+      sect_output_geneinfo$.group<<-'Default'
+      sendSweetAlert(session = session,title = "Warning",text = 'Group All Genes in Defaut',type = 'warning')
+    }
+    groupstaistic=as.data.frame(table(sect_output_geneinfo$.group))
+    rownames(groupstaistic)=groupstaistic$Var1
+    pairs=data.frame(v1=rep(groupstaistic$Var1,times=dim(groupstaistic)[1]),v2=rep(groupstaistic$Var1,each=dim(groupstaistic)[1]),stringsAsFactors = F)
+    pairs=unique(t(apply(X = pairs,MARGIN = 1,FUN = sort)))
+    show=paste(pairs[,1],'(',groupstaistic[pairs[,1],'Freq'],') vs ',pairs[,2],'(',groupstaistic[pairs[,2],'Freq'],')',sep="")
+    values=paste(pairs[,1],"---",pairs[,2],sep="")
+    show=c('All',show)
+    values=c('all',values)
+    cores=seq(0,validcore-sum(condition$core))
+    
+    if(length(msg)>1)
+    {
+      choice=msg$type
+      cores=seq(0,validcore-sum(condition$core)+condition[msg$type,'core'])
+      type=msg$type
+      tasks=msg$tasks
+    }
+    else
+    {
+      type=choice[1]
+      core=cores[1]
+      tasks='all'
+    }
+    
+    removeUI(selector = '#modalbody>',immediate = T)
+    insertUI(selector = '#modalbody',where = 'beforeEnd',immediate = T,
+             ui=div(
+                    div(class='row',
+                        div(class='col-lg-6',
+                            selectInput(inputId = 'condition_type',label = 'Choose New Condition',choices = choice,multiple = F,selected = type)
+                        ),
+                        div(class='col-lg-6',
+                            selectInput(inputId = 'use_core',label = 'Choose Parallel Cores',choices = cores ,multiple = F,selected = as.character(core))
+                        )
+                    ),
+                    div(class='row',
+                        div(class="col-lg-12",
+                            multiInput(inputId = 'group_pairs',label = 'Group Pairs',choiceNames = show,choiceValues = values,selected = tasks,width = "100%")
+                        )
+                    ),
+                    conditionalPanel(condition = 'input.condition_type=="custom"',
+                                     hr(),
+                                     div(class='row',
+                                         div(class='col-lg-3 col-xs-12',
+                                             textInput(inputId = 'custom_condition_description',label = 'New Condition Full Name')
+                                         ),
+                                         div(class='col-lg-3 col-xs-12',
+                                             textInput(inputId = 'custom_condition_abbr',label = 'New Condition Abbreviation')
+                                         ),
+                                     # ),
+                                     # div(class="row",
+                                         div(class='col-lg-6 col-xs-12',
+                                             div(class='form-group',
+                                                 tags$label(HTML('Available Variables')),
+                                                 tags$ul(class='form-control',style="border-color:#fff;padding:0px",
+                                                         tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('rna.exp'),style="display:inline-block;padding-left:0px;padding-right:5px"),
+                                                         tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('micro.exp'),style="display:inline-block;padding-left:0px;padding-right:5px"),
+                                                         tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('target'),style="display:inline-block;padding-left:0px;padding-right:5px")
+                                                        )
+                                             )
+                                         )
+                                      ),
+                                     div(class='row',
+                                         div(class='col-lg-12',
+                                             textAreaInput(inputId = 'custom_condition_code',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='100%',resize='both')
+                                         )
+                                     )
+                                  )
+                    )
+             )
+    session$sendCustomMessage('conditions',condition)
+  })
+  observeEvent(input$choose_new_condition,{
+    isolate({
+      msg=input$choose_new_condition
+      core=as.numeric(msg$core)
+      tasks=msg$tasks
+      type=msg$type
+      description=input$custom_condition_description
+      abbr=input$custom_condition_abbr
+      code=input$custom_condition_code
+    })
+    if(type=='custom')
+    {
+      condition<<-rbind(condition,data.frame(description=description,abbr=abbr,used=T,core=core,task=msg$tasks,stringsAsFactors = F))
+      rownames(condition)<<-condition$abbr
+      write(x = code,file = paste(basepath,"/code/",abbr,'.R',sep=""))
+    }
+    else
+    {
+      condition[type,'used']<<-T
+      condition[type,'core']<<-core
+      condition[type,'task']<<-paste(unlist(tasks),collapse = ";")
+    }
+  })
+  observeEvent(input$remove_condition,{
+    isolate({
+      msg=input$remove_condition
+    })
+    condition[msg$type,'used']<<-F
+    condition[msg$type,'core']<<-0
+  })
+  observeEvent(input$compute_condition,{
+    isolate({
+      type=input$compute_condition$type
+    })
+    core=condition[type,'core']
+   
+    tasks=condition[type,'task']
+    logpath=paste(basepath,'/log/',type,'.txt',sep="")
+    
+    if(type=="PCC")
+    {
+      if(dir.exists(paths = paste(basepath,'/log/')))
+      {
+        dir.create(paths = paste(basepath,'/log/'),recursive = T)
+      }
+      print('start')
+      session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
+      filepath=paste(basepath,"/data/rna.exp.mat",sep="")
+      writeMat(con=filepath,x=as.matrix(sect_output_rna.exp))
+      system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
+    }
+    else
+    {
+      if(dir.exists(paths = paste(basepath,'/log/')))
+      {
+        dir.create(paths = paste(basepath,'/log/'),recursive = T)
+      }
+      file.create(logpath)
+      print('start')
+      session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
+      datapath=paste(basepath,"/data/tmpdatas.RData",sep="")
+      scriptpath="www/Program/ComputeCondition.R"
+      codepath=""
+      resultpath=paste(basepath,'/',type,'.RData',sep="")
+      if(file.exists(paste(basepath,'/code/',type,'.R',sep="")))
+      {
+        codepath=paste(basepath,'/code/',type,'.R',sep="")
+      }
+      else if(file.exists(paste('www/Program/',type,'.R',sep="")))
+      {
+        codepath=paste('www/Program/',type,'.R',sep="")
+      }
+      else
+      {
+        sendSweetAlert(session = session,title = "Error..",text = "No Code",type = 'error')
+      }
+      
+      rna.exp=sect_output_rna.exp
+      micro.exp=sect_output_micro.exp
+      target=sect_output_target
+      geneinfo=sect_output_geneinfo
+      save(rna.exp,micro.exp,target,geneinfo,file = datapath)
+      print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
+      system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
+    }
+  })
+  observeEvent(input$compute_status,{
+    isolate({
+      msg=input$compute_status
+      type=msg$type
+    })
+    time=function(s)
+    {
+      s=floor(s)
+      out=""
+      if(s>=86400)
+      {
+        out=paste0(out,floor(s/86400),'d')
+        s=s%%86400
+      }
+      if(s>=3600)
+      {
+        out=paste0(out,floor(s/3600),'h')
+        s=s%%3600
+      }
+      if(s>=60)
+      {
+        out=paste0(out,floor(s/60),'m')
+        s=s%%60
+      }
+      out=paste0(out,s,'s')
+      return(out)
+    }
+    print("check status")
+    logpath=paste(basepath,'/log/',type,'.txt',sep="")
+    if(file.exists(logpath))
+    {
+      tasks=unlist(strsplit(x = condition[type,'task'],split = ";"))
+      if(type=="PCC")
+      {
+        content=readLines(logpath)
+        lastline=content[length(content)]
+        progress=min(length(content),3)/3*100
+        
+        if(grepl(pattern = "^All Finish.$",x = lastline))
+        {
+          session$sendCustomMessage('calculation_eta',
+                                    list(type=type,msg=lastline,status='stop',progress=paste(progress,"%",sep=""),complete=paste(length(tasks),"/",length(tasks),sep="")))
+        }
+        else
+        {
+          session$sendCustomMessage('calculation_eta',list(type=type,msg=lastline,status='run',progress=paste(progress,"%",sep=""),complete=paste(0,"/",length(tasks),sep="")))
+        }
+      }
+      else
+      {
+        content=readLines(logpath)
+        indexes=which(grepl(pattern = "^\\[\\{\"task",x = content))
+        if(length(indexes)>0)
+        {
+          endtime=as.numeric(Sys.time())
+          index=max(indexes)
+          info=fromJSON(content[index])
+          complete=nchar(content[index+1])#完成�?
+          if(is.na(complete))
+            complete=1
+          eta=(endtime-info$time)/complete*(info$total-complete)#预计时间
+          finish.task=length(which(grepl(pattern = "^Finish",x = content)))#总完成任务数
+          status="run"
+          msg=paste("Running:",info$task,"&nbsp;&nbsp;&nbsp;&nbsp;ETA:",time(eta))
+          progress=format(x = complete/info$total*100,nsmall=2)
+          if(length(which(grepl(pattern = "^All Finish.$",x = content)))>0)
+          {
+            msg="All Finish."
+            status='stop'
+          }
+          session$sendCustomMessage('calculation_eta',
+                                    list(type=type,msg=msg,progress=paste(progress,"%",sep=""),status=status,complete=paste(finish.task,"/",length(tasks),sep="")))
+        }
+      }
+    }
+    else
+    {
+      session$sendCustomMessage('calculation_eta',list(type=type,msg="",status='run'))
+    }
+  })
+  observeEvent(input$condition_filter_response,{
+    isolate({
+      type=input$condition_filter_response$type
+      tasks=input$condition_filter_response$tasks
+    })
+    removeUI(selector = paste("div.col-lg-12 > #density_plot_",type,sep=""),immediate = T)
+    insertUI(selector = "#condition_preview",where = 'beforeEnd',
+             ui =filter_box(type,tasks),
+             immediate = T
+            )
+  })
+  observeEvent(input$condition_finish,{
+    isolate({
+      type=input$condition_finish$type
+    })
+    tasks=condition[type,'task']
+    tasks=unlist(strsplit(x = tasks,split = ";"))
+    if(type=="PCC")
+    {
+      result=readMat(paste(basepath,'/all.cor.mat',sep=""))
+      cor=result$cor
+      pvalue=result$pvalue
+      gene=rownames(sect_output_rna.exp)
+      rownames(cor)=gene
+      colnames(cor)=gene
+      rownames(pvalue)=gene
+      colnames(pvalue)=gene
+      if(length(which(tasks=='all'))==1)
+      {
+        cor=list(cor)
+        names(cor)='all'
+        corlist=list(cor)
+        names(corlist)='PCC'
+        
+        pvalue=list(pvalue)
+        names(pvalue)="all"
+        pvaluelist=list(pvalue)
+        names(pvaluelist)='PCC.pvalue'
+      }
+      else
+      {
+        corlist=list()
+        pvaluelist=list()
+        for(task in tasks)
+        {
+          groups=unlist(strsplit(x = task,split = "---"))
+          group1=rownames(sect_output_geneinfo)[which(sect_output_geneinfo$.group==groups[1])]
+          group2=rownames(sect_output_geneinfo)[which(sect_output_geneinfo$.group==groups[2])]
+          
+          tmp=list(cor[group1,group2])
+          names(tmp)=task
+          corlist=c(corlist,tmp)
+          tmp=list(pvalue[group1,group2])
+          names(tmp)=task
+          pvaluelist=c(pvaluelist,tmp)
+        }
+        corlist=list(corlist)
+        names(corlist)="PCC"
+        
+        pvaluelist=list(pvaluelist)
+        names(pvaluelist)="PCC.pvalue"
+        #condition.values<<-c(condition.values,corlist,pvaluelist)
+      }
+      if(is.null(condition.values[['PCC']]))
+      {
+        condition.values<<-c(condition.values,corlist)
+      }
+      else
+      {
+        condition.values['PCC']<<-corlist
+      }
+      if(is.null(condition.values[['PCC.pvalue']]))
+      {
+        condition.values<<-c(condition.values,pvaluelist)
+      }
+      else
+      {
+        condition.values['PCC.pvalue']<<-pvaluelist
+      }
+    }
+    else
+    {
+      result=readRDS(paste(basepath,'/',type,'.RData',sep=""))
+      result=list(result)
+      names(result)=type
+      if(is.null(condition.values[[type]]))
+      {
+        condition.values<<-c(condition.values,result)
+      }
+      else
+      {
+        condition.values[type]<<-result
+      }    
+    }
+    draw_density(basepath,output,session,type,tasks)
+  })
+  observeEvent(input$update_condition_thresh,{
+    isolate({
+      msg=input$update_condition_thresh
+      direction=input[[paste("direction",msg$type,msg$task,sep="_")]]
+    })
+    condition_density_plot(basepath = basepath,type = msg$type,task = msg$task,value = msg$value,direction = direction)
+    output[[paste("density_plot",msg$type,msg$task,"image",sep="_")]]=renderImage({
+      figurepath=paste(basepath,'/Plot/density_plot_',msg$type,"_",msg$task,".svg",sep="")
+      list(src=figurepath,width="100%",height="100%")
+    },deleteFile = F)
   })
 })

@@ -89,7 +89,16 @@ $(document).ready(function(){
     }
     var obj={};
     obj['stamp']=Math.random();
-    obj['data']=strMapToObj(biotype_group);
+    var t=strMapToObj(biotype_group);
+    var total=0
+    for(var key in t)
+      total=total+t[key].length
+    if(total==0)
+    {
+      $('#candidate_biotype li>label').trigger('click')
+      t=strMapToObj(biotype_group);
+    }
+    obj['data']=t
     Shiny.setInputValue('show_biotype_group',obj)
     Shiny.setInputValue('creatFilter_request',Math.random())
   })
@@ -269,3 +278,26 @@ Shiny.addCustomMessageHandler('update_candidate_biotype',function(msg){
   }
   
 })
+Shiny.addCustomMessageHandler('invalidColumn',function(msg){
+  var choice=msg.choice
+  async function demoSleep(ms) 
+  {
+    console.log('Taking a break...');
+    await sleep(ms);
+    console.log('Two seconds later, showing sleep in a loop...');
+    for(var i=0;i<choice.length;++i)
+    {
+    $('#biotype_map input[value="'+choice[i]+'"]').attr('disabled',true)
+    }
+  }
+  demoSleep(100)
+  
+})
+
+
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+

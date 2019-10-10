@@ -2,12 +2,12 @@
 //creat filter modal
 creat_geneFilter = function(title,inputId,type)
 { 
-  var $modal = $('<div class="gene_filter construct col-lg-6" style="border:1px solid #ccc" id="gene_Group_'+inputId+'_panel"></div>');
+  var $modal = $('<div class="gene_filter construct col-lg-4" style="border:1px solid #ccc" id="gene_Group_'+inputId+'_panel"></div>');
   var $title = $('<h4>'+title+'</h4><hr style="margin-top:0px;margin-bottom:0px">');
   var $body = $('<div class="form-group col-lg-6" style="padding:0px"></div>')
   var $label = $('<label class="control-label">Minimal expression value</label> ')
   var $inputModal = $('<div class="input-group "></div>');
-  var $inPut = $('<input type="text" style="text-align:center" value=0  class="form-control bfh-number" data-min="5" data-max="25" first="T" exist="F" GeneType='+type+' id=gene_slice_value_'+inputId+'>');
+  var $inPut = $('<input type="text" style="text-align:center" value=0  class="form-control bfh-number" data-min="5" data-max="25" exist="F" GeneType='+type+' id=gene_slice_value_'+inputId+'>');
   var $span1 = $('<span class="input-group-btn"></span>');
   var $buttonPlus = $('<button class="btn btn-default btn-flat" type="button"><i class="fa fa-plus-square"></i></button>');
   var $button1 = $('<button class="btn btn-default btn-flat" type="button">Preview</button>');
@@ -74,7 +74,7 @@ creat_geneFilter = function(title,inputId,type)
   })
 }
 //qiefen
-slice=function(e){
+slice_gene=function(e){
     var number=$(e).children("div").children("div").find(".form-control").val();
     var obj={}
     var slider=$(e+">:nth-child(4)").children("div").children("input").data("from")
@@ -85,7 +85,6 @@ slice=function(e){
     obj['group']=$(e).attr("id");
     obj['line']=slider;
     Shiny.setInputValue('Gene_Slice_Signal',obj);
-    $(e).children("div").children("div").find(".form-control").attr("first","F");
   }
 Shiny.addCustomMessageHandler('gene_type_infomation',function(msg){
   var len=msg.group.length;

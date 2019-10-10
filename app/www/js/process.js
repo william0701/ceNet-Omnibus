@@ -11,6 +11,15 @@ $(document).ready(function(){
       });
     Shiny.setInputValue('Update_Biotype_Map',Math.random());
   });
+  Shiny.addCustomMessageHandler('Valid_valuebox_micro', function(Num1) {
+        $("#MicroRnaoutput").find("h3").text(Num1["microNum"]);
+      });
+  Shiny.addCustomMessageHandler('Valid_valuebox_rna', function(Num1) {
+        $("#Rnaoutput").find("h3").text(Num1["rnaNum"]);
+      });
+  Shiny.addCustomMessageHandler('Valid_valuebox_sample', function(Num1) {
+        $("#Sampleoutput").find("h3").text(Num1["sampleNum"]);
+      });
   $('.value_BoxInput a').on("click",function(e){
     var obj={}
     obj['stamp']=Math.random()

@@ -444,7 +444,9 @@ shinyServer(function(input,output,session) {
     
     else if(group=="ce_invalid_name"){
       len_sep<-length(sep)
-
+      # for(n in 1:len_sep){
+      #   
+      # }
       if(len_sep==1){
         myfunc<-function(x){
           if(is.character(x)){
@@ -454,8 +456,8 @@ shinyServer(function(input,output,session) {
           sum(x!=sep[[1]])
         }
         expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
-        # expressgene_num2<<-colSums(sect_output_rna.exp!=0) 
-       
+        # expressgene_num2<<-colSums(sect_output_rna.exp!=0)
+
       }
       else if(len_sep==2){
         myfunc<-function(x){
@@ -464,9 +466,9 @@ shinyServer(function(input,output,session) {
           }
           # x<-as.character(x)
           sum(x!=sep[[1]]&x!=sep[[2]])
-        }  
+        }
         expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
-        
+
       }
       else if(len_sep==3){
         myfunc<-function(x){
@@ -478,7 +480,7 @@ shinyServer(function(input,output,session) {
         }
         expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
       }
-      
+
       else if(len_sep==4){
         myfunc<-function(x){
           if(is.character(x)){
@@ -545,25 +547,28 @@ shinyServer(function(input,output,session) {
       x2<-quantile(expressgene_num,line,type=3) 
       
       liuxiasum<-length(colnames(sect_output_micro.exp[,which(expressgene_num>x2)]))
-      liuxiabaifenbi<-liuxiasum/(dim(sect_output_micro.exp)[1])
+      liuxiabaifenbi<-liuxiasum/length(colnames(sect_output_micro.exp))
       if(abs((1-line)-liuxiabaifenbi)<=0.05){
         after_slice_micro.exp<<-sect_output_micro.exp[,which(expressgene_num>x2)]
       }
       else{
         print("tanchutishi") #tanchutishi..
+        sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value! Please choose again.',type = 'warning')
+        after_slice_micro.exp<<-sect_output_micro.exp
       }
 
     }
     else{
       x2<-quantile(expressgene_num2,line,type=3) 
       liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num2>x2)]))
-      liuxiabaifenbi<-liuxiasum/(dim(sect_output_rna.exp)[1])
+      liuxiabaifenbi<-liuxiasum/length(colnames(sect_output_rna.exp))
       if(abs((1-line)-liuxiabaifenbi)<=0.05){
         after_slice_rna.exp<<-sect_output_rna.exp[,which(expressgene_num2>x2)]
       }
-      
       else{
-        print("tanchutishi")
+        print("tanchutishi2")
+        sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value please choose again',type = 'warning')
+        after_slice_rna.exp<<-sect_output_rna.exp  
       }
     }
   })

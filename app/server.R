@@ -338,9 +338,9 @@ shinyServer(function(input,output,session) {
       print(p)
       dev.off()
       print(normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))
-      list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))    
-    })
-    
+      list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")),height="100%",width="100%")    
+    },deleteFile=F)
+    session$sendCustomMessage('clear_construction_task',"")
   })
   
   observeEvent(input$Sample_Filter,{

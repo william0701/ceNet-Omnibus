@@ -555,36 +555,39 @@ shinyServer(function(input,output,session) {
     })
     
     if(group=="sample_Group_micro_invalid_name_panel"){
-
-
       x2<-quantile(expressgene_num,line,type=3) 
       
       liuxiasum<-length(colnames(sect_output_micro.exp[,which(expressgene_num>x2)]))
       liuxiabaifenbi<-liuxiasum/length(colnames(sect_output_micro.exp))
       if(abs((1-line)-liuxiabaifenbi)<=0.05){
         after_slice_micro.exp<<-sect_output_micro.exp[,which(expressgene_num>x2)]
+        intersect_sample_num<-length(intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))) 
+        sendSweetAlert(session = session,title = "Success..",text =paste0("Filter Ok! Sample Remain: ",intersect_sample_num) ,type = 'success')
         ValidNum = data.frame(sampleNum = length(colnames(after_slice_micro.exp)),stringsAsFactors = F);
         session$sendCustomMessage('Valid_valuebox_sample',ValidNum);
       }
       else{
-        print("tanchutishi") #tanchutishi..
+        # print("tanchutishi") #tanchutishi..
         sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value! Please choose again.',type = 'warning')
-        after_slice_micro.exp<<-sect_output_micro.exp
+        # after_slice_micro.exp<<-sect_output_micro.exp
       }
 
     }
     else{
       x2<-quantile(expressgene_num2,line,type=3) 
-      liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num2>x2)]))
+      liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num2>=x2)]))
+      browser()
       liuxiabaifenbi<-liuxiasum/length(colnames(sect_output_rna.exp))
       if(abs((1-line)-liuxiabaifenbi)<=0.05){
         after_slice_rna.exp<<-sect_output_rna.exp[,which(expressgene_num2>x2)]
+        intersect_sample_num<-length(intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))) 
+        sendSweetAlert(session = session,title = "Success..",text =paste0("Filter Ok! Sample Remain: ",intersect_sample_num) ,type = 'success')
         ValidNum = data.frame(sampleNum = length(colnames(after_slice_rna.exp)),stringsAsFactors = F);
         session$sendCustomMessage('Valid_valuebox_sample',ValidNum);
       }
       else{
         sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value please choose again',type = 'warning')
-        after_slice_rna.exp<<-sect_output_rna.exp  
+        # after_slice_rna.exp<<-sect_output_rna.exp  
       }
     }
   })

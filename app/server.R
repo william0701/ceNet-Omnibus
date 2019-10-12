@@ -402,6 +402,10 @@ shinyServer(function(input,output,session) {
       }
       expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
     }
+    else{
+      sendSweetAlert(session = session,title = "Warning..",text = 'Please choose valid value',type = 'warning')
+      expressgene_num<<-rep(dim(sect_output_micro.exp)[1],time=dim(sect_output_micro.exp)[2])
+    }
     expressgene_num<<-expressgene_num/(dim(sect_output_micro.exp)[1])
     # browser()
     process_sample<-data.frame(
@@ -417,7 +421,9 @@ shinyServer(function(input,output,session) {
     print(ggplot(process_sample, aes(x = x))+stat_ecdf()+
       geom_hline(aes(yintercept=value), colour="#990000", linetype="dashed")+
       geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")+
-      geom_point(x=x2,y=value)+geom_text(label=paste0("(",draw_x2,",",value,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5))
+      geom_point(x=x2,y=value)+geom_text(label=paste0("(",draw_x2,",",value,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
+      geom_text(label=paste0("Original Sample Number:",length(colnames(sect_output_micro.exp))),x=min(expressgene_num),y=1,colour = "red",family="serif",size=5)
+    )
     dev.off()
     file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),
               to = paste('www/templePlot/microSampleFilter',session$token,'.svg',sep = ""))
@@ -493,6 +499,10 @@ shinyServer(function(input,output,session) {
           sum(x!=sep[[1]]&x!=sep[[2]]&x!=sep[[3]]&x!=sep[[4]])
         }
         expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
+      }
+      else{
+        sendSweetAlert(session = session,title = "Warning..",text = 'Please choose valid value',type = 'warning')
+        expressgene_num2<<-rep(dim(sect_output_rna.exp)[1],time=dim(sect_output_rna.exp)[2])
       }
       expressgene_num2<<-expressgene_num2/(dim(sect_output_rna.exp)[1])
       process_sample<-data.frame(

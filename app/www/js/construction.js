@@ -217,7 +217,7 @@ create_condition=function(name,tasks,core)
     obj['type']=type
     Shiny.setInputValue('remove_condition',obj)
     $(e.currentTarget).parent().parent().parent().parent().parent().remove()
-    $("#density_plot_"+type).parent().remove()
+    //$("#density_plot_"+type).parent().remove()
   })
   $box.append($left).append($right)//.append($go)
   $right.append($title).append($taskpanel).append($progress).append($eta)
@@ -294,14 +294,17 @@ thresh_change=function(e)
 
 Shiny.addCustomMessageHandler("clear_construction_task",function(msg){
   var $select_conditions=$('#condition_panel').children()
-  for(var i=0;i<$select_conditions.length;++i)
+  /*for(var i=0;i<$select_conditions.length;++i)
   {
     var $cur=$($select_conditions.get(i)).children("div")
     $cur.attr('tasks',"")
     $("#"+$cur.attr("id").replace(/^body/,"task")).text(' Tasks:0/0')
     $cur.children('span').children('a').children('i').attr('class','fa fa-play')
     $cur.attr('class','info-box bg-red')
-  }
+  }*/
+  $select_conditions.each(function(index,ele){
+    $(ele).find("i.fa-times").parent().trigger('click')
+  })
   
 })
 
@@ -325,12 +328,35 @@ Shiny.addCustomMessageHandler('calculation_eta',function(msg){
   }
 })
 
+comfirm_thresh=function(e)
+{
+  var $thresh_panel=$(e).parent().prev()
+  var threshs={}
+  var type=""
+  $thresh_panel.children().each(function(i,ele){
+    type=$(ele).attr("type")
+    var task=$(ele).attr('task')
+    var t={}
+    var thresh=$("#thresh_"+type+"_"+task).children('input').val()
+    var direction=$(ele).find('select').val()
+    t['direction']=direction
+    t['thresh']=thresh
+    threshs[task]=t
+  })
+  var obj={}
+  obj['stamp']=Math.random()
+  obj['type']=type
+  obj['thresh']=threshs
+  Shiny.setInputValue("construct_network",obj)
+}
+
 async function updateState(type)
 {
   var obj={}
   obj['type']=type
   while(condition_status[type]!='stop')
   {
+    console.log("check"+type)
     obj['stamp']=Math.random()
     Shiny.setInputValue('compute_status',obj)
     await sleep(5000)

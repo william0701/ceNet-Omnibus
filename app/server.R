@@ -644,13 +644,18 @@ shinyServer(function(input,output,session) {
       xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_rna.exp)),stringsAsFactors = F)
       ypoint=length(which(xdata$SampleRatio<=ratio))/length(validGene)
       temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
-      draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2 
+      draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2
+      number_ori=length(validGene)
+      number_after=(1-ypoint)*number_ori
       ypoint =round(ypoint,2)
       svg(filename = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),family = 'serif')
+      text_to_plot=data.frame(x=c(0.15,0.15),y=c(0.95,0.90),col=c("blue","blue"),text=c(paste("Original genes:",number_ori),paste("After seg:",number_after)))
       print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
               geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
               geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
-              geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5))
+              geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
+              geom_text(data = text_to_plot,aes(x = text_to_plot$x,y = text_to_plot$y,label =text_to_plot$text),size =8,colour="blue")
+            )
       dev.off()
       file.copy(from = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),to = paste('www/templePlot/',group,'Statistic',session$token,'.svg',sep = ""))
       
@@ -700,7 +705,7 @@ shinyServer(function(input,output,session) {
         session$sendCustomMessage('Valid_valuebox_micro',ValidNum);
       }
       else{
-        print("tishi")
+        sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value please choose again',type = 'warning')
       }
     }
     else{
@@ -719,7 +724,7 @@ shinyServer(function(input,output,session) {
         session$sendCustomMessage('Valid_valuebox_rna',ValidNum);
       }
       else{
-        print("tishi")
+        sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value please choose again',type = 'warning')
       }
     }
     #   list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")),height="100%",width="100%")    

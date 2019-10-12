@@ -23,6 +23,7 @@ shinyServer(function(input,output,session) {
 
   after_slice_micro.exp=""
   after_slice_rna.exp=""
+  after_slice_geneinfo=""
   expressgene_num=""
   expressgene_num2=""
 
@@ -258,8 +259,10 @@ shinyServer(function(input,output,session) {
       sect_output_micro.exp<<-micro.exp[sect_micro,sect_sample]
       sect_output_target<<-target[sect_gene,sect_micro];
       sect_output_geneinfo<<-geneinfo[sect_gene,]
+      #sect_output_geneinfo$.group<<-NA
       after_slice_micro.exp<<-sect_output_micro.exp
       after_slice_rna.exp<<-sect_output_rna.exp
+      after_slice_geneinfo<<-sect_output_geneinfo
       validNum1 = length(sect_gene);
       validNum2 = length(sect_micro);
       validNum3 = length(sect_sample);
@@ -306,7 +309,7 @@ shinyServer(function(input,output,session) {
     biotype_map<<-input$biotype_map
     if(biotype_map!='None')
     {
-
+     
       choice=unique(geneinfo[,biotype_map])
       if(length(choice)>100)
       {
@@ -322,7 +325,7 @@ shinyServer(function(input,output,session) {
       msg=input$show_biotype_group
       data=msg$data
     })
-    sect_output_geneinfo$.group<<-NULL
+    sect_output_geneinfo$.group<<-NA
     for(group in names(data))
     {
       subset=unlist(data[[group]])
@@ -342,7 +345,12 @@ shinyServer(function(input,output,session) {
       print(normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))
       list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")),height="100%",width="100%")    
     },deleteFile=F)
+    after_slice_geneinfo <<- sect_output_geneinfo[which(!is.na(sect_output_geneinfo$.group)),]
+    after_slice_rna.exp <<- sect_output_rna.exp[rownames(after_slice_geneinfo),]
+    ValidNum = data.frame(rnaNum = length(rownames(after_slice_rna.exp)),stringsAsFactors = F);
+    session$sendCustomMessage('Valid_valuebox_rna',ValidNum);
     session$sendCustomMessage('clear_construction_task',"")
+    
   })
   
   observeEvent(input$Sample_Filter,{
@@ -619,12 +627,18 @@ shinyServer(function(input,output,session) {
       ypoint=length(which(xdata$SampleRatio<=ratio))/length(validGene)
       temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
       draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2 
+      number_ori=length(validGene)
+      number_after=(1-ypoint)*number_ori
+      x1 = min(xdata$SampleRatio)+0.2*max(xdata$SampleRatio)+min(xdata$SampleRatio)
+      text_to_plot=data.frame(x=c(x1,x1),y=c(0.95,0.90),col=c("blue","blue"),text=c(paste("Original genes:",number_ori),paste("After seg:",number_after)))
       ypoint =round(ypoint,2)
       svg(filename = paste(basepath,"Plot","microStatistic.svg",sep = "/"),family = 'serif')
       print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
               geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
               geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
-              geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5))
+              geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
+              geom_text(data = text_to_plot,aes(x = text_to_plot$x,y = text_to_plot$y,label =text_to_plot$text),size =8,colour="blue")
+            )
       dev.off()
       file.copy(from = paste(basepath,"Plot","microStatistic.svg",sep = "/"),to = paste('www/templePlot/microStatistic',session$token,'.svg',sep = ""))
 
@@ -651,6 +665,7 @@ shinyServer(function(input,output,session) {
       
     }
     else{
+      
       validGene=rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
       validSample = rowSums(after_slice_rna.exp[validGene,]>=number)
       ratio=as.numeric(line)
@@ -662,7 +677,8 @@ shinyServer(function(input,output,session) {
       number_after=(1-ypoint)*number_ori
       ypoint =round(ypoint,2)
       svg(filename = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),family = 'serif')
-      text_to_plot=data.frame(x=c(0.15,0.15),y=c(0.95,0.90),col=c("blue","blue"),text=c(paste("Original genes:",number_ori),paste("After seg:",number_after)))
+      x1 = min(xdata$SampleRatio)+0.2*max(xdata$SampleRatio)+min(xdata$SampleRatio)
+      text_to_plot=data.frame(x=c(x1,x1),y=c(0.95,0.90),col=c("blue","blue"),text=c(paste("Original genes:",number_ori),paste("After seg:",number_after)))
       print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
               geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
               geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
@@ -714,6 +730,8 @@ shinyServer(function(input,output,session) {
       ratio = sum(xdata$SampleRatio==line)/length(validGene)
       if(ratio<0.05){
         after_slice_micro.exp<<- after_slice_micro.exp[intersect_name,]
+        num1 = length(rownames(after_slice_micro.exp))
+        sendSweetAlert(session = session,title = "Success..",text = paste("Filter Success! Valid microRNA Remain:",num1),type = 'success')
         ValidNum = data.frame(microNum = length(intersect_name),stringsAsFactors = F);
         session$sendCustomMessage('Valid_valuebox_micro',ValidNum);
       }
@@ -733,7 +751,10 @@ shinyServer(function(input,output,session) {
         remain = after_slice_rna.exp[intersect_name,]
         after_slice_rna.exp<<-after_slice_rna.exp[delete,]
         after_slice_rna.exp<<-rbind(after_slice_rna.exp,remain)
+        after_slice_geneinfo<<-after_slice_geneinfo[rownames(after_slice_rna.exp),]
+        num1 = length(rownames(after_slice_rna.exp))
         ValidNum = data.frame(rnaNum = length(rownames(after_slice_rna.exp)),stringsAsFactors = F);
+        sendSweetAlert(session = session,title = "Success..",text = paste("Filter Success! Valid ceRNA Remain:",num1),type = 'success')
         session$sendCustomMessage('Valid_valuebox_rna',ValidNum);
       }
       else{

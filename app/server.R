@@ -727,6 +727,10 @@ shinyServer(function(input,output,session) {
     session$sendCustomMessage('clear_construction_task',"")
   })
   #Construction Page Action
+  observeEvenet(input$construction_data_confirm,{
+    samples=intersect(colnames(after_slice_rna.exp),colnames(after_slice_micro.exp))
+    gene=intersect(rownames(after_slice_rna.exp),rownames(after_slice_geneinfo))
+  })
   observeEvent(input$add_new_condition,{
     isolate({
       msg=input$add_new_condition

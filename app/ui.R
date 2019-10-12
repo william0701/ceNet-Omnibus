@@ -62,9 +62,23 @@ process_tab=tabItem(tabName = "process",
                         box(title = "Sample Filter",status = 'danger',solidHeader = F,width = 12,id="Sample_Filter_all"
                             
                         ),
-                        box(title = "Gene Filter",status = 'danger',solidHeader = F,width = 12,id="123"
+                        box(title = "Gene Filter",status = 'danger',solidHeader = F,width = 12,id="Gene_Filter_all"
                             
+                            ),
+                        box(title = "Value Transform",status = 'danger',solidHeader = F,width = 12,id="Value_Transform_all",
+                            div(class='btn-group',
+                                h3("Logtransform Module",style="text-align:center;"),
+                                tags$button(id='log2_transform',type ='button',class='btn btn-info',HTML('Log2_transform'),width='20'),
+                                tags$button(id='loge_transform',type ='button',class='btn btn-info',HTML('Loge_transform'),width='20'),
+                                tags$button(id='log10_transform',type ='button',class='btn btn-info',HTML('Log10_transform'),width='20')
+                            ),
+                            div(class='btn-group',
+                                h3("Normalized Module",style="text-align:center;"),
+                                tags$button(id='Min_Max_scaling',type ='button',class='btn btn-info',HTML('Min-Max scaling'),width='20'),
+                                tags$button(id='loge_transform2',type ='button',class='btn btn-info',HTML('loge_transform'),width='20'),
+                                tags$button(id='log10_transform3',type ='button',class='btn btn-info',HTML('log10_transform'),width='20')
                             )
+                        )
                             
                     )
 )

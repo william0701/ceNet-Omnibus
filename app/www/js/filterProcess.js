@@ -18,7 +18,7 @@ creat_geneFilter = function(title,inputId,type)
   $inputModal.append($buttonMinus).append($inPut).append($span1);
   $span1.append($buttonPlus).append($button1);
  
-    $('#123').append($modal);
+    $('#Gene_Filter_all').append($modal);
   
   $inPut.on("change",function(e){
     var reg=/^[0-9]+(\.[0-9]+)?$/;

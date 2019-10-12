@@ -11,6 +11,30 @@ $(document).ready(function(){
       });
     Shiny.setInputValue('Update_Biotype_Map',Math.random());
   });
+  $("#log2_transform").on("click",function(e){
+    var obj={}
+    obj['stamp']=Math.random()
+    obj['opera']="log2"
+    Shiny.setInputValue('Value_Transform_Signal',obj);
+  })
+  $("#loge_transform").on("click",function(e){
+    var obj={}
+    obj['stamp']=Math.random()
+    obj['opera']="loge"
+    Shiny.setInputValue('Value_Transform_Signal',obj);
+  })
+  $("#log10_transform").on("click",function(e){
+    var obj={}
+    obj['stamp']=Math.random()
+    obj['opera']="log10"
+    Shiny.setInputValue('Value_Transform_Signal',obj);
+  })
+  $("#Min_Max_scaling").on("click",function(e){
+    var obj={}
+    obj['stamp']=Math.random()
+    obj['opera']="Min_Max_scaling"
+    Shiny.setInputValue('Normalized_Signal',obj);
+  })
   Shiny.addCustomMessageHandler('Valid_valuebox_micro', function(Num1) {
         $("#MicroRnaoutput").find("h3").text(Num1["microNum"]);
       });

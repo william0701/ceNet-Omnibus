@@ -762,6 +762,42 @@ shinyServer(function(input,output,session) {
     # },deleteFile=F)
     session$sendCustomMessage('clear_construction_task',"")
   })
+  observeEvent(input$Value_Transform_Signal,{
+    isolate({
+      msg = input$Value_Transform_Signal
+      opera = msg$opera
+    })
+    inter_sample = intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))
+    if(opera=="log2"){
+      after_slice_rna.exp = log2(after_slice_rna.exp[,inter_sample])
+      after_slice_micro.exp = log2(after_slice_micro.exp[,inter_sample])
+      sendSweetAlert(session = session,title = "Success..",text = "Successful Log2 Operation",type = 'success')
+    }
+    else if(opera=="loge"){
+      after_slice_rna.exp = log(after_slice_rna.exp[,inter_sample])
+      after_slice_micro.exp = log(after_slice_micro.exp[,inter_sample])
+      sendSweetAlert(session = session,title = "Success..",text = "Successful Loge Operation",type = 'success')
+    }
+    else if(opera=="log10"){
+      after_slice_rna.exp = log10(after_slice_rna.exp[,inter_sample])
+      after_slice_micro.exp = log10(after_slice_micro.exp[,inter_sample])
+      sendSweetAlert(session = session,title = "Success..",text = "Successful Log10 Operation",type = 'success')
+    }
+  })
+  observeEvent(input$Normalized_Signal,{
+    isolate({
+      msg=input$Normalized_Signal
+      opera=msg$opera
+    })
+    if(opera=="Min_Max_scaling"){
+      action=function(x){
+        (x-min(x))/(max(x)-min(x))
+      }
+      after_slice_rna.exp <<- t(apply(after_slice_rna.exp, 1, action))
+      after_slice_micro.exp <<- t(apply(after_slice_micro.exp, 1, action))
+      sendSweetAlert(session = session,title = "Success..",text = "Successful Min_Max_scaling Operation",type = 'success')
+    }
+  })
   #Construction Page Action
   observeEvent(input$add_new_condition,{
     isolate({

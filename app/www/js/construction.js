@@ -123,6 +123,9 @@ $(document).ready(function(){
       $('#infolist').modal({backdrop: 'static', keyboard: false});
     }
   })
+  $("#shiny-tab-construction").on('click',function(e){
+    Shiny.setInputValue("construction_data_confirm",Math.random())
+  })
 })
 create_condition=function(name,tasks,core)
 {

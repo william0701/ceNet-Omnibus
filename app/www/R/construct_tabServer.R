@@ -4,7 +4,7 @@ condition=data.frame(abbr=c('PCC','LA','MS'),
                      core=0,
                      task="",
                      stringsAsFactors = F
-                    )
+)
 rownames(condition)=condition$abbr
 validcore=detectCores(logical = F)
 condition.values=list()
@@ -16,8 +16,8 @@ filter_box=function(type,tasks)
   title=h4(type)
   icon=tags$button(class="btn btn-box-tool",type="button","data-widget"="collapse",
                    tags$i(class="fa fa-minus")
-                   )  
-
+  )  
+  
   tool=div(class="box-tools pull-right",icon)
   header=div(class="box-header with-border",title,tool)
   plot_panel=list()
@@ -99,28 +99,28 @@ filter_bar=function(type,task)
   thresh=div(class="input-group",id=paste("thresh",type,task,sep="_"),
              div(class="input-group-btn",
                  tags$button(class="btn btn-default",type="button",HTML("<i class='fa fa-minus'></i>"),onclick="step_change(this)")#paste("thresh_change('",type,"','",task,"')",sep=""))
-                ),
+             ),
              tags$input(class="form-control",type="text",value=0,style="text-align:center",onchange="thresh_change(this)"),
              div(class="input-group-btn",
                  tags$button(class="btn btn-default",type="button",HTML("<i class='fa fa-plus'></i>"),onclick="step_change(this)")#paste("thresh_change('",type,"','",task,"')",sep=""))
              )
-            )
+  )
   step=tags$input(class="form-control",type="text",value=0.01,style="text-align:center")
   result=div(class="row",
              div(class="col-lg-3",direction),
              div(class="col-lg-3",tags$label(class="control-label",HTML("Step")),step),
              div(class="col-lg-6",tags$label(class="control-label",HTML("Thresh")),thresh)
-             )
+  )
   return(result)
 }
 
-network_construnction=function(sect_output_geneinfo)
+network_construnction=function(after_slice_geneinfo)
 {
   browser()
   
   gc()
   print(thresh)
-  allgene=rownames(sect_output_geneinfo)[which(!is.na(sect_output_geneinfo$.group))]
+  allgene=rownames(after_slice_geneinfo)[which(!is.na(after_slice_geneinfo$.group))]
   network<<-matrix(data = NA,nrow = length(allgene),ncol = length(allgene))
   rownames(network)<<-allgene
   colnames(network)<<-allgene
@@ -135,8 +135,8 @@ network_construnction=function(sect_output_geneinfo)
     for(t in tasks)
     {
       groups=unlist(strsplit(x = t,split = "---"))
-      group1=rownames(sect_output_geneinfo)[which(sect_output_geneinfo$.group==groups[1])]
-      group2=rownames(sect_output_geneinfo)[which(sect_output_geneinfo$.group==groups[2])]
+      group1=rownames(after_slice_geneinfo)[which(after_slice_geneinfo$.group==groups[1])]
+      group2=rownames(after_slice_geneinfo)[which(after_slice_geneinfo$.group==groups[2])]
       if(all(group1==group2))
       {
         network[group1,group2][upper.tri(network[group1,group2])]<<-0
@@ -164,8 +164,8 @@ network_construnction=function(sect_output_geneinfo)
       else
       {
         groups=unlist(strsplit(x = task,split = "---"))
-        group1=rownames(sect_output_geneinfo)[which(sect_output_geneinfo$.group==groups[1])]
-        group2=rownames(sect_output_geneinfo)[which(sect_output_geneinfo$.group==groups[2])]
+        group1=rownames(after_slice_geneinfo)[which(after_slice_geneinfo$.group==groups[1])]
+        group2=rownames(after_slice_geneinfo)[which(after_slice_geneinfo$.group==groups[2])]
         tmp=direction(condition.values[[type]][[task]][group1,group2],value)
         tmp[is.na(tmp)]=F
         network[group1,group2]<<-network[group1,group2]+tmp

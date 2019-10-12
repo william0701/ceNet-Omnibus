@@ -23,6 +23,7 @@ shinyServer(function(input,output,session) {
 
   after_slice_micro.exp=""
   after_slice_rna.exp=""
+  after_slice_geneinfo=""
   expressgene_num=""
   expressgene_num2=""
 
@@ -258,8 +259,10 @@ shinyServer(function(input,output,session) {
       sect_output_micro.exp<<-micro.exp[sect_micro,sect_sample]
       sect_output_target<<-target[sect_gene,sect_micro];
       sect_output_geneinfo<<-geneinfo[sect_gene,]
+      sect_output_geneinfo$.group<<-NULL
       after_slice_micro.exp<<-sect_output_micro.exp
       after_slice_rna.exp<<-sect_output_rna.exp
+      after_slice_geneinfo<<-sect_output_geneinfo
       validNum1 = length(sect_gene);
       validNum2 = length(sect_micro);
       validNum3 = length(sect_sample);
@@ -342,6 +345,8 @@ shinyServer(function(input,output,session) {
       print(normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))
       list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")),height="100%",width="100%")    
     },deleteFile=F)
+    after_slice_geneinfo <<- sect_output_geneinfo[which(!is.null(sect_output_geneinfo$.group)),]
+    after_slice_rna.exp <<- sect_output_rna.exp[rownames(after_slice_geneinfo),]
     session$sendCustomMessage('clear_construction_task',"")
   })
   

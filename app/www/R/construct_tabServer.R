@@ -6,8 +6,10 @@ condition=data.frame(abbr=c('PCC','LA','MS'),
                      stringsAsFactors = F
                     )
 rownames(condition)=condition$abbr
-validcore=detectCores()
+validcore=detectCores(logical = F)
 condition.values=list()
+network=""
+thresh=data.frame()
 
 filter_box=function(type,tasks)
 {
@@ -25,7 +27,8 @@ filter_box=function(type,tasks)
     plot_panel=c(plot_panel,list(panel))
   }
   body=div(class="box-body",plot_panel)
-  box=div(class="box box-primary",id=paste("density_plot_",type,sep=""),header,body)
+  foot=div(class="box-footer",tags$button(class="btn btn-success action-button pull-right",HTML('Confirm'),onclick="comfirm_thresh(this)"))
+  box=div(class="box box-primary",id=paste("density_plot_",type,sep=""),header,body,foot)
   all=div(class="col-lg-12",box)
   return(all)
 }
@@ -74,6 +77,7 @@ draw_density=function(basepath,output,session,type,tasks)
   {
     condition_density_plot(basepath = basepath,type = type,task = task,value=0)
     removeUI(selector = paste("#density_plot",type,task,"image",sep="_"),immediate = T)
+    removeUI(selector = paste(paste("#density_plot",type,task,sep="_"),"div.row"),immediate = T)
     insertUI(selector = paste("#density_plot",type,task,sep="_"),where = "beforeEnd",
              ui = filter_bar(type,task),immediate = T)
     insertUI(selector = paste("#density_plot",type,task,sep="_"),
@@ -89,7 +93,6 @@ draw_density=function(basepath,output,session,type,tasks)
     },tasks)
   }
 }
-
 filter_bar=function(type,task)
 {
   direction=selectInput(inputId = paste("direction",type,task,sep="_"),label = "Direction",choices = list("<"="<",">"=">","<="="<=",">="=">=","=="="=="),multiple = F)
@@ -109,4 +112,72 @@ filter_bar=function(type,task)
              div(class="col-lg-6",tags$label(class="control-label",HTML("Thresh")),thresh)
              )
   return(result)
+}
+
+network_construnction=function(sect_output_geneinfo)
+{
+  browser()
+  
+  gc()
+  print(thresh)
+  allgene=rownames(sect_output_geneinfo)[which(!is.na(sect_output_geneinfo$.group))]
+  network<<-matrix(data = NA,nrow = length(allgene),ncol = length(allgene))
+  rownames(network)<<-allgene
+  colnames(network)<<-allgene
+  
+  tasks=unique(thresh$task)
+  if(length(which(tasks=="all"))>0)
+  {
+    network[which(is.na(network))]<<-0
+  }
+  else
+  {
+    for(t in tasks)
+    {
+      groups=unlist(strsplit(x = t,split = "---"))
+      group1=rownames(sect_output_geneinfo)[which(sect_output_geneinfo$.group==groups[1])]
+      group2=rownames(sect_output_geneinfo)[which(sect_output_geneinfo$.group==groups[2])]
+      if(all(group1==group2))
+      {
+        network[group1,group2][upper.tri(network[group1,group2])]<<-0
+      }
+      else
+      {
+        network[group1,group2]<<-0
+      }
+    }
+  }
+  for(type in unique(thresh$type))
+  {
+    type.thresh=thresh[which(thresh$type==type),]
+    for(i in seq(1,dim(type.thresh)[1]))
+    {
+      task=type.thresh$task[i]
+      direction=get(type.thresh$direction[i])
+      value=type.thresh$thresh[i]
+      if(task=='all')
+      {
+        tmp=direction(condition.values[[type]][[task]],value)
+        tmp[is.na(tmp)]=0
+        network<<-network+tmp
+      }
+      else
+      {
+        groups=unlist(strsplit(x = task,split = "---"))
+        group1=rownames(sect_output_geneinfo)[which(sect_output_geneinfo$.group==groups[1])]
+        group2=rownames(sect_output_geneinfo)[which(sect_output_geneinfo$.group==groups[2])]
+        tmp=direction(condition.values[[type]][[task]][group1,group2],value)
+        tmp[is.na(tmp)]=F
+        network[group1,group2]<<-network[group1,group2]+tmp
+        # if(!all(group1==group2))
+        # {
+        #   network[group2,group1]<<-network[group2,group1]+t(tmp)
+        # }
+      }
+    }
+  }
+  network[which(network<length(unique(thresh$type)))]<<-0
+  network[which(network!=0)]<<-1
+  print(sum(network,na.rm = T))
+  browser()
 }

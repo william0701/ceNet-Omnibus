@@ -24,7 +24,7 @@ allresult=list()
 
 if(length(which(tasks=='all'))>0)
 {
-  geneset1=rownames(geneinfo)[1:100]
+  geneset1=rownames(geneinfo)
   geneset2=geneset1
   
   starttime=as.numeric(Sys.time())

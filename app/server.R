@@ -232,7 +232,7 @@ shinyServer(function(input,output,session) {
     },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
     # session$sendCustomMessage('geneinfo',toJSON(geneinfo))
   })
-  #Process Page Action
+  #########Process Page Action########
   observeEvent(input$interclick,{
     if(is.character(rna.exp)){
       sendSweetAlert(session = session,title = "Error..",text = "ceRNA Not Exist!",type = "error");
@@ -345,6 +345,7 @@ shinyServer(function(input,output,session) {
       print(normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))
       list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")),height="100%",width="100%")    
     },deleteFile=F)
+    browser()
     after_slice_geneinfo <<- sect_output_geneinfo[which(!is.null(sect_output_geneinfo$.group)),]
     after_slice_rna.exp <<- sect_output_rna.exp[rownames(after_slice_geneinfo),]
     session$sendCustomMessage('clear_construction_task',"")
@@ -746,29 +747,32 @@ shinyServer(function(input,output,session) {
     # },deleteFile=F)
     session$sendCustomMessage('clear_construction_task',"")
   })
-  #Construction Page Action
-  observeEvenet(input$construction_data_confirm,{
+  #########Construction Page Action########
+  observeEvent(input$construction_data_confirm,{
     samples=intersect(colnames(after_slice_rna.exp),colnames(after_slice_micro.exp))
     gene=intersect(rownames(after_slice_rna.exp),rownames(after_slice_geneinfo))
+    after_slice_geneinfo<<-after_slice_geneinfo[gene,]
+    after_slice_rna.exp<<-after_slice_rna.exp[gene,samples]
+    after_slice_micro.exp<<-after_slice_micro.exp[,samples]
   })
   observeEvent(input$add_new_condition,{
     isolate({
       msg=input$add_new_condition
       core=input$use_core
     })
-
+    browser()
     choice=c(condition[which(!condition$used),'abbr'],'custom')
     if(length(choice)>1)
       names(choice)=c(paste(condition[which(!condition$used),'description'],'(',condition[which(!condition$used),'abbr'],')',sep=""),'Custom')
     else
       names(choice)='Custom'
     
-    if(is.null(sect_output_geneinfo$.group))
+    if(all(is.na(after_slice_geneinfo$.group)))
     {
-      sect_output_geneinfo$.group<<-'Default'
+      after_slice_geneinfo$.group<<-'Default'
       sendSweetAlert(session = session,title = "Warning",text = 'Group All Genes in Defaut',type = 'warning')
     }
-    groupstaistic=as.data.frame(table(sect_output_geneinfo$.group))
+    groupstaistic=as.data.frame(table(after_slice_geneinfo$.group))
     rownames(groupstaistic)=groupstaistic$Var1
     pairs=data.frame(v1=rep(groupstaistic$Var1,times=dim(groupstaistic)[1]),v2=rep(groupstaistic$Var1,each=dim(groupstaistic)[1]),stringsAsFactors = F)
     pairs=unique(t(apply(X = pairs,MARGIN = 1,FUN = sort)))
@@ -795,49 +799,49 @@ shinyServer(function(input,output,session) {
     removeUI(selector = '#modalbody>',immediate = T)
     insertUI(selector = '#modalbody',where = 'beforeEnd',immediate = T,
              ui=div(
-                    div(class='row',
-                        div(class='col-lg-6',
-                            selectInput(inputId = 'condition_type',label = 'Choose New Condition',choices = choice,multiple = F,selected = type)
-                        ),
-                        div(class='col-lg-6',
-                            selectInput(inputId = 'use_core',label = 'Choose Parallel Cores',choices = cores ,multiple = F,selected = as.character(core))
-                        )
-                    ),
-                    div(class='row',
-                        div(class="col-lg-12",
-                            multiInput(inputId = 'group_pairs',label = 'Group Pairs',choiceNames = show,choiceValues = values,selected = tasks,width = "100%")
-                        )
-                    ),
-                    conditionalPanel(condition = 'input.condition_type=="custom"',
-                                     hr(),
-                                     div(class='row',
-                                         div(class='col-lg-3 col-xs-12',
-                                             textInput(inputId = 'custom_condition_description',label = 'New Condition Full Name')
-                                         ),
-                                         div(class='col-lg-3 col-xs-12',
-                                             textInput(inputId = 'custom_condition_abbr',label = 'New Condition Abbreviation')
-                                         ),
-                                     # ),
-                                     # div(class="row",
-                                         div(class='col-lg-6 col-xs-12',
-                                             div(class='form-group',
-                                                 tags$label(HTML('Available Variables')),
-                                                 tags$ul(class='form-control',style="border-color:#fff;padding:0px",
-                                                         tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('rna.exp'),style="display:inline-block;padding-left:0px;padding-right:5px"),
-                                                         tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('micro.exp'),style="display:inline-block;padding-left:0px;padding-right:5px"),
-                                                         tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('target'),style="display:inline-block;padding-left:0px;padding-right:5px")
-                                                        )
-                                             )
-                                         )
-                                      ),
-                                     div(class='row',
-                                         div(class='col-lg-12',
-                                             textAreaInput(inputId = 'custom_condition_code',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='100%',resize='both')
-                                         )
-                                     )
-                                  )
-                    )
+               div(class='row',
+                   div(class='col-lg-6',
+                       selectInput(inputId = 'condition_type',label = 'Choose New Condition',choices = choice,multiple = F,selected = type)
+                   ),
+                   div(class='col-lg-6',
+                       selectInput(inputId = 'use_core',label = 'Choose Parallel Cores',choices = cores ,multiple = F,selected = as.character(core))
+                   )
+               ),
+               div(class='row',
+                   div(class="col-lg-12",
+                       multiInput(inputId = 'group_pairs',label = 'Group Pairs',choiceNames = show,choiceValues = values,selected = tasks,width = "100%")
+                   )
+               ),
+               conditionalPanel(condition = 'input.condition_type=="custom"',
+                                hr(),
+                                div(class='row',
+                                    div(class='col-lg-3 col-xs-12',
+                                        textInput(inputId = 'custom_condition_description',label = 'New Condition Full Name')
+                                    ),
+                                    div(class='col-lg-3 col-xs-12',
+                                        textInput(inputId = 'custom_condition_abbr',label = 'New Condition Abbreviation')
+                                    ),
+                                    # ),
+                                    # div(class="row",
+                                    div(class='col-lg-6 col-xs-12',
+                                        div(class='form-group',
+                                            tags$label(HTML('Available Variables')),
+                                            tags$ul(class='form-control',style="border-color:#fff;padding:0px",
+                                                    tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('rna.exp'),style="display:inline-block;padding-left:0px;padding-right:5px"),
+                                                    tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('micro.exp'),style="display:inline-block;padding-left:0px;padding-right:5px"),
+                                                    tags$li(tags$i(class='fa fa-tag text-light-blue'),HTML('target'),style="display:inline-block;padding-left:0px;padding-right:5px")
+                                            )
+                                        )
+                                    )
+                                ),
+                                div(class='row',
+                                    div(class='col-lg-12',
+                                        textAreaInput(inputId = 'custom_condition_code',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='100%',resize='both')
+                                    )
+                                )
+               )
              )
+    )
     session$sendCustomMessage('conditions',condition)
   })
   observeEvent(input$choose_new_condition,{
@@ -880,7 +884,7 @@ shinyServer(function(input,output,session) {
       type=input$compute_condition$type
     })
     core=condition[type,'core']
-   
+    
     tasks=condition[type,'task']
     logpath=paste(basepath,'/log/',type,'.txt',sep="")
     
@@ -893,7 +897,7 @@ shinyServer(function(input,output,session) {
       print('start')
       session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
       filepath=paste(basepath,"/data/rna.exp.mat",sep="")
-      writeMat(con=filepath,x=as.matrix(sect_output_rna.exp))
+      writeMat(con=filepath,x=as.matrix(after_slice_rna.exp))
       system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
     }
     else
@@ -922,10 +926,10 @@ shinyServer(function(input,output,session) {
         sendSweetAlert(session = session,title = "Error..",text = "No Code",type = 'error')
       }
       
-      rna.exp=sect_output_rna.exp
-      micro.exp=sect_output_micro.exp
-      target=sect_output_target
-      geneinfo=sect_output_geneinfo
+      rna.exp=after_slice_rna.exp
+      micro.exp=after_slice_micro.exp
+      target=sect_output_target[rownames(rna.exp),rownames(micro.exp)]
+      geneinfo=after_slice_geneinfo
       save(rna.exp,micro.exp,target,geneinfo,file = datapath)
       print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
       system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
@@ -1020,7 +1024,7 @@ shinyServer(function(input,output,session) {
     insertUI(selector = "#condition_preview",where = 'beforeEnd',
              ui =filter_box(type,tasks),
              immediate = T
-            )
+    )
   })
   observeEvent(input$condition_finish,{
     isolate({
@@ -1033,7 +1037,7 @@ shinyServer(function(input,output,session) {
       result=readMat(paste(basepath,'/all.cor.mat',sep=""))
       cor=result$cor
       pvalue=result$pvalue
-      gene=rownames(sect_output_rna.exp)
+      gene=rownames(after_slice_rna.exp)
       rownames(cor)=gene
       colnames(cor)=gene
       rownames(pvalue)=gene
@@ -1057,8 +1061,8 @@ shinyServer(function(input,output,session) {
         for(task in tasks)
         {
           groups=unlist(strsplit(x = task,split = "---"))
-          group1=rownames(sect_output_geneinfo)[which(sect_output_geneinfo$.group==groups[1])]
-          group2=rownames(sect_output_geneinfo)[which(sect_output_geneinfo$.group==groups[2])]
+          group1=rownames(after_slice_geneinfo)[which(after_slice_geneinfo$.group==groups[1])]
+          group2=rownames(after_slice_geneinfo)[which(after_slice_geneinfo$.group==groups[2])]
           
           tmp=list(cor[group1,group2])
           names(tmp)=task
@@ -1129,6 +1133,6 @@ shinyServer(function(input,output,session) {
     {
       thresh<<-rbind(thresh,data.frame(type=type,task=name,direction=newthresh[[name]][['direction']],thresh=as.numeric(newthresh[[name]][['thresh']]),stringsAsFactors = F))
     }
-    network_construnction(sect_output_geneinfo)
+    network_construnction(after_slice_geneinfo)
   })
 })

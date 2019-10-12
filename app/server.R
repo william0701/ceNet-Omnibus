@@ -329,7 +329,6 @@ shinyServer(function(input,output,session) {
       sect_output_geneinfo[sect_output_geneinfo[,biotype] %in% subset,'.group']<<-group
     }
     output$biotype_group_statics_graph=renderImage({
-      browser()
       p=ggplot(data =sect_output_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill=biotype))+
         labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
         theme(legend.position = 'bottom')
@@ -655,13 +654,18 @@ shinyServer(function(input,output,session) {
       xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_rna.exp)),stringsAsFactors = F)
       ypoint=length(which(xdata$SampleRatio<=ratio))/length(validGene)
       temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
-      draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2 
+      draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2
+      number_ori=length(validGene)
+      number_after=(1-ypoint)*number_ori
       ypoint =round(ypoint,2)
       svg(filename = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),family = 'serif')
+      text_to_plot=data.frame(x=c(0.15,0.15),y=c(0.95,0.90),col=c("blue","blue"),text=c(paste("Original genes:",number_ori),paste("After seg:",number_after)))
       print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
               geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
               geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
-              geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5))
+              geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
+              geom_text(data = text_to_plot,aes(x = text_to_plot$x,y = text_to_plot$y,label =text_to_plot$text),size =8,colour="blue")
+            )
       dev.off()
       file.copy(from = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),to = paste('www/templePlot/',group,'Statistic',session$token,'.svg',sep = ""))
       
@@ -711,7 +715,7 @@ shinyServer(function(input,output,session) {
         session$sendCustomMessage('Valid_valuebox_micro',ValidNum);
       }
       else{
-        print("tishi")
+        sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value please choose again',type = 'warning')
       }
     }
     else{
@@ -730,7 +734,7 @@ shinyServer(function(input,output,session) {
         session$sendCustomMessage('Valid_valuebox_rna',ValidNum);
       }
       else{
-        print("tishi")
+        sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value please choose again',type = 'warning')
       }
     }
     #   list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")),height="100%",width="100%")    
@@ -832,6 +836,7 @@ shinyServer(function(input,output,session) {
       msg=input$choose_new_condition
       core=as.numeric(msg$core)
       tasks=msg$tasks
+      tasks=paste(unlist(tasks),collapse = ";")
       type=msg$type
       description=input$custom_condition_description
       abbr=input$custom_condition_abbr
@@ -839,15 +844,17 @@ shinyServer(function(input,output,session) {
     })
     if(type=='custom')
     {
-      condition<<-rbind(condition,data.frame(description=description,abbr=abbr,used=T,core=core,task=msg$tasks,stringsAsFactors = F))
+      condition<<-rbind(condition,data.frame(description=description,abbr=abbr,used=T,core=core,task=tasks,stringsAsFactors = F))
       rownames(condition)<<-condition$abbr
       write(x = code,file = paste(basepath,"/code/",abbr,'.R',sep=""))
+      #thresh<<-rbind(thresh,data.frame(type=condition$abbr,task=tasks,direction="<",thresh=0,stringsAsFactors = F))
     }
     else
     {
       condition[type,'used']<<-T
       condition[type,'core']<<-core
-      condition[type,'task']<<-paste(unlist(tasks),collapse = ";")
+      condition[type,'task']<<-tasks
+      #thresh<<-rbind(thresh,data.frame(type=condition$abbr,task=tasks,direction="<",thresh=0,stringsAsFactors = F))
     }
   })
   observeEvent(input$remove_condition,{
@@ -856,6 +863,8 @@ shinyServer(function(input,output,session) {
     })
     condition[msg$type,'used']<<-F
     condition[msg$type,'core']<<-0
+    thresh<<-thresh[thresh$type!=msg$type,]
+    removeUI(selector = paste("div.col-lg-12 > #density_plot_",msg$type,sep=""),immediate = T)
   })
   observeEvent(input$compute_condition,{
     isolate({
@@ -1099,5 +1108,18 @@ shinyServer(function(input,output,session) {
       figurepath=paste(basepath,'/Plot/density_plot_',msg$type,"_",msg$task,".svg",sep="")
       list(src=figurepath,width="100%",height="100%")
     },deleteFile = F)
+  })
+  observeEvent(input$construct_network,{
+    isolate({
+      msg=input$construct_network
+      newthresh=msg$thresh
+      type=msg$type
+    })
+    thresh<<-thresh[thresh$type!=type,]
+    for(name in names(newthresh))
+    {
+      thresh<<-rbind(thresh,data.frame(type=type,task=name,direction=newthresh[[name]][['direction']],thresh=as.numeric(newthresh[[name]][['thresh']]),stringsAsFactors = F))
+    }
+    network_construnction(sect_output_geneinfo)
   })
 })

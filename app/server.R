@@ -23,6 +23,7 @@ shinyServer(function(input,output,session) {
 
   after_slice_micro.exp=""
   after_slice_rna.exp=""
+  after_slice_geneinfo=""
   expressgene_num=""
   expressgene_num2=""
 
@@ -258,8 +259,10 @@ shinyServer(function(input,output,session) {
       sect_output_micro.exp<<-micro.exp[sect_micro,sect_sample]
       sect_output_target<<-target[sect_gene,sect_micro];
       sect_output_geneinfo<<-geneinfo[sect_gene,]
+      sect_output_geneinfo$.group<<-NULL
       after_slice_micro.exp<<-sect_output_micro.exp
       after_slice_rna.exp<<-sect_output_rna.exp
+      after_slice_geneinfo<<-sect_output_geneinfo
       validNum1 = length(sect_gene);
       validNum2 = length(sect_micro);
       validNum3 = length(sect_sample);
@@ -342,6 +345,8 @@ shinyServer(function(input,output,session) {
       print(normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))
       list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")),height="100%",width="100%")    
     },deleteFile=F)
+    after_slice_geneinfo <<- sect_output_geneinfo[which(!is.null(sect_output_geneinfo$.group)),]
+    after_slice_rna.exp <<- sect_output_rna.exp[rownames(after_slice_geneinfo),]
     session$sendCustomMessage('clear_construction_task',"")
   })
   
@@ -401,6 +406,10 @@ shinyServer(function(input,output,session) {
       }
       expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
     }
+    else{
+      sendSweetAlert(session = session,title = "Warning..",text = 'Please choose valid value',type = 'warning')
+      expressgene_num<<-rep(dim(sect_output_micro.exp)[1],time=dim(sect_output_micro.exp)[2])
+    }
     expressgene_num<<-expressgene_num/(dim(sect_output_micro.exp)[1])
     # browser()
     process_sample<-data.frame(
@@ -416,7 +425,9 @@ shinyServer(function(input,output,session) {
     print(ggplot(process_sample, aes(x = x))+stat_ecdf()+
       geom_hline(aes(yintercept=value), colour="#990000", linetype="dashed")+
       geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")+
-      geom_point(x=x2,y=value)+geom_text(label=paste0("(",draw_x2,",",value,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5))
+      geom_point(x=x2,y=value)+geom_text(label=paste0("(",draw_x2,",",value,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
+      geom_text(label=paste0("Original Sample Number:",length(colnames(sect_output_micro.exp))),x=min(expressgene_num),y=1,colour = "red",family="serif",size=5)
+    )
     dev.off()
     file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),
               to = paste('www/templePlot/microSampleFilter',session$token,'.svg',sep = ""))
@@ -492,6 +503,10 @@ shinyServer(function(input,output,session) {
           sum(x!=sep[[1]]&x!=sep[[2]]&x!=sep[[3]]&x!=sep[[4]])
         }
         expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
+      }
+      else{
+        sendSweetAlert(session = session,title = "Warning..",text = 'Please choose valid value',type = 'warning')
+        expressgene_num2<<-rep(dim(sect_output_rna.exp)[1],time=dim(sect_output_rna.exp)[2])
       }
       expressgene_num2<<-expressgene_num2/(dim(sect_output_rna.exp)[1])
       process_sample<-data.frame(
@@ -644,13 +659,18 @@ shinyServer(function(input,output,session) {
       xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_rna.exp)),stringsAsFactors = F)
       ypoint=length(which(xdata$SampleRatio<=ratio))/length(validGene)
       temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
-      draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2 
+      draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2
+      number_ori=length(validGene)
+      number_after=(1-ypoint)*number_ori
       ypoint =round(ypoint,2)
       svg(filename = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),family = 'serif')
+      text_to_plot=data.frame(x=c(0.15,0.15),y=c(0.95,0.90),col=c("blue","blue"),text=c(paste("Original genes:",number_ori),paste("After seg:",number_after)))
       print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
               geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
               geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
-              geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5))
+              geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
+              geom_text(data = text_to_plot,aes(x = text_to_plot$x,y = text_to_plot$y,label =text_to_plot$text),size =8,colour="blue")
+            )
       dev.off()
       file.copy(from = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),to = paste('www/templePlot/',group,'Statistic',session$token,'.svg',sep = ""))
       
@@ -700,7 +720,7 @@ shinyServer(function(input,output,session) {
         session$sendCustomMessage('Valid_valuebox_micro',ValidNum);
       }
       else{
-        print("tishi")
+        sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value please choose again',type = 'warning')
       }
     }
     else{
@@ -719,7 +739,7 @@ shinyServer(function(input,output,session) {
         session$sendCustomMessage('Valid_valuebox_rna',ValidNum);
       }
       else{
-        print("tishi")
+        sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value please choose again',type = 'warning')
       }
     }
     #   list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")),height="100%",width="100%")    

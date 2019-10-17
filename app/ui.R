@@ -66,18 +66,16 @@ process_tab=tabItem(tabName = "process",
                             
                             ),
                         box(title = "Value Transform",status = 'danger',solidHeader = F,width = 12,id="Value_Transform_all",
-                            div(class='btn-group',
-                                h3("Logtransform Module",style="text-align:center;"),
-                                tags$button(id='log2_transform',type ='button',class='btn btn-info',HTML('Log2_transform'),width='20'),
-                                tags$button(id='loge_transform',type ='button',class='btn btn-info',HTML('Loge_transform'),width='20'),
-                                tags$button(id='log10_transform',type ='button',class='btn btn-info',HTML('Log10_transform'),width='20')
+                            div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                h3("Logtransform Module",style="text-align:center;")
+                            
+
                             ),
-                            div(class='btn-group',
-                                h3("Normalized Module",style="text-align:center;"),
-                                tags$button(id='Min_Max_scaling',type ='button',class='btn btn-info',HTML('Min-Max scaling'),width='20'),
-                                tags$button(id='loge_transform2',type ='button',class='btn btn-info',HTML('loge_transform'),width='20'),
-                                tags$button(id='log10_transform3',type ='button',class='btn btn-info',HTML('log10_transform'),width='20')
-                            )
+                            div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                h3("Normalized Module",style="text-align:center;")
+
+                            ),
+                            footer = tags$button(id = 'Cancel_All_Trans', type = "button",class = "btn btn-success action-button pull-right",HTML('Cancel'),width='20')
                         )
                             
                     )

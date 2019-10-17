@@ -1,7 +1,19 @@
 var biotype_group=new Map();
 var remain=[];
 $(document).ready(function(){
+  creat_logtrans_button("log2","log2transform","Log2 conversion of gene expression data");
+  creat_logtrans_button("log","logtransform","Log conversion of gene expression data");
+  creat_logtrans_button("log10","log10transform","Log10 conversion of gene expression data");
+  creat_normtrans_button("Min_Max_scaling","Min_Max_scaling","Do Min-max normalization By x* = (x - x_mean)/(x_max - x_min)");
+  creat_normtrans_button("Zero_Mean_normalization","Zero_Mean","The processed data conforms to the standard normal distribution By x*=(x - mean)/Standard deviation");
+  creat_normtrans_button("daiding","daiding","daiding");
   creat_geneFilter("micro filter","microFilterPlot","micro");
+  $('#Cancel_All_Trans').on("click",function(e){
+    $(e.currentTarget).parent().parent().find("div:nth-child(2)").find("span.badge").remove();
+    obj={}
+    obj['stamp']=Math.random();
+    Shiny.setInputValue('Cancel_All_Trans',obj);
+  })
   $("a[href='#shiny-tab-process']").on("click",function(e){
     Shiny.setInputValue("interclick",Math.random());
     Shiny.addCustomMessageHandler('Valid-Num', function(Num1) {
@@ -11,30 +23,6 @@ $(document).ready(function(){
       });
     Shiny.setInputValue('Update_Biotype_Map',Math.random());
   });
-  $("#log2_transform").on("click",function(e){
-    var obj={}
-    obj['stamp']=Math.random()
-    obj['opera']="log2"
-    Shiny.setInputValue('Value_Transform_Signal',obj);
-  })
-  $("#loge_transform").on("click",function(e){
-    var obj={}
-    obj['stamp']=Math.random()
-    obj['opera']="loge"
-    Shiny.setInputValue('Value_Transform_Signal',obj);
-  })
-  $("#log10_transform").on("click",function(e){
-    var obj={}
-    obj['stamp']=Math.random()
-    obj['opera']="log10"
-    Shiny.setInputValue('Value_Transform_Signal',obj);
-  })
-  $("#Min_Max_scaling").on("click",function(e){
-    var obj={}
-    obj['stamp']=Math.random()
-    obj['opera']="Min_Max_scaling"
-    Shiny.setInputValue('Normalized_Signal',obj);
-  })
   Shiny.addCustomMessageHandler('Valid_valuebox_micro', function(Num1) {
         $("#MicroRnaoutput").find("h3").text(Num1["microNum"]);
       });

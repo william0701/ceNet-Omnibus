@@ -772,19 +772,21 @@ shinyServer(function(input,output,session) {
       opera = msg$opera
     })
     inter_sample = intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))
+    after_slice_micro.exp<<-after_slice_micro.exp[,inter_sample]
+    after_slice_rna.exp<<-after_slice_rna.exp[,inter_sample]
     if(opera=="log2"){
-      after_slice_rna.exp = log2(after_slice_rna.exp[,inter_sample])
-      after_slice_micro.exp = log2(after_slice_micro.exp[,inter_sample])
+      after_slice_rna.exp = log2(after_slice_rna.exp)
+      after_slice_micro.exp = log2(after_slice_micro.exp)
       sendSweetAlert(session = session,title = "Success..",text = "Successful Log2 Operation",type = 'success')
     }
-    else if(opera=="loge"){
-      after_slice_rna.exp = log(after_slice_rna.exp[,inter_sample])
-      after_slice_micro.exp = log(after_slice_micro.exp[,inter_sample])
+    else if(opera=="log"){
+      after_slice_rna.exp = log(after_slice_rna.exp)
+      after_slice_micro.exp = log(after_slice_micro.exp)
       sendSweetAlert(session = session,title = "Success..",text = "Successful Loge Operation",type = 'success')
     }
     else if(opera=="log10"){
-      after_slice_rna.exp = log10(after_slice_rna.exp[,inter_sample])
-      after_slice_micro.exp = log10(after_slice_micro.exp[,inter_sample])
+      after_slice_rna.exp = log10(after_slice_rna.exp)
+      after_slice_micro.exp = log10(after_slice_micro.exp)
       sendSweetAlert(session = session,title = "Success..",text = "Successful Log10 Operation",type = 'success')
     }
   })
@@ -801,6 +803,23 @@ shinyServer(function(input,output,session) {
       after_slice_micro.exp <<- t(apply(after_slice_micro.exp, 1, action))
       sendSweetAlert(session = session,title = "Success..",text = "Successful Min_Max_scaling Operation",type = 'success')
     }
+    else if(opera=="Zero_Mean_normalization"){
+      action=function(x){
+        (x-mean(x))/sd(x)
+      }
+      after_slice_rna.exp <<- t(apply(after_slice_rna.exp, 1, action))
+      after_slice_micro.exp <<- t(apply(after_slice_micro.exp, 1, action))
+      sendSweetAlert(session = session,title = "Success..",text = "Successful Min_Max_scaling Operation",type = 'success')
+    }
+  })
+  observeEvent(input$Cancel_All_Trans,{
+    colnamerna = colnames(after_slice_rna.exp)
+    rownamerna = rownames(after_slice_rna.exp)
+    colnamemicro = colnames(after_slice_micro.exp)
+    rownamemicro = rownames(after_slice_micro.exp)
+    after_slice_rna.exp<<-sect_output_rna.exp[rownamerna,colnamerna]
+    after_slice_micro.exp<<-sect_output_micro.exp[rownamemicro,colnamemicro]
+    sendSweetAlert(session = session,title = "Success..",text = "Successful Cancel Transform Opera",type = 'success')
   })
   #Construction Page Action
 

@@ -809,7 +809,7 @@ shinyServer(function(input,output,session) {
       }
       after_slice_rna.exp <<- t(apply(after_slice_rna.exp, 1, action))
       after_slice_micro.exp <<- t(apply(after_slice_micro.exp, 1, action))
-      sendSweetAlert(session = session,title = "Success..",text = "Successful Min_Max_scaling Operation",type = 'success')
+      sendSweetAlert(session = session,title = "Success..",text = "Successful Zero_Mean Operation",type = 'success')
     }
   })
   observeEvent(input$Cancel_All_Trans,{
@@ -837,7 +837,6 @@ shinyServer(function(input,output,session) {
       msg=input$add_new_condition
       core=input$use_core
     })
-    browser()
     choice=c(condition[which(!condition$used),'abbr'],'custom')
     if(length(choice)>1)
       names(choice)=c(paste(condition[which(!condition$used),'description'],'(',condition[which(!condition$used),'abbr'],')',sep=""),'Custom')

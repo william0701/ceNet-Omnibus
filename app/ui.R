@@ -62,9 +62,21 @@ process_tab=tabItem(tabName = "process",
                         box(title = "Sample Filter",status = 'danger',solidHeader = F,width = 12,id="Sample_Filter_all"
                             
                         ),
-                        box(title = "Gene Filter",status = 'danger',solidHeader = F,width = 12,id="123"
+                        box(title = "Gene Filter",status = 'danger',solidHeader = F,width = 12,id="Gene_Filter_all"
                             
-                            )
+                            ),
+                        box(title = "Value Transform",status = 'danger',solidHeader = F,width = 12,id="Value_Transform_all",
+                            div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                h3("Logtransform Module",style="text-align:center;")
+                            
+
+                            ),
+                            div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                h3("Normalized Module",style="text-align:center;")
+
+                            ),
+                            footer = tags$button(id = 'Cancel_All_Trans', type = "button",class = "btn btn-success action-button pull-right",HTML('Cancel'),width='20')
+                        )
                             
                     )
 )

@@ -18,7 +18,7 @@ creat_geneFilter = function(title,inputId,type)
   $inputModal.append($buttonMinus).append($inPut).append($span1);
   $span1.append($buttonPlus).append($button1);
  
-    $('#123').append($modal);
+    $('#Gene_Filter_all').append($modal);
   
   $inPut.on("change",function(e){
     var reg=/^[0-9]+(\.[0-9]+)?$/;
@@ -73,7 +73,44 @@ creat_geneFilter = function(title,inputId,type)
     $(e.currentTarget).parent().prev().attr("exist","T");
   })
 }
+creat_logtrans_button = function(opera,input,tip){
+  var $button =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>'+input+'</a>')
+  var $span =$('<span class="badge bg-yellow">ok</span>')
+  var $spantip =$('<span style="visibility: hidden;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;left:10px;top:130px;z-index:1;">'+tip+'</span>')
+  $("#Value_Transform_all").find("div:first-child").append($button).append($spantip);
+  $button.on("click",function(e){
+    var obj={}
+    obj['stamp']=Math.random();
+    obj['opera']=opera;
+    $button.append($span);
+    Shiny.setInputValue('Value_Transform_Signal',obj);
+  })
+  $button.hover(function(){
+      $spantip.css("visibility","visible")},
+    function(){
+      $spantip.css("visibility","hidden")
+  })
+}
+creat_normtrans_button = function(opera,input,tip){
+  var $button =$('<a class="btn btn-app " style="margin:5px;"><i class="fa fa-play"></i>'+input+'</a>')
+  var $span =$('<span class="badge bg-yellow">ok</span>')
+  var $spantip =$('<span style="visibility: hidden;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;left:10px;top:130px;z-index:1;">'+tip+'</span>')
+  $("#Value_Transform_all").find("div:nth-child(2)").append($button).append($spantip);
+  $button.on("click",function(e){
+    var obj={}
+    obj['stamp']=Math.random();
+    obj['opera']=opera;
+    $button.append($span);
+    Shiny.setInputValue('Normalized_Signal',obj);
+  })
+  $button.hover(function(){
+      $spantip.css("visibility","visible")},
+    function(){
+      $spantip.css("visibility","hidden")
+  })
+}
 //qiefen
+
 slice_gene=function(e){
     var number=$(e).children("div").children("div").find(".form-control").val();
     var obj={}

@@ -29,7 +29,7 @@ shinyServer(function(input,output,session) {
 
   biotype_map=""
   load('testdata/ph1.RData')
-  #Input Page Action
+  ############Input Page Action##########
   observeEvent(input$onclick,{
     isolate({msg=fromJSON(input$onclick)})
     if(msg$id=='express_preview')
@@ -1210,5 +1210,18 @@ shinyServer(function(input,output,session) {
       thresh<<-rbind(thresh,data.frame(type=type,task=name,direction=newthresh[[name]][['direction']],thresh=as.numeric(newthresh[[name]][['thresh']]),stringsAsFactors = F))
     }
     network_construnction(after_slice_geneinfo)
+  })
+  ##########Visualization Page Action#########
+  observeEvent(input$network,{
+    edge=as.data.frame(which(network==1,arr.ind = T))
+    edge[,1]=rownames(network)[edge[,1]]
+    edge[,2]=colnames(network)[edge[,2]]
+    nodes=unique(c(edge[,1],edge[,2]))
+    colnames(edge)=c('source','target')
+    nodes=data.frame(id=nodes,type='PCG',stringsAsFactors = F)
+    node=tibble(group="nodes",data=apply(X = nodes,MARGIN = 1,as.list))
+    edge=tibble(group="edges",data=apply(X = edge,MARGIN = 1,FUN = as.list))
+    browser()
+    session$sendCustomMessage('network',toJSON(list(nodes=node,edge=edge),auto_unbox = T))
   })
 })

@@ -1,48 +1,86 @@
 var cy
 $(document).ready(function(){
-  $('#cy').attr("style","width:100%;height:100%;position:relative;")
-  cy=cytoscape({
-    container:$("#cy"),
-    elements:[],
-    style: [ // the stylesheet for the graph
+   $('#cy').attr("style","width:100%;height:100%;position:relative;z-index:0;left: 0;top: 0;")
+   cy=cytoscape({
+     container:$("#cy"),
+     elements:[],
+     style: [ // the stylesheet for the graph
               {
                 selector: 'node',
                 style: {
-                  'background-color': '#666',
+                  'background-color': '#ad1a66',
                   'label': 'data(id)'
                 }
               },
               {
                 selector: 'edge',
                 style: {
-                  'width': 3,
-                  'line-color': '#ccc',
-                  'target-arrow-color': '#ccc',
-                  'target-arrow-shape': 'triangle'
+                  'width': 0.5,
+                  /*'line-color': '#ad1a66'*/
+                  'curve-style': 'haystack'
                 }
               }
-  ],
+    ],
 
-  layout: {
-    name: 'grid',
-    rows: 1
-  }
+    layout: {
+        name: 'circle',
+        animate: false
+    }
   })
-  $("a[href='#shiny-tab-visualization']").on('click',function(e){
-    Shiny.setInputValue("network",Math.random())
+  $("#cy").children("div").css("height","1000px")
+  $("#show_net_button_circle").on("click",function(e){
+    var obj={}
+    obj['stamp']=Math.random()
+    obj['type']="circle"
+    Shiny.setInputValue("network",obj)
+  })
+  $("#show_net_button_random").on("click",function(e){
+    var obj={}
+    obj['stamp']=Math.random()
+    obj['type']="random"
+    Shiny.setInputValue("network",obj)
+  })
+   $("#show_net_button_grid").on("click",function(e){
+    var obj={}
+    obj['stamp']=Math.random()
+    obj['type']="grid"
+    Shiny.setInputValue("network",obj)
+  })
+   $("#show_net_button_concentric").on("click",function(e){
+    var obj={}
+    obj['stamp']=Math.random()
+    obj['type']="concentric"
+    Shiny.setInputValue("network",obj)
+  })
+   $("#show_net_button_breadthfirst").on("click",function(e){
+    var obj={}
+    obj['stamp']=Math.random()
+    obj['type']="breadthfirst"
+    Shiny.setInputValue("network",obj)
+  })
+   $("#show_net_button_cose").on("click",function(e){
+    var obj={}
+    obj['stamp']=Math.random()
+    obj['type']="cose"
+    Shiny.setInputValue("network",obj)
   })
 })
 
 Shiny.addCustomMessageHandler("network",function(msg){
-  var t=[
-  { group: 'nodes', data: { id: 'n0' }, position: { x: 100, y: 100 } },
-  { group: 'nodes', data: { id: 'n1' }, position: { x: 200, y: 200 } },
-  { group: 'edges', data: { id: 'e0', source: 'n0', target: 'n1' } }
-]
+  var collection = cy.elements('node');
+  cy.remove( collection );
+  collection = cy.elements('edge');
+  cy.remove( collection );
   cy.add(msg.nodes)
   cy.add(msg.edge)
+  /*var width=$("#cy").children("div").css("width")
+  var height=$("#cy").children("div").css("height")
+  width=parseInt(width.replace(/px/,""))
+  height=parseInt(height.replace(/px/,""))*/
+  cy.center()
+  cy.fit()
   var layout=cy.layout({
-    name:'grid',
+    name:msg.type,
     fit: true, // whether to fit the viewport to the graph
     padding: 30, // padding used on fit
   })

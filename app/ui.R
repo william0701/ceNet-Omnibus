@@ -113,7 +113,17 @@ construction_tab=tabItem(tabName = "construction",
 )
 visual_tab=tabItem(tabName = "visualization",
                    h2("Network Visualization"),
+                   div(
+                   h4("choose layout"),   
+                   tags$button(HTML("circle"),id="show_net_button_circle",class="btn-primary",style="z-index:1"),
+                   tags$button(HTML("random"),id="show_net_button_random",class="btn-primary",style="z-index:1"),
+                   tags$button(HTML("grid"),id="show_net_button_grid",class="btn-primary",style="z-index:1"),
+                   tags$button(HTML("concentric"),id="show_net_button_concentric",class="btn-primary",style="z-index:1"),
+                   tags$button(HTML("breadthfirst"),id="show_net_button_breadthfirst",class="btn-primary",style="z-index:1"),
+                   tags$button(HTML("cose"),id="show_net_button_cose",class="btn-primary",style="z-index:1")
+                   ),
                    div(id='cy')
+                  
 )
 analysis_tab=tabItem(tabName = "analysis",
                      h2("Network Analysis")

@@ -1213,6 +1213,10 @@ shinyServer(function(input,output,session) {
   })
   ##########Visualization Page Action#########
   observeEvent(input$network,{
+    isolate({
+      msg=input$network
+      type=msg$type
+    })
     edge=as.data.frame(which(network==1,arr.ind = T))
     edge[,1]=rownames(network)[edge[,1]]
     edge[,2]=colnames(network)[edge[,2]]
@@ -1221,7 +1225,6 @@ shinyServer(function(input,output,session) {
     nodes=data.frame(id=nodes,type='PCG',stringsAsFactors = F)
     node=tibble(group="nodes",data=apply(X = nodes,MARGIN = 1,as.list))
     edge=tibble(group="edges",data=apply(X = edge,MARGIN = 1,FUN = as.list))
-    browser()
-    session$sendCustomMessage('network',toJSON(list(nodes=node,edge=edge),auto_unbox = T))
+    session$sendCustomMessage('network',toJSON(list(nodes=node,edge=edge,type=type),auto_unbox = T))
   })
 })

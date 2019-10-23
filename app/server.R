@@ -29,7 +29,7 @@ shinyServer(function(input,output,session) {
 
   biotype_map=""
   load('testdata/ph1.RData')
-  #Input Page Action
+  ############Input Page Action##########
   observeEvent(input$onclick,{
     isolate({msg=fromJSON(input$onclick)})
     if(msg$id=='express_preview')
@@ -809,7 +809,7 @@ shinyServer(function(input,output,session) {
       }
       after_slice_rna.exp <<- t(apply(after_slice_rna.exp, 1, action))
       after_slice_micro.exp <<- t(apply(after_slice_micro.exp, 1, action))
-      sendSweetAlert(session = session,title = "Success..",text = "Successful Min_Max_scaling Operation",type = 'success')
+      sendSweetAlert(session = session,title = "Success..",text = "Successful Zero_Mean Operation",type = 'success')
     }
   })
   observeEvent(input$Cancel_All_Trans,{
@@ -1211,29 +1211,21 @@ shinyServer(function(input,output,session) {
     }
     network_construnction(after_slice_geneinfo)
   })
-  # output$mynetwork <- renderVisNetwork({
-  #   # minimal example
-  #   len<-dim(network)[1]
-  #   c_from<-c()
-  #   c_to<-c()
-  #   for (i in 1:len) {
-  #     for(j in 1:len){
-  #       if(!is.na(network[i,j])){
-  #         if(network[i,j]==1){
-  #           if(i!=j){
-  #             c_from=c(c_from,rownames(network)[i])
-  #             c_to=c(c_to,colnames(network)[j])
-  #           }
-  #         }
-  #       }    
-  #     }
-  #   }
-  #   temp_id<-c(c_from,c_to)
-  #   c_id<-temp_id[!duplicated(temp_id)]
-  #   nodes <- data.frame(id = c_id,label = c_id)
-  #   edges <- data.frame(from = c_from, to = c_to)
-  #   browser()
-  #   visNetwork(nodes, edges)
-  # })
-  
+
+  ##########Visualization Page Action#########
+  observeEvent(input$network,{
+    isolate({
+      msg=input$network
+      type=msg$type
+    })
+    edge=as.data.frame(which(network==1,arr.ind = T))
+    edge[,1]=rownames(network)[edge[,1]]
+    edge[,2]=colnames(network)[edge[,2]]
+    nodes=unique(c(edge[,1],edge[,2]))
+    colnames(edge)=c('source','target')
+    nodes=data.frame(id=nodes,type='PCG',stringsAsFactors = F)
+    node=tibble(group="nodes",data=apply(X = nodes,MARGIN = 1,as.list))
+    edge=tibble(group="edges",data=apply(X = edge,MARGIN = 1,FUN = as.list))
+    session$sendCustomMessage('network',toJSON(list(nodes=node,edge=edge,type=type),auto_unbox = T))
+  })
 })

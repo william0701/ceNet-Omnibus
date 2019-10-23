@@ -126,7 +126,7 @@ network_construnction=function(after_slice_geneinfo)
   tasks=unique(thresh$task)
   if(length(which(tasks=="all"))>0)
   {
-    network[which(is.na(network))]<<-0
+    network[upper.tri(network)]<<-0
   }
   else
   {
@@ -177,5 +177,4 @@ network_construnction=function(after_slice_geneinfo)
   network[which(network<length(unique(thresh$type)))]<<-0
   network[which(network!=0)]<<-1
   print(sum(network,na.rm = T))
-  browser()
 }

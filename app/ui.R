@@ -115,10 +115,19 @@ construction_tab=tabItem(tabName = "construction",
                          
 )
 visual_tab=tabItem(tabName = "visualization",
-                   h2("Network Visualization")
-                   # div(class='col-lg-12',
-                   #     visNetworkOutput(outputId='mynetwork',height = "800px",width="100%") 
-                   #     )
+
+                   h2("Network Visualization"),
+                   div(
+                   h4("choose layout"),   
+                   tags$button(HTML("circle"),id="show_net_button_circle",class="btn-primary",style="z-index:1"),
+                   tags$button(HTML("random"),id="show_net_button_random",class="btn-primary",style="z-index:1"),
+                   tags$button(HTML("grid"),id="show_net_button_grid",class="btn-primary",style="z-index:1"),
+                   tags$button(HTML("concentric"),id="show_net_button_concentric",class="btn-primary",style="z-index:1"),
+                   tags$button(HTML("breadthfirst"),id="show_net_button_breadthfirst",class="btn-primary",style="z-index:1"),
+                   tags$button(HTML("cose"),id="show_net_button_cose",class="btn-primary",style="z-index:1")
+                   ),
+                   div(id='cy')
+                  
 )
 analysis_tab=tabItem(tabName = "analysis",
                      h2("Network Analysis")
@@ -142,7 +151,8 @@ dashboardPage(
     tags$script(src="js/all.js"),tags$script(src="js/icheck.min.js"),tags$script(src='js/bootstrap-table.min.js'),tags$script(src='js/select2.min.js'),tags$script(src='js/customerUI.js'),
     tags$script(src='js/bootstrap-editable.js'),tags$script(src="js/process.js"),tags$script(src="js/ion.rangeSlider.min.js"),
     tags$script(src="js/construction.js"),
-    tags$script(src="js/filterProcess.js"),tags$script(src="js/samplefilterprocess.js")
+    tags$script(src="js/filterProcess.js"),tags$script(src="js/samplefilterprocess.js"),
+    tags$script(src="js/cytoscape.js"),tags$script(src='js/visualization.js')
 
     ),
   header=header,

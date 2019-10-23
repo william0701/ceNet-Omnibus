@@ -116,8 +116,6 @@ filter_bar=function(type,task)
 
 network_construnction=function(after_slice_geneinfo)
 {
-  browser()
-  
   gc()
   print(thresh)
   allgene=rownames(after_slice_geneinfo)[which(!is.na(after_slice_geneinfo$.group))]

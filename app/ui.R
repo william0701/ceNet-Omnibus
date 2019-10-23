@@ -21,11 +21,14 @@ sidebar=dashboardSidebar(
 
 process_tab=tabItem(tabName = "process",
                     h2("Data Preprocess"),
-                    fluidRow(
+                    # div(id="float_banner",'这里是顶部的横幅，随着页面滚动而浮动'),
+                    div(class="row" ,id="float_banner",
                       #box(title='Data Process',collapsible=T,collapsed=F,status='primary',solidHeader=T,width = 12,
                           value_BoxInput(value = 0,subtitle =  "Valid RNA", icon = "twitter",color = "red",width = 4,inputId="Rnaoutput" ),
                           value_BoxInput(value = 0,subtitle =  "Valid MicroRNA", icon = "twitter",color = "purple",width = 4,inputId="MicroRnaoutput" ),
-                          value_BoxInput(value = 0,subtitle =  "Valid Sample", icon = "twitter",color = "yellow",width = 4,inputId="Sampleoutput" ),
+                          value_BoxInput(value = 0,subtitle =  "Valid Sample", icon = "twitter",color = "yellow",width = 4,inputId="Sampleoutput" )
+                    ),      
+                    fluidRow(      
                           box(title = "Info Map",status = 'success',solidHeader = F,width = 12,
                               div(class='col-lg-6',style="padding:0px",
                                   prettyRadioButtons(inputId = 'biotype_map',label = 'Which Column is Gene Biotype',choices = c('None'),selected = 'None',status='success',inline=T,shape = 'round'),
@@ -113,6 +116,9 @@ construction_tab=tabItem(tabName = "construction",
 )
 visual_tab=tabItem(tabName = "visualization",
                    h2("Network Visualization")
+                   # div(class='col-lg-12',
+                   #     visNetworkOutput(outputId='mynetwork',height = "800px",width="100%") 
+                   #     )
 )
 analysis_tab=tabItem(tabName = "analysis",
                      h2("Network Analysis")

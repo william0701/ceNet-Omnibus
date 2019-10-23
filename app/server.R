@@ -837,7 +837,6 @@ shinyServer(function(input,output,session) {
       msg=input$add_new_condition
       core=input$use_core
     })
-    browser()
     choice=c(condition[which(!condition$used),'abbr'],'custom')
     if(length(choice)>1)
       names(choice)=c(paste(condition[which(!condition$used),'description'],'(',condition[which(!condition$used),'abbr'],')',sep=""),'Custom')
@@ -1212,4 +1211,29 @@ shinyServer(function(input,output,session) {
     }
     network_construnction(after_slice_geneinfo)
   })
+  # output$mynetwork <- renderVisNetwork({
+  #   # minimal example
+  #   len<-dim(network)[1]
+  #   c_from<-c()
+  #   c_to<-c()
+  #   for (i in 1:len) {
+  #     for(j in 1:len){
+  #       if(!is.na(network[i,j])){
+  #         if(network[i,j]==1){
+  #           if(i!=j){
+  #             c_from=c(c_from,rownames(network)[i])
+  #             c_to=c(c_to,colnames(network)[j])
+  #           }
+  #         }
+  #       }    
+  #     }
+  #   }
+  #   temp_id<-c(c_from,c_to)
+  #   c_id<-temp_id[!duplicated(temp_id)]
+  #   nodes <- data.frame(id = c_id,label = c_id)
+  #   edges <- data.frame(from = c_from, to = c_to)
+  #   browser()
+  #   visNetwork(nodes, edges)
+  # })
+  
 })

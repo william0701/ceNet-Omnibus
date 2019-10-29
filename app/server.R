@@ -6,6 +6,7 @@ print(options('shiny.maxRequestSize'))
 shinyServer(function(input,output,session) {
   source('www/R/input_tabServer.R')
   source('www/R/construct_tabServer.R')
+  source('www/R/analysis_tabServer.R')
   ##创建临时文件???
   tmpdir=tempdir()
   basepath = paste(tmpdir,'/session_tmp_file',session$token,sep="");
@@ -1230,27 +1231,74 @@ shinyServer(function(input,output,session) {
   })
   
   ##########Analysis Page Action###############
-  observeEvent(input$select_network_property,{
+  observeEvent(input$add_network_property,{
     isolate({
-      msg=input$select_network_property
+      msg=input$add_network_property
     })
-    removeUI(selector = "#modalbody>",immediate = T)
+    if(is.null(msg$select))
+    {
+      nodeselect=NULL
+      edgeselect=NULL
+    }
+    else
+    {
+      select=msg$select
+      nodeselect=select[grep(pattern = "^node",x = select)]
+      edgeselect=select[grep(pattern = "^edge",x = select)]
+      nodeselect=sub(pattern = "^node_",replacement = "",nodeselect)
+      edgeselect=sub(pattern = "^edge_",replacement = "",edgeselect)
+    }
+    print(nodeselect)
+    removeUI(selector = "#modalbody>",immediate = T,multiple = T)
     insertUI(selector = "#modalbody",immediate = T,where = 'beforeEnd',
              ui = list(selectInput(inputId = 'property_element',label = 'Network Elements',choices = c('Nodes'='node',"Edges"='edge'),selected = 'Nodes'),
                        conditionalPanel(condition = 'input.property_element=="node"',
                                         checkboxGroupButtons(inputId = 'node_centrality',label = "Nodes Centrality",
-                                                             choices = c("Degree","Betweenness","Closeness","Clustering Coefficient"),
-                                                             checkIcon = list(yes = icon("ok",lib = "glyphicon")),
+                                                             choices = c("Degree"='Degree',"Betweenness"='Betweennes',"Closeness"='Closeness',"Clustering Coefficient"='Clustering Coefficient'),
+                                                             checkIcon = list(yes = icon("ok",lib = "glyphicon")),selected = nodeselect
                                                              )
                                         ),
                        conditionalPanel(condition = 'input.property_element=="edge"',
                                         checkboxGroupButtons(inputId = 'edge_centrality',label = "Edges Centrality",
-                                                             choices = c("Betweenness","Closeness"),
+                                                             choices = c("Betweenness"='Betweenness',"Closeness"='Closeness'),selected = edgeselect,
                                                              checkIcon = list(yes = icon("ok",lib = "glyphicon"))
                                                              )
                                         )
                   )
     )
   })
-  
+  observeEvent(input$select_network_property,{
+    isolate({
+      msg=input$select_network_property
+      select=msg$select
+      if(is.null(select))
+      {
+        select=c()
+      }
+      element=input$property_element
+      node=input$node_centrality
+      edge=input$edge_centrality
+    })
+    if(element=='node')
+    {
+      select=select[grep(pattern = "^node_",x = select)]
+      select=sub(pattern = "^node_",replacement = "",x = select)
+      remove=paste("node_",setdiff(select,node),sep="")
+      newadd=paste("node_",setdiff(node,select),sep="")
+    }
+    else
+    {
+      select=select[grep(pattern = "^edge_",x = select)]
+      select=sub(pattern = "^edge_",replacement = "",x = select)
+      remove=paste("edge_",setdiff(select,edge),sep="")
+      newadd=paste("node_",setdiff(select,edge),sep="")
+    }
+    removeUI(selector = paste("#",remove,sep=""),multiple = T,immediate = T)
+    for(id in newadd)
+    {
+      insertUI(selector = "#network_property",where = 'beforeEnd',
+               ui = box(id=id,title = id,status = 'success',solidHeader = T,width = 4),immediate = T)
+    }
+  })
 })
+

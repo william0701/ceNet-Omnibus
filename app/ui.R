@@ -137,7 +137,7 @@ analysis_tab=tabItem(tabName = "analysis",
                                 tags$button(tags$i(class='fa fa-plus-square'),HTML('Add New'),class='btn btn-default',id='add_new_topological_property'))
                          
                      ),
-                     div(id="network_property",class="col-lg-12"),
+                     div(id="network_property",class="row"),
                      h2("Part2: Network Modules",style='font-family:Georgia'),
                      h2("Part3: Biological Properties",style='font-family:Georgia')
 )

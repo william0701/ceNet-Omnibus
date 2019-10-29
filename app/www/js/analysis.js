@@ -4,9 +4,12 @@ $(document).ready(function(){
     var obj={}
     obj['stamp']=Math.random()
     obj['select']=$("#network_property").children("div").attr("id")
-    Shiny.setInputValue('select_network_property',obj)
+    Shiny.setInputValue('add_network_property',obj)
     $('#modalSubmit').off('click').on("click",function(e){
-       alert(123)
+      var obj={}
+      obj['stamp']=Math.random()
+      obj['select']=$("#network_property").children("div").attr("id")
+      Shiny.setInputValue("select_network_property",obj)
     })
     if(!$('#infolist').hasClass('in'))
     {

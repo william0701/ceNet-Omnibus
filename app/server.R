@@ -1228,4 +1228,29 @@ shinyServer(function(input,output,session) {
     edge=tibble(group="edges",data=apply(X = edge,MARGIN = 1,FUN = as.list))
     session$sendCustomMessage('network',toJSON(list(nodes=node,edge=edge,type=type),auto_unbox = T))
   })
+  
+  ##########Analysis Page Action###############
+  observeEvent(input$select_network_property,{
+    isolate({
+      msg=input$select_network_property
+    })
+    removeUI(selector = "#modalbody>",immediate = T)
+    insertUI(selector = "#modalbody",immediate = T,where = 'beforeEnd',
+             ui = list(selectInput(inputId = 'property_element',label = 'Network Elements',choices = c('Nodes'='node',"Edges"='edge'),selected = 'Nodes'),
+                       conditionalPanel(condition = 'input.property_element=="node"',
+                                        checkboxGroupButtons(inputId = 'node_centrality',label = "Nodes Centrality",
+                                                             choices = c("Degree","Betweenness","Closeness","Clustering Coefficient"),
+                                                             checkIcon = list(yes = icon("ok",lib = "glyphicon")),
+                                                             )
+                                        ),
+                       conditionalPanel(condition = 'input.property_element=="edge"',
+                                        checkboxGroupButtons(inputId = 'edge_centrality',label = "Edges Centrality",
+                                                             choices = c("Betweenness","Closeness"),
+                                                             checkIcon = list(yes = icon("ok",lib = "glyphicon"))
+                                                             )
+                                        )
+                  )
+    )
+  })
+  
 })

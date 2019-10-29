@@ -130,7 +130,16 @@ visual_tab=tabItem(tabName = "visualization",
                   
 )
 analysis_tab=tabItem(tabName = "analysis",
-                     h2("Network Analysis")
+                     h2("Part1: Network Topology Properties",style='font-family:Georgia'),
+                     div(class='col-lg-12 callout callout-warning',
+                         tags$p(style="font-size:14px;font-family:sans-serif",
+                                HTML("Please choose the Node/Edge Properties to investigate.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"),
+                                tags$button(tags$i(class='fa fa-plus-square'),HTML('Add New'),class='btn btn-default',id='add_new_topological_property'))
+                         
+                     ),
+                     div(id="network_property",class="col-lg-12"),
+                     h2("Part2: Network Modules",style='font-family:Georgia'),
+                     h2("Part3: Biological Properties",style='font-family:Georgia')
 )
 
 body=dashboardBody(
@@ -152,7 +161,7 @@ dashboardPage(
     tags$script(src='js/bootstrap-editable.js'),tags$script(src="js/process.js"),tags$script(src="js/ion.rangeSlider.min.js"),
     tags$script(src="js/construction.js"),
     tags$script(src="js/filterProcess.js"),tags$script(src="js/samplefilterprocess.js"),
-    tags$script(src="js/cytoscape.js"),tags$script(src='js/visualization.js')
+    tags$script(src="js/cytoscape.js"),tags$script(src='js/visualization.js'),tags$script(src='js/analysis.js')
 
     ),
   header=header,

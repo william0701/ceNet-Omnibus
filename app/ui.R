@@ -3,6 +3,7 @@
 ###############################
 source('www/R/input_tabUI.R')
 source('www/R/construct_tabUI.R')
+source('www/R/analysis_tabServer.R')
 includeScript('www/js/all.js')
 options(shiny.maxRequestSize = 1000*1024^2)
 header=dashboardHeader(
@@ -131,12 +132,10 @@ visual_tab=tabItem(tabName = "visualization",
 )
 analysis_tab=tabItem(tabName = "analysis",
                      h2("Part1: Network Topology Properties",style='font-family:Georgia'),
-                     div(class='col-lg-12 callout callout-warning',
-                         tags$p(style="font-size:14px;font-family:sans-serif",
-                                HTML("Please choose the Node/Edge Properties to investigate.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"),
-                                tags$button(tags$i(class='fa fa-plus-square'),HTML('Add New'),class='btn btn-default',id='add_new_topological_property'))
-                         
-                     ),
+                     create_property_checkboxgroup(type='node',id='node_centrality',label='Nodes Centrality',
+                                                   items=c("Degree","Betweenness","Closeness",'Clustering Coefficient'),f='showNodeCentrality'),
+                     create_property_checkboxgroup(type='edge',id='edge_centrality',label='Edges Centrality',items=c("Betweenness"),f='showEdgeCentrality'),
+                     tags$br(),
                      div(id="network_property",class="row"),
                      h2("Part2: Network Modules",style='font-family:Georgia'),
                      h2("Part3: Biological Properties",style='font-family:Georgia')

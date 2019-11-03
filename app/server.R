@@ -873,7 +873,7 @@ shinyServer(function(input,output,session) {
       tasks='all'
     }
     
-    removeUI(selector = '#modalbody>',immediate = T)
+    removeUI(selector = '#modalbody>',multiple = T,immediate = T)
     insertUI(selector = '#modalbody',where = 'beforeEnd',immediate = T,
              ui=div(
                div(class='row',
@@ -1231,73 +1231,107 @@ shinyServer(function(input,output,session) {
   })
   
   ##########Analysis Page Action###############
-  observeEvent(input$add_network_property,{
+  observeEvent(input$nodeCentrality,{
     isolate({
-      msg=input$add_network_property
+      msg=input$nodeCentrality
+      centrality=unlist(msg$value)
     })
-    if(is.null(msg$select))
-    {
-      nodeselect=NULL
-      edgeselect=NULL
-    }
-    else
-    {
-      select=msg$select
-      nodeselect=select[grep(pattern = "^node",x = select)]
-      edgeselect=select[grep(pattern = "^edge",x = select)]
-      nodeselect=sub(pattern = "^node_",replacement = "",nodeselect)
-      edgeselect=sub(pattern = "^edge_",replacement = "",edgeselect)
-    }
-    print(nodeselect)
-    removeUI(selector = "#modalbody>",immediate = T,multiple = T)
-    insertUI(selector = "#modalbody",immediate = T,where = 'beforeEnd',
-             ui = list(selectInput(inputId = 'property_element',label = 'Network Elements',choices = c('Nodes'='node',"Edges"='edge'),selected = 'Nodes'),
-                       conditionalPanel(condition = 'input.property_element=="node"',
-                                        checkboxGroupButtons(inputId = 'node_centrality',label = "Nodes Centrality",
-                                                             choices = c("Degree"='Degree',"Betweenness"='Betweennes',"Closeness"='Closeness',"Clustering Coefficient"='Clustering Coefficient'),
-                                                             checkIcon = list(yes = icon("ok",lib = "glyphicon")),selected = nodeselect
-                                                             )
-                                        ),
-                       conditionalPanel(condition = 'input.property_element=="edge"',
-                                        checkboxGroupButtons(inputId = 'edge_centrality',label = "Edges Centrality",
-                                                             choices = c("Betweenness"='Betweenness',"Closeness"='Closeness'),selected = edgeselect,
-                                                             checkIcon = list(yes = icon("ok",lib = "glyphicon"))
-                                                             )
-                                        )
-                  )
-    )
-  })
-  observeEvent(input$select_network_property,{
-    isolate({
-      msg=input$select_network_property
-      select=msg$select
-      if(is.null(select))
-      {
-        select=c()
-      }
-      element=input$property_element
-      node=input$node_centrality
-      edge=input$edge_centrality
-    })
-    if(element=='node')
-    {
-      select=select[grep(pattern = "^node_",x = select)]
-      select=sub(pattern = "^node_",replacement = "",x = select)
-      remove=paste("node_",setdiff(select,node),sep="")
-      newadd=paste("node_",setdiff(node,select),sep="")
-    }
-    else
-    {
-      select=select[grep(pattern = "^edge_",x = select)]
-      select=sub(pattern = "^edge_",replacement = "",x = select)
-      remove=paste("edge_",setdiff(select,edge),sep="")
-      newadd=paste("node_",setdiff(select,edge),sep="")
-    }
-    removeUI(selector = paste("#",remove,sep=""),multiple = T,immediate = T)
+    print(centrality)
+    deleted=setdiff(node_property,centrality)
+    deleted=sub(pattern = " ",replacement = "_",deleted)
+    removeUI(selector = paste("#node_",deleted,sep=""),multiple = T,immediate = T)
+    newadd=setdiff(centrality,node_property)
+    node_property<<-centrality
     for(id in newadd)
     {
-      insertUI(selector = "#network_property",where = 'beforeEnd',
-               ui = box(id=id,title = id,status = 'success',solidHeader = T,width = 4),immediate = T)
+        ui=create_property_box('node',id)
+        insertUI(selector = "#network_property",where = 'beforeEnd',ui = ui,
+                 immediate = T)
+        if(id=="Degree")
+        {
+          degree=as.data.frame(degree(net_igraph))
+          data=as.data.frame(table(degree[,1]),stringsAsFactors = F)
+          data$Var1=as.numeric(data$Var1)
+          data=data[which(data$Var1!=0),]
+          p=ggplot(data = data,aes(x = Var1,ymax=Freq,ymin=0,y=Freq))+
+          geom_linerange(linetype='dashed')+
+          geom_point(size=3)+scale_x_log10()+scale_y_log10()+geom_smooth(method = lm)
+          svg(filename = paste(basepath,"Plot",'node_degree.svg',sep="/"),family = 'serif')
+          print(p)
+          dev.off()
+          output$node_Degree_plot=renderImage({
+            list(src=normalizePath(paste(basepath,"Plot",'node_degree.svg',sep="/")),height="100%",width="100%")
+          },deleteFile=F)
+        }
+        else if(id=="Betweenness")
+        {
+          betweenness=betweenness(net_igraph,directed = F)
+          density=density(x = betweenness,from = min(betweenness,na.rm = T),to = max(betweenness,na.rm = T),na.rm = T)
+          density=data.frame(x=density$x,y=density$y)
+          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+          svg(filename = paste(basepath,"Plot",'node_betweenness.svg',sep="/"),family = 'serif')
+          print(p)
+          dev.off()
+          output$node_Betweenness_plot=renderImage({
+            list(src=normalizePath(paste(basepath,"Plot",'node_betweenness.svg',sep="/")),height="100%",width="100%")
+          },deleteFile=F)
+        }
+        else if(id=="Closeness")
+        {
+          closeness=closeness(net_igraph,mode = 'all')
+          density=density(x = closeness,from = min(closeness,na.rm = T),to = max(closeness,na.rm = T),na.rm = T)
+          density=data.frame(x=density$x,y=density$y)
+          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+          svg(filename = paste(basepath,"Plot",'node_closeness.svg',sep="/"),family = 'serif')
+          print(p)
+          dev.off()
+          output$node_Closeness_plot=renderImage({
+            list(src=normalizePath(paste(basepath,"Plot",'node_closeness.svg',sep="/")),height="100%",width="100%")
+          },deleteFile=F)
+        }
+        else if(id=="Clustering Coefficient")
+        {
+          cc=transitivity(net_igraph,type='local',isolates = 'zero')
+          density=density(x = cc,from = min(cc,na.rm = T),to = max(cc,na.rm = T),na.rm = T)
+          density=data.frame(x=density$x,y=density$y)
+          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+          svg(filename = paste(basepath,"Plot",'node_clustering_coefficient.svg',sep="/"),family = 'serif')
+          print(p)
+          dev.off()
+          output$node_Clustering_Coefficient_plot=renderImage({
+            list(src=normalizePath(paste(basepath,"Plot",'node_clustering_coefficient.svg',sep="/")),height="100%",width="100%")
+          },deleteFile=F)
+        }
+    }
+  })
+  observeEvent(input$edgeCentrality,{
+    isolate({
+      msg=input$edgeCentrality
+      centrality=msg$value
+    })
+    print(centrality)
+    deleted=setdiff(edge_property,centrality)
+    removeUI(selector = paste("#edge_",deleted,sep=""),multiple = T,immediate = T)
+    newadd=setdiff(centrality,edge_property)
+    edge_property<<-centrality
+    for(id in newadd)
+    {
+      ui=create_property_box('edge',id)
+      insertUI(selector = "#network_property",where = 'beforeEnd',ui = ui,
+               immediate = T)
+      if(id=="Betweenness")
+      {
+        betweenness=edge_betweenness(net_igraph,directed = F)
+        density=density(x = betweenness,from = min(betweenness,na.rm = T),to = max(betweenness,na.rm = T),na.rm = T)
+        density=data.frame(x=density$x,y=density$y)
+        p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+        svg(filename = paste(basepath,"Plot",'edge_betweenness.svg',sep="/"),family = 'serif')
+        print(p)
+        dev.off()
+        output$edge_Betweenness_plot=renderImage({
+          list(src=normalizePath(paste(basepath,"Plot",'edge_betweenness.svg',sep="/")),height="100%",width="100%")
+        },deleteFile=F)
+      }
     }
   })
 })

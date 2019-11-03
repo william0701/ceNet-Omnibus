@@ -9,6 +9,7 @@ rownames(condition)=condition$abbr
 validcore=detectCores(logical = F)
 condition.values=list()
 network=""
+net_igraph=""
 thresh=data.frame()
 
 filter_box=function(type,tasks)
@@ -176,5 +177,6 @@ network_construnction=function(after_slice_geneinfo)
   }
   network[which(network<length(unique(thresh$type)))]<<-0
   network[which(network!=0)]<<-1
+  net_igraph<<-graph_from_adjacency_matrix(network,mode='undirected',diag=F)
   print(sum(network,na.rm = T))
 }

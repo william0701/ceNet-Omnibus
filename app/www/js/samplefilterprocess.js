@@ -9,14 +9,14 @@ creat_sampleFilter = function(inputId,inputName)
   var $titlevalid = $('<label class="control-label">Invalid Value</label>')
   var $div1=$('<div class="input-group margin"></div>')
   var $shinygroup=$('<div class="shiny-options-group "></div>');
-  var $checkboxgroup1=$('<div class="pretty p-default p-round"></div>');
-  var $checkboxgroup2=$('<div class="pretty p-default p-round"></div>');
-  var $checkboxgroup3=$('<div class="pretty p-default p-round"></div>');
-  var $checkboxgroup4=$('<div class="pretty p-default p-round"></div>');
-  var $label1=$('<div class="state p-success"><label>0</label></div>')
-  var $label2=$('<div class="state p-success"><label>NA</label></div>')
-  var $label3=$('<div class="state p-success"><label>NULL</label></div>')
-  var $label4=$('<div class="state p-success"><label>NaN</label></div>')
+  var $checkboxgroup1=$('<div class="pretty p-default p-curve"></div>');
+  var $checkboxgroup2=$('<div class="pretty p-default p-curve"></div>');
+  var $checkboxgroup3=$('<div class="pretty p-default p-curve"></div>');
+  var $checkboxgroup4=$('<div class="pretty p-default p-curve"></div>');
+  var $label1=$('<div class="state p-danger"><label>0</label></div>')
+  var $label2=$('<div class="state p-danger"><label>NA</label></div>')
+  var $label3=$('<div class="state p-danger"><label>NULL</label></div>')
+  var $label4=$('<div class="state p-danger"><label>NaN</label></div>')
   var $input1=$('<input type="checkbox" name="'+inputName+'" value="0"> ')
   var $input2=$('<input type="checkbox" name="'+inputName+'" value="NA"> ')
   var $input3=$('<input type="checkbox" name="'+inputName+'" value="NULL"> ')

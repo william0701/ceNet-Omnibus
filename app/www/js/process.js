@@ -1,6 +1,39 @@
 var biotype_group=new Map();
 var remain=[];
 $(document).ready(function(){
+/*  var speed = 100;
+  var scrollTop = null;
+  var hold = 0;
+  var float_banner;
+  var pos = null;
+  var timer = null;
+  var moveHeight = null;
+  float_banner = document.getElementById("float_banner");
+  $("#float_banner").css({"position":"absolute","left":"50%","top":"50px","width":"1200px","margin-left":"-300px","height":"30px","font-weight":"bold","z-index":"100"})
+  window.onscroll=scroll_ad;
+  function scroll_ad(){
+    scrollTop = document.documentElement.scrollTop+document.body.scrollTop;
+    pos = scrollTop - float_banner.offsetTop;
+    pos = pos/10
+    moveHeight = pos>0?Math.ceil(pos):Math.floor(pos);
+    //alert(moveHeight)
+    if(moveHeight!==0){
+      float_banner.style.top = float_banner.offsetTop+moveHeight+"px";
+      setTimeout(scroll_ad,speed);
+    }
+  }*/
+  
+  $(window).scroll(function(oEl){
+    while (null !== oEl && $(oEl).attr("自定义属性") !== "特定属性值" && target.tagName !== "BODY") {
+      oEl = oEl.parentElement;
+    }
+    return oEl;
+  });
+/*  function fnGetTable(oEl) {
+    
+}*/
+  
+  
   creat_logtrans_button("log2","log2transform","Log2 conversion of gene expression data");
   creat_logtrans_button("log","logtransform","Log conversion of gene expression data");
   creat_logtrans_button("log10","log10transform","Log10 conversion of gene expression data");
@@ -126,7 +159,7 @@ create_editor=function(value)
   $control=$('<div class="form-inline editableform"><div></div></div>')
   $form.append($control)
   $control=$control.children('div')
-  $input=$('<div class="editable-input" style="position: relative;"><input class="form-control input-sm" type="text" stye="padding-right: 24px;" value="'+value+'"></div>')
+  $input=$('<div class="editable-input" style="position: relative;"><input class="form-control input-sm" type="text" style="padding-right: 24px;" value="'+value+'"></div>')
   $buttons=$('<div class="editable-buttons"></div>')
   $submit=$('<button class="btn btn-success btn-sm editable-submit" type="submit"><i class="glyphicon glyphicon-ok"></i></button>')
   $submit.on('click',function(e){

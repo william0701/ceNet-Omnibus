@@ -3,6 +3,7 @@
 ###############################
 source('www/R/input_tabUI.R')
 source('www/R/construct_tabUI.R')
+source('www/R/analysis_tabServer.R')
 includeScript('www/js/all.js')
 options(shiny.maxRequestSize = 1000*1024^2)
 header=dashboardHeader(
@@ -21,12 +22,14 @@ sidebar=dashboardSidebar(
 
 process_tab=tabItem(tabName = "process",
                     h2("Data Preprocess"),
-                    fluidRow(
+                    div(class="row" ,id="float_banner",
                       #box(title='Data Process',collapsible=T,collapsed=F,status='primary',solidHeader=T,width = 12,
                           value_BoxInput(value = 0,subtitle =  "Valid RNA", icon = "twitter",color = "red",width = 4,inputId="Rnaoutput" ),
                           value_BoxInput(value = 0,subtitle =  "Valid MicroRNA", icon = "twitter",color = "purple",width = 4,inputId="MicroRnaoutput" ),
-                          value_BoxInput(value = 0,subtitle =  "Valid Sample", icon = "twitter",color = "yellow",width = 4,inputId="Sampleoutput" ),
-                          box(title = "Info Map",status = 'success',solidHeader = F,width = 12,
+                          value_BoxInput(value = 0,subtitle =  "Valid Sample", icon = "twitter",color = "yellow",width = 4,inputId="Sampleoutput" )
+                    ),      
+                    fluidRow(      
+                          box(title = "Info Map",status = 'success',solidHeader = F,width = 12,id="Info_Map_all",
                               div(class='col-lg-6',style="padding:0px",
                                   prettyRadioButtons(inputId = 'biotype_map',label = 'Which Column is Gene Biotype',choices = c('None'),selected = 'None',status='success',inline=T,shape = 'round'),
                                   #multiInput(inputId = 'valid_biotype',label = 'Select Used Biotype',choices = c('None'),selected = NULL,options = list(enable_search = T,non_selected_header = "Choose between:",selected_header = "You have selected:")),
@@ -112,6 +115,7 @@ construction_tab=tabItem(tabName = "construction",
                          
 )
 visual_tab=tabItem(tabName = "visualization",
+
                    h2("Network Visualization"),
                    div(class='row',
                      div(class='col-lg-2',
@@ -130,7 +134,14 @@ visual_tab=tabItem(tabName = "visualization",
                   
 )
 analysis_tab=tabItem(tabName = "analysis",
-                     h2("Network Analysis")
+                     h2("Part1: Network Topology Properties",style='font-family:Georgia'),
+                     create_property_checkboxgroup(type='node',id='node_centrality',label='Nodes Centrality',
+                                                   items=c("Degree","Betweenness","Closeness",'Clustering Coefficient'),f='showNodeCentrality'),
+                     create_property_checkboxgroup(type='edge',id='edge_centrality',label='Edges Centrality',items=c("Betweenness"),f='showEdgeCentrality'),
+                     tags$br(),
+                     div(id="network_property",class="row"),
+                     h2("Part2: Network Modules",style='font-family:Georgia'),
+                     h2("Part3: Biological Properties",style='font-family:Georgia')
 )
 
 body=dashboardBody(
@@ -154,7 +165,8 @@ dashboardPage(
     tags$script(src="js/filterProcess.js"),tags$script(src="js/samplefilterprocess.js"),
     tags$script(src="js/cytoscape.js"),tags$script(src='js/visualization.js'),
     tags$link(href ='css/network-table.css',rel="stylesheet"),
-    tags$script(src="js/jscolor.js")
+    tags$script(src="js/jscolor.js"),
+    tags$script(src='js/analysis.js')
     ),
   header=header,
   sidebar = sidebar,

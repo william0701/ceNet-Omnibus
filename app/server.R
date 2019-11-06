@@ -6,6 +6,7 @@ print(options('shiny.maxRequestSize'))
 shinyServer(function(input,output,session) {
   source('www/R/input_tabServer.R')
   source('www/R/construct_tabServer.R')
+  source('www/R/analysis_tabServer.R')
   ##创建临时文件???
   tmpdir=tempdir()
   basepath = paste(tmpdir,'/session_tmp_file',session$token,sep="");
@@ -415,8 +416,8 @@ shinyServer(function(input,output,session) {
       sendSweetAlert(session = session,title = "Warning..",text = 'Please choose valid value',type = 'warning')
       expressgene_num<<-rep(dim(sect_output_micro.exp)[1],time=dim(sect_output_micro.exp)[2])
     }
+    
     expressgene_num<<-expressgene_num/(dim(sect_output_micro.exp)[1])
-    # browser()
     process_sample<-data.frame(
       x=expressgene_num
     )
@@ -425,14 +426,36 @@ shinyServer(function(input,output,session) {
     draw_x<-(max(expressgene_num)+min(expressgene_num))/2  
 
     x2<-quantile(expressgene_num,value,type=3) 
-    draw_x2<-round(x2,2)
-    svg(filename = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),family = 'serif')
-    print(ggplot(process_sample, aes(x = x))+stat_ecdf()+
-      geom_hline(aes(yintercept=value), colour="#990000", linetype="dashed")+
-      geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")+
-      geom_point(x=x2,y=value)+geom_text(label=paste0("(",draw_x2,",",value,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
-      geom_text(label=paste0("Original Sample Number:",length(colnames(sect_output_micro.exp))),x=min(expressgene_num),y=1,colour = "red",family="serif",size=5)
+    draw_x2<-round(x2,3)
+    process_sample<-data.frame(
+      x=expressgene_num,
+      color=as.character(c(expressgene_num>x2)),stringsAsFactors = F
     )
+    svg(filename = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),family = 'serif')
+
+    liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num>x2)]))
+    
+    text1=paste("Thresh:",draw_x2)
+    text2=paste("Remain:",liuxiasum)
+    
+    p=ggplot(process_sample,aes(x=x,fill=..x..>x2))+
+      geom_histogram(color="black",bins = 100) +
+      scale_fill_manual(values=c('FALSE'="white",'TRUE'= "#9b59b6"))+
+      geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")
+    pp=ggplot_build(p)
+    axis_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
+    axis_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
+    x_pianyi=(axis_x[2]-axis_x[1])*0.2
+    
+    if(skewness(process_sample$x)<0){
+      text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+    }
+    else{
+      text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+    }
+    
+    print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+    
     dev.off()
     file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),
               to = paste('www/templePlot/microSampleFilter',session$token,'.svg',sep = ""))
@@ -512,22 +535,46 @@ shinyServer(function(input,output,session) {
       else{
         sendSweetAlert(session = session,title = "Warning..",text = 'Please choose valid value',type = 'warning')
         expressgene_num2<<-rep(dim(sect_output_rna.exp)[1],time=dim(sect_output_rna.exp)[2])
+        
+        process_sample<-data.frame(#also will crash the page
+          x=expressgene_num2,stringsAsFactors = F
+        )
       }
+  
       expressgene_num2<<-expressgene_num2/(dim(sect_output_rna.exp)[1])
-      process_sample<-data.frame(
-        x=c(expressgene_num2)
-      )
-      
       value=as.numeric(value)
       draw_x<-(max(expressgene_num2)+min(expressgene_num2))/2  
-
-      x2<-quantile(expressgene_num2,value,type=3) 
-      draw_x2<-round(x2,2)
+      
+      x2<-quantile(expressgene_num2,value,type=3)
+      process_sample<-data.frame(
+        x=expressgene_num2,
+        color=as.character(c(expressgene_num2>x2)),stringsAsFactors = F
+      )
+      draw_x2<-round(x2,3)
+      liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num2>x2)]))
       svg(filename = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),family = 'serif')
-      print(ggplot(process_sample, aes(x = x))+stat_ecdf()+
-              geom_hline(aes(yintercept=value), colour="#990000", linetype="dashed")+
-              geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")+
-              geom_point(x=x2,y=value)+geom_text(label=paste0("(",draw_x2,",",value,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5))
+      
+      text1=paste("Thresh:",draw_x2)
+      text2=paste("Remain:",liuxiasum)
+      
+      p=ggplot(process_sample,aes(x=x,fill=..x..>x2))+
+        geom_histogram(color="black",bins = 100) +
+        scale_fill_manual(values=c('FALSE'="white",'TRUE'= "#9b59b6"))+
+        geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")
+      pp=ggplot_build(p)
+      axis_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
+      axis_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
+      x_pianyi=(axis_x[2]-axis_x[1])*0.2
+      
+      if(skewness(process_sample$x)<0){
+        text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+      }
+      else{
+        text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+      }
+      
+      print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+      
       dev.off()
       file.copy(from = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),to = paste('www/templePlot/RNASampleFilter',session$token,'.svg',sep = ""))
       if(exist=="F"){
@@ -628,19 +675,47 @@ shinyServer(function(input,output,session) {
       xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_micro.exp)),stringsAsFactors = F)
       ypoint=length(which(xdata$SampleRatio<=ratio))/length(validGene)
       temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
-      draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2 
+      draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2
       number_ori=length(validGene)
       number_after=(1-ypoint)*number_ori
       x1 = min(xdata$SampleRatio)+0.2*max(xdata$SampleRatio)+min(xdata$SampleRatio)
       text_to_plot=data.frame(x=c(x1,x1),y=c(0.95,0.90),col=c("blue","blue"),text=c(paste("Original genes:",number_ori),paste("After seg:",number_after)))
       ypoint =round(ypoint,2)
+      
+      xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_micro.exp)),
+                         color=as.character(c(xdata$SampleRatio>ratio)),
+                         stringsAsFactors = F
+                         )
+      
       svg(filename = paste(basepath,"Plot","microStatistic.svg",sep = "/"),family = 'serif')
-      print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
-              geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
-              geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
-              geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
-              geom_text(data = text_to_plot,aes(x = text_to_plot$x,y = text_to_plot$y,label =text_to_plot$text),size =8,colour="blue")
-            )
+      # print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
+      #         geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
+      #         geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
+      #         geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
+      #         geom_text(data = text_to_plot,aes(x = text_to_plot$x,y = text_to_plot$y,label =text_to_plot$text),size =8,colour="blue")
+      #       )
+
+      text1=paste("Thresh:",ratio)
+      text2=paste("Remain:",number_after)
+  
+      p=ggplot(xdata,aes(x=SampleRatio,fill=..x..>ratio))+
+              geom_histogram(color="black",bins = 100) +
+              scale_fill_manual(values=c('FALSE'="white",'TRUE'= "#9b59b6"))+
+              geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")
+      pp=ggplot_build(p)
+      draw_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
+      draw_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
+      x_pianyi=(draw_x[2]-draw_x[1])*0.2
+      
+      if(skewness(xdata$SampleRatio)<0){
+        text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+      }
+      else{
+        text=data.frame(label=c(text1,text2),x=draw_x[2]-x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+      }
+      
+      print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+      
       dev.off()
       file.copy(from = paste(basepath,"Plot","microStatistic.svg",sep = "/"),to = paste('www/templePlot/microStatistic',session$token,'.svg',sep = ""))
 
@@ -667,7 +742,6 @@ shinyServer(function(input,output,session) {
       
     }
     else{
-      
       validGene=rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
       validSample = rowSums(after_slice_rna.exp[validGene,]>=number)
       ratio=as.numeric(line)
@@ -681,12 +755,39 @@ shinyServer(function(input,output,session) {
       svg(filename = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),family = 'serif')
       x1 = min(xdata$SampleRatio)+0.2*max(xdata$SampleRatio)+min(xdata$SampleRatio)
       text_to_plot=data.frame(x=c(x1,x1),y=c(0.95,0.90),col=c("blue","blue"),text=c(paste("Original genes:",number_ori),paste("After seg:",number_after)))
-      print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
-              geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
-              geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
-              geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
-              geom_text(data = text_to_plot,aes(x = text_to_plot$x,y = text_to_plot$y,label =text_to_plot$text),size =8,colour="blue")
-            )
+      # print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
+      #         geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
+      #         geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
+      #         geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
+      #         geom_text(data = text_to_plot,aes(x = text_to_plot$x,y = text_to_plot$y,label =text_to_plot$text),size =8,colour="blue")
+      #       )
+      xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_micro.exp)),
+                         color=as.character(c(xdata$SampleRatio>ratio)),
+                         stringsAsFactors = F
+      )
+      
+      text1=paste("Thresh:",ratio)
+      text2=paste("Remain:",number_after)
+      
+      p=ggplot(xdata,aes(x=SampleRatio,fill=..x..>ratio))+
+        geom_histogram(color="black",bins = 100) +
+        scale_fill_manual(values=c('FALSE'="white",'TRUE'= "#9b59b6"))+
+        geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")
+      pp=ggplot_build(p)
+      draw_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
+      draw_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
+      x_pianyi=(draw_x[2]-draw_x[1])*0.2
+      
+      if(skewness(xdata$SampleRatio)<0){
+        text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi*(draw_x[2]-draw_x[1]),y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+      }
+      else{
+        text=data.frame(label=c(text1,text2),x=draw_x[2]-x_pianyi*(draw_x[2]-draw_x[1]),y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+      }
+      
+      print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+      
+      
       dev.off()
       file.copy(from = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),to = paste('www/templePlot/',group,'Statistic',session$token,'.svg',sep = ""))
       
@@ -874,7 +975,7 @@ shinyServer(function(input,output,session) {
       tasks='all'
     }
     
-    removeUI(selector = '#modalbody>',immediate = T)
+    removeUI(selector = '#modalbody>',multiple = T,immediate = T)
     insertUI(selector = '#modalbody',where = 'beforeEnd',immediate = T,
              ui=div(
                div(class='row',
@@ -965,7 +1066,10 @@ shinyServer(function(input,output,session) {
     
     tasks=condition[type,'task']
     logpath=paste(basepath,'/log/',type,'.txt',sep="")
-    
+    if(file.exists(logpath))
+    {
+      file.remove(logpath)
+    }
     if(type=="PCC")
     {
       if(dir.exists(paths = paste(basepath,'/log/')))
@@ -1115,7 +1219,9 @@ shinyServer(function(input,output,session) {
       result=readMat(paste(basepath,'/all.cor.mat',sep=""))
       cor=result$cor
       pvalue=result$pvalue
+      print(dim(after_slice_geneinfo))
       gene=rownames(after_slice_rna.exp)
+      print(dim(cor))
       rownames(cor)=gene
       colnames(cor)=gene
       rownames(pvalue)=gene
@@ -1213,6 +1319,7 @@ shinyServer(function(input,output,session) {
     }
     network_construnction(after_slice_geneinfo)
   })
+
   ##########Visualization Page Action#########
   observeEvent(input$network,{
     isolate({
@@ -1261,4 +1368,152 @@ shinyServer(function(input,output,session) {
       session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
     }
   })
+  
+  ##########Analysis Page Action###############
+  observeEvent(input$nodeCentrality,{
+    isolate({
+      msg=input$nodeCentrality
+      centrality=unlist(msg$value)
+    })
+    print(centrality)
+    deleted=setdiff(node_property,centrality)
+    deleted=sub(pattern = " ",replacement = "_",deleted)
+    removeUI(selector = paste("#node_",deleted,sep=""),multiple = T,immediate = T)
+    newadd=setdiff(centrality,node_property)
+    node_property<<-centrality
+    for(id in newadd)
+    {
+        ui=create_property_box('node',id)
+        insertUI(selector = "#network_property",where = 'beforeEnd',ui = ui,
+                 immediate = T)
+        if(id=="Degree")
+        {
+          degree=as.data.frame(degree(net_igraph))
+          after_slice_geneinfo[rownames(degree),'Degree']<<-degree[,1]
+          data=as.data.frame(table(degree[,1]),stringsAsFactors = F)
+          data$Var1=as.numeric(data$Var1)
+          data=data[which(data$Var1!=0),]
+          p=ggplot(data = data,aes(x = Var1,ymax=Freq,ymin=0,y=Freq))+
+          geom_linerange(linetype='dashed')+
+          geom_point(size=3)+scale_x_log10()+scale_y_log10()+geom_smooth(method = lm)
+          svg(filename = paste(basepath,"Plot",'node_degree.svg',sep="/"),family = 'serif')
+          print(p)
+          dev.off()
+          output$node_Degree_plot=renderImage({
+            list(src=normalizePath(paste(basepath,"Plot",'node_degree.svg',sep="/")),height="100%",width="100%")
+          },deleteFile=F)
+        }
+        else if(id=="Betweenness")
+        {
+          betweenness=betweenness(net_igraph,directed = F)
+          after_slice_geneinfo[names(betweenness),'Betweenness']<<-betweenness
+          density=density(x = betweenness,from = min(betweenness,na.rm = T),to = max(betweenness,na.rm = T),na.rm = T)
+          density=data.frame(x=density$x,y=density$y)
+          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+          svg(filename = paste(basepath,"Plot",'node_betweenness.svg',sep="/"),family = 'serif')
+          print(p)
+          dev.off()
+          output$node_Betweenness_plot=renderImage({
+            list(src=normalizePath(paste(basepath,"Plot",'node_betweenness.svg',sep="/")),height="100%",width="100%")
+          },deleteFile=F)
+        }
+        else if(id=="Closeness")
+        {
+          closeness=closeness(net_igraph,mode = 'all')
+          after_slice_geneinfo[names(closeness),'Closeness']<<-closeness
+          density=density(x = closeness,from = min(closeness,na.rm = T),to = max(closeness,na.rm = T),na.rm = T)
+          density=data.frame(x=density$x,y=density$y)
+          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+          svg(filename = paste(basepath,"Plot",'node_closeness.svg',sep="/"),family = 'serif')
+          print(p)
+          dev.off()
+          output$node_Closeness_plot=renderImage({
+            list(src=normalizePath(paste(basepath,"Plot",'node_closeness.svg',sep="/")),height="100%",width="100%")
+          },deleteFile=F)
+        }
+        else if(id=="Clustering Coefficient")
+        {
+          cc=transitivity(net_igraph,type='local',isolates = 'zero')
+          after_slice_geneinfo[V(net_igraph)$name,'Clustering Coefficient']<<-cc
+          density=density(x = cc,from = min(cc,na.rm = T),to = max(cc,na.rm = T),na.rm = T)
+          density=data.frame(x=density$x,y=density$y)
+          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+          svg(filename = paste(basepath,"Plot",'node_clustering_coefficient.svg',sep="/"),family = 'serif')
+          print(p)
+          dev.off()
+          output$node_Clustering_Coefficient_plot=renderImage({
+            list(src=normalizePath(paste(basepath,"Plot",'node_clustering_coefficient.svg',sep="/")),height="100%",width="100%")
+          },deleteFile=F)
+        }
+    }
+  })
+  observeEvent(input$edgeCentrality,{
+    isolate({
+      msg=input$edgeCentrality
+      centrality=msg$value
+    })
+    print(centrality)
+    deleted=setdiff(edge_property,centrality)
+    removeUI(selector = paste("#edge_",deleted,sep=""),multiple = T,immediate = T)
+    newadd=setdiff(centrality,edge_property)
+    edge_property<<-centrality
+    for(id in newadd)
+    {
+      ui=create_property_box('edge',id)
+      insertUI(selector = "#network_property",where = 'beforeEnd',ui = ui,
+               immediate = T)
+      if(id=="Betweenness")
+      {
+        betweenness=edge_betweenness(net_igraph,directed = F)
+        
+        edgelist=t(apply(X = as_edgelist(net_igraph),MARGIN = 1,FUN = sort))
+        edgename=t(apply(X = edgeinfo[,c('N1','N2')],MARGIN = 1,FUN = sort))
+        rownames(edgeinfo)<<-paste(edgename[,1],edgename[,2],sep="|")
+        edgeinfo[paste(edgename[,1],edgename[,2],sep="|"),'Betweenness']<<-betweenness
+        rownames(edgeinfo)<<-NULL
+        
+        density=density(x = betweenness,from = min(betweenness,na.rm = T),to = max(betweenness,na.rm = T),na.rm = T)
+        density=data.frame(x=density$x,y=density$y)
+        p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+        svg(filename = paste(basepath,"Plot",'edge_betweenness.svg',sep="/"),family = 'serif')
+        print(p)
+        dev.off()
+        output$edge_Betweenness_plot=renderImage({
+          list(src=normalizePath(paste(basepath,"Plot",'edge_betweenness.svg',sep="/")),height="100%",width="100%")
+        },deleteFile=F)
+      }
+    }
+  })
+  observeEvent(input$nodeDetails,{
+    removeUI(selector = "#modalbody>",immediate = T)
+    insertUI(selector = "#modalbody",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "nodeDetailsTable"),immediate = T)
+    output$nodeDetailsTable=renderRHandsontable({
+      doubleColumn=which(unlist(lapply(X = after_slice_geneinfo,FUN = typeof))=='double')
+      rhandsontable(after_slice_geneinfo, width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
+        hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
+        hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = F) %>%
+        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter')%>%
+        hot_col(col = doubleColumn,format = '0.000e-0')%>%
+        hot_context_menu(customOpts = list(search=list(name="Search",
+                                                       callback=htmlwidgets::JS("function(key,options){
+                                                                                var srch=prompt('Search criteria');
+                                                                                this.search.query(srch);
+                                                                                this.render()
+                                                       }"))))
+      
+    })
+  })
+  observeEvent(input$edgeDetails,{
+    removeUI(selector = "#modalbody>",immediate = T)
+    insertUI(selector = "#modalbody",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "edgeDetailsTable"),immediate = T)
+    output$edgeDetailsTable=renderRHandsontable({
+      doubleColumn=which(unlist(lapply(X = after_slice_geneinfo,FUN = typeof))=='double')
+      rhandsontable(edgeinfo, width = "100%", height = "500",rowHeaders = NULL,readOnly = F) %>%
+        hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
+        hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = T) %>%
+        hot_col(col = doubleColumn,format='0.000e+0')%>%
+        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter')
+    })
+  })
 })
+

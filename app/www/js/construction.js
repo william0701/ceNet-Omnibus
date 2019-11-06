@@ -1,7 +1,6 @@
 var conditons
 var condition_status={}
 $(document).ready(function(){
-  $("#")
   $("#add_new_condition").on('click',function(e){
     var obj={}
     obj['stamp']=Math.random()
@@ -40,7 +39,7 @@ $(document).ready(function(){
       check('custom_condition_abbr',conditions.abbr)
       check('custom_condition_description',conditions.description)
       check('custom_condition_code',null)
-      //自定义检�?
+      //自定义检???
       if($('#condition_type').val()=='custom')
       {
         if($('#modalbody .text-red').length>0)

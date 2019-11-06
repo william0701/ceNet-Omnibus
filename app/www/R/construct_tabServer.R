@@ -9,7 +9,9 @@ rownames(condition)=condition$abbr
 validcore=detectCores(logical = F)
 condition.values=list()
 network=""
+net_igraph=""
 thresh=data.frame()
+edgeinfo=data.frame()
 
 filter_box=function(type,tasks)
 {
@@ -148,6 +150,7 @@ network_construnction=function(after_slice_geneinfo)
   for(type in unique(thresh$type))
   {
     type.thresh=thresh[which(thresh$type==type),]
+    network<<-network+1
     for(i in seq(1,dim(type.thresh)[1]))
     {
       task=type.thresh$task[i]
@@ -155,18 +158,19 @@ network_construnction=function(after_slice_geneinfo)
       value=type.thresh$thresh[i]
       if(task=='all')
       {
-        tmp=direction(condition.values[[type]][[task]],value)
-        tmp[is.na(tmp)]=0
-        network<<-network+tmp
+        tmp=!direction(condition.values[[type]][[task]],value)
+        tmp[is.na(tmp)]=T
+        network<<-network-tmp
       }
       else
       {
         groups=unlist(strsplit(x = task,split = "---"))
         group1=rownames(after_slice_geneinfo)[which(after_slice_geneinfo$.group==groups[1])]
         group2=rownames(after_slice_geneinfo)[which(after_slice_geneinfo$.group==groups[2])]
-        tmp=direction(condition.values[[type]][[task]][group1,group2],value)
-        tmp[is.na(tmp)]=F
-        network[group1,group2]<<-network[group1,group2]+tmp
+        #network[group1,group2]<<-network[group1,group2]+1
+        tmp=!direction(condition.values[[type]][[task]][group1,group2],value)
+        tmp[is.na(tmp)]=T
+        network[group1,group2]<<-network[group1,group2]-tmp
         # if(!all(group1==group2))
         # {
         #   network[group2,group1]<<-network[group2,group1]+t(tmp)
@@ -176,5 +180,39 @@ network_construnction=function(after_slice_geneinfo)
   }
   network[which(network<length(unique(thresh$type)))]<<-0
   network[which(network!=0)]<<-1
+  net_igraph<<-graph_from_adjacency_matrix(network,mode='undirected',diag=F)
+  edgeinfo<<-as.data.frame(as_edgelist(net_igraph),stringsAsFactors = F)
+  colnames(edgeinfo)<<-c('N1','N2')
+  edgeinfo[,'N1.group']<<-after_slice_geneinfo[edgeinfo$N1,'.group']
+  edgeinfo[,'N2.group']<<-after_slice_geneinfo[edgeinfo$N2,'.group']
+  
+  genetypesorder=t(apply(X = edgeinfo[,c("N1.group",'N2.group')],MARGIN = 1,FUN = order))
+  reorderindex=which(genetypesorder[,1]>genetypesorder[,2])
+  edgeinfo[reorderindex,c("N1","N2")]<<-edgeinfo[reorderindex,c("N2","N1")]
+  edgeinfo[reorderindex,c("N1.group","N2.group")]<<-edgeinfo[reorderindex,c("N2.group","N1.group")]
+  edgeinfo[,'type']<<-apply(X = edgeinfo[,c('N1.group',"N2.group")],MARGIN = 1,FUN = paste,collapse="---")
+  
+  for(type in unique(thresh$type))
+  {
+    if('all' %in% names(condition.values[[type]]))
+    {
+      edgeinfo[,type]<<-condition.values[[type]][['all']][as.matrix(edgeinfo[,1:2])]
+    }
+    else
+    {
+      for(group in unique(edgeinfo$type))
+      {
+        index=which(edgeinfo$type==group)
+        if(is.null(condition.values[[type]][[group]]))
+        {
+          edgeinfo[index,type]<<-NA
+        }
+        else
+        {
+          edgeinfo[index,type]<<-condition.values[[type]][[group]][as.matrix(edgeinfo[index,c('N1','N2')])]
+        }
+      }
+    }
+  }
   print(sum(network,na.rm = T))
 }

@@ -29,6 +29,8 @@ shinyServer(function(input,output,session) {
   expressgene_num2=""
 
   biotype_map=""
+  
+  visual_layout=""
   load('testdata/ph1.RData')
   ############Input Page Action##########
   observeEvent(input$onclick,{
@@ -1322,17 +1324,49 @@ shinyServer(function(input,output,session) {
   observeEvent(input$network,{
     isolate({
       msg=input$network
-      type=msg$type
+      do_what =msg$do_what
     })
-    edge=as.data.frame(which(network==1,arr.ind = T))
-    edge[,1]=rownames(network)[edge[,1]]
-    edge[,2]=colnames(network)[edge[,2]]
-    nodes=unique(c(edge[,1],edge[,2]))
-    colnames(edge)=c('source','target')
-    nodes=data.frame(id=nodes,type='PCG',stringsAsFactors = F)
-    node=tibble(group="nodes",data=apply(X = nodes,MARGIN = 1,as.list))
-    edge=tibble(group="edges",data=apply(X = edge,MARGIN = 1,FUN = as.list))
-    session$sendCustomMessage('network',toJSON(list(nodes=node,edge=edge,type=type),auto_unbox = T))
+    if(do_what=="layout"){
+      type=msg$type
+      visual_layout<<-type
+      edge=as.data.frame(which(network==1,arr.ind = T))
+      edge[,1]=rownames(network)[edge[,1]]
+      edge[,2]=colnames(network)[edge[,2]]
+      nodes=unique(c(edge[,1],edge[,2]))
+      colnames(edge)=c('source','target')
+      num=which(colnames(after_slice_geneinfo)==".group")
+      new_after_geneinfo = after_slice_geneinfo
+      colnames(new_after_geneinfo)[num]="group"
+      nodes=data.frame(id=nodes,new_after_geneinfo[nodes,],stringsAsFactors = F)
+      node=tibble(group="nodes",data=apply(X = nodes,MARGIN = 1,as.list))
+      edge=tibble(group="edges",data=apply(X = edge,MARGIN = 1,FUN = as.list))
+      session$sendCustomMessage('network',toJSON(list(nodes=node,edge=edge,type=type,do_what=do_what),auto_unbox = T))
+    }
+  })
+  observeEvent(input$change_network_name,{
+    
+    session$sendCustomMessage('Gene_info_name_change',colnames(after_slice_geneinfo))
+  
+  })
+  observeEvent(input$net_color_shape,{
+    isolate({
+      msg=input$net_color_shape
+      type =msg$type
+    })
+    if(type=="group"){
+      vec = data.frame(type=after_slice_geneinfo[".group"])
+      vec = vec[[1]]
+      index = duplicated(vec)
+      vec = vec[!index]
+      session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+    }
+    else{
+      vec = data.frame(type=after_slice_geneinfo[type])
+      vec = vec[[1]]
+      index = duplicated(vec)
+      vec = vec[!index]
+      session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+    }
   })
   
   ##########Analysis Page Action###############

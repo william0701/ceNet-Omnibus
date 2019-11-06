@@ -6,6 +6,7 @@ print(options('shiny.maxRequestSize'))
 shinyServer(function(input,output,session) {
   source('www/R/input_tabServer.R')
   source('www/R/construct_tabServer.R')
+  source('www/R/analysis_tabServer.R')
   ##创建临时文件???
   tmpdir=tempdir()
   basepath = paste(tmpdir,'/session_tmp_file',session$token,sep="");
@@ -972,7 +973,7 @@ shinyServer(function(input,output,session) {
       tasks='all'
     }
     
-    removeUI(selector = '#modalbody>',immediate = T)
+    removeUI(selector = '#modalbody>',multiple = T,immediate = T)
     insertUI(selector = '#modalbody',where = 'beforeEnd',immediate = T,
              ui=div(
                div(class='row',
@@ -1063,7 +1064,10 @@ shinyServer(function(input,output,session) {
     
     tasks=condition[type,'task']
     logpath=paste(basepath,'/log/',type,'.txt',sep="")
-    
+    if(file.exists(logpath))
+    {
+      file.remove(logpath)
+    }
     if(type=="PCC")
     {
       if(dir.exists(paths = paste(basepath,'/log/')))
@@ -1213,7 +1217,9 @@ shinyServer(function(input,output,session) {
       result=readMat(paste(basepath,'/all.cor.mat',sep=""))
       cor=result$cor
       pvalue=result$pvalue
+      print(dim(after_slice_geneinfo))
       gene=rownames(after_slice_rna.exp)
+      print(dim(cor))
       rownames(cor)=gene
       colnames(cor)=gene
       rownames(pvalue)=gene
@@ -1328,4 +1334,152 @@ shinyServer(function(input,output,session) {
     edge=tibble(group="edges",data=apply(X = edge,MARGIN = 1,FUN = as.list))
     session$sendCustomMessage('network',toJSON(list(nodes=node,edge=edge,type=type),auto_unbox = T))
   })
+  
+  ##########Analysis Page Action###############
+  observeEvent(input$nodeCentrality,{
+    isolate({
+      msg=input$nodeCentrality
+      centrality=unlist(msg$value)
+    })
+    print(centrality)
+    deleted=setdiff(node_property,centrality)
+    deleted=sub(pattern = " ",replacement = "_",deleted)
+    removeUI(selector = paste("#node_",deleted,sep=""),multiple = T,immediate = T)
+    newadd=setdiff(centrality,node_property)
+    node_property<<-centrality
+    for(id in newadd)
+    {
+        ui=create_property_box('node',id)
+        insertUI(selector = "#network_property",where = 'beforeEnd',ui = ui,
+                 immediate = T)
+        if(id=="Degree")
+        {
+          degree=as.data.frame(degree(net_igraph))
+          after_slice_geneinfo[rownames(degree),'Degree']<<-degree[,1]
+          data=as.data.frame(table(degree[,1]),stringsAsFactors = F)
+          data$Var1=as.numeric(data$Var1)
+          data=data[which(data$Var1!=0),]
+          p=ggplot(data = data,aes(x = Var1,ymax=Freq,ymin=0,y=Freq))+
+          geom_linerange(linetype='dashed')+
+          geom_point(size=3)+scale_x_log10()+scale_y_log10()+geom_smooth(method = lm)
+          svg(filename = paste(basepath,"Plot",'node_degree.svg',sep="/"),family = 'serif')
+          print(p)
+          dev.off()
+          output$node_Degree_plot=renderImage({
+            list(src=normalizePath(paste(basepath,"Plot",'node_degree.svg',sep="/")),height="100%",width="100%")
+          },deleteFile=F)
+        }
+        else if(id=="Betweenness")
+        {
+          betweenness=betweenness(net_igraph,directed = F)
+          after_slice_geneinfo[names(betweenness),'Betweenness']<<-betweenness
+          density=density(x = betweenness,from = min(betweenness,na.rm = T),to = max(betweenness,na.rm = T),na.rm = T)
+          density=data.frame(x=density$x,y=density$y)
+          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+          svg(filename = paste(basepath,"Plot",'node_betweenness.svg',sep="/"),family = 'serif')
+          print(p)
+          dev.off()
+          output$node_Betweenness_plot=renderImage({
+            list(src=normalizePath(paste(basepath,"Plot",'node_betweenness.svg',sep="/")),height="100%",width="100%")
+          },deleteFile=F)
+        }
+        else if(id=="Closeness")
+        {
+          closeness=closeness(net_igraph,mode = 'all')
+          after_slice_geneinfo[names(closeness),'Closeness']<<-closeness
+          density=density(x = closeness,from = min(closeness,na.rm = T),to = max(closeness,na.rm = T),na.rm = T)
+          density=data.frame(x=density$x,y=density$y)
+          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+          svg(filename = paste(basepath,"Plot",'node_closeness.svg',sep="/"),family = 'serif')
+          print(p)
+          dev.off()
+          output$node_Closeness_plot=renderImage({
+            list(src=normalizePath(paste(basepath,"Plot",'node_closeness.svg',sep="/")),height="100%",width="100%")
+          },deleteFile=F)
+        }
+        else if(id=="Clustering Coefficient")
+        {
+          cc=transitivity(net_igraph,type='local',isolates = 'zero')
+          after_slice_geneinfo[V(net_igraph)$name,'Clustering Coefficient']<<-cc
+          density=density(x = cc,from = min(cc,na.rm = T),to = max(cc,na.rm = T),na.rm = T)
+          density=data.frame(x=density$x,y=density$y)
+          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+          svg(filename = paste(basepath,"Plot",'node_clustering_coefficient.svg',sep="/"),family = 'serif')
+          print(p)
+          dev.off()
+          output$node_Clustering_Coefficient_plot=renderImage({
+            list(src=normalizePath(paste(basepath,"Plot",'node_clustering_coefficient.svg',sep="/")),height="100%",width="100%")
+          },deleteFile=F)
+        }
+    }
+  })
+  observeEvent(input$edgeCentrality,{
+    isolate({
+      msg=input$edgeCentrality
+      centrality=msg$value
+    })
+    print(centrality)
+    deleted=setdiff(edge_property,centrality)
+    removeUI(selector = paste("#edge_",deleted,sep=""),multiple = T,immediate = T)
+    newadd=setdiff(centrality,edge_property)
+    edge_property<<-centrality
+    for(id in newadd)
+    {
+      ui=create_property_box('edge',id)
+      insertUI(selector = "#network_property",where = 'beforeEnd',ui = ui,
+               immediate = T)
+      if(id=="Betweenness")
+      {
+        betweenness=edge_betweenness(net_igraph,directed = F)
+        
+        edgelist=t(apply(X = as_edgelist(net_igraph),MARGIN = 1,FUN = sort))
+        edgename=t(apply(X = edgeinfo[,c('N1','N2')],MARGIN = 1,FUN = sort))
+        rownames(edgeinfo)<<-paste(edgename[,1],edgename[,2],sep="|")
+        edgeinfo[paste(edgename[,1],edgename[,2],sep="|"),'Betweenness']<<-betweenness
+        rownames(edgeinfo)<<-NULL
+        
+        density=density(x = betweenness,from = min(betweenness,na.rm = T),to = max(betweenness,na.rm = T),na.rm = T)
+        density=data.frame(x=density$x,y=density$y)
+        p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+        svg(filename = paste(basepath,"Plot",'edge_betweenness.svg',sep="/"),family = 'serif')
+        print(p)
+        dev.off()
+        output$edge_Betweenness_plot=renderImage({
+          list(src=normalizePath(paste(basepath,"Plot",'edge_betweenness.svg',sep="/")),height="100%",width="100%")
+        },deleteFile=F)
+      }
+    }
+  })
+  observeEvent(input$nodeDetails,{
+    removeUI(selector = "#modalbody>",immediate = T)
+    insertUI(selector = "#modalbody",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "nodeDetailsTable"),immediate = T)
+    output$nodeDetailsTable=renderRHandsontable({
+      doubleColumn=which(unlist(lapply(X = after_slice_geneinfo,FUN = typeof))=='double')
+      rhandsontable(after_slice_geneinfo, width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
+        hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
+        hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = F) %>%
+        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter')%>%
+        hot_col(col = doubleColumn,format = '0.000e-0')%>%
+        hot_context_menu(customOpts = list(search=list(name="Search",
+                                                       callback=htmlwidgets::JS("function(key,options){
+                                                                                var srch=prompt('Search criteria');
+                                                                                this.search.query(srch);
+                                                                                this.render()
+                                                       }"))))
+      
+    })
+  })
+  observeEvent(input$edgeDetails,{
+    removeUI(selector = "#modalbody>",immediate = T)
+    insertUI(selector = "#modalbody",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "edgeDetailsTable"),immediate = T)
+    output$edgeDetailsTable=renderRHandsontable({
+      doubleColumn=which(unlist(lapply(X = after_slice_geneinfo,FUN = typeof))=='double')
+      rhandsontable(edgeinfo, width = "100%", height = "500",rowHeaders = NULL,readOnly = F) %>%
+        hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
+        hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = T) %>%
+        hot_col(col = doubleColumn,format='0.000e+0')%>%
+        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter')
+    })
+  })
 })
+

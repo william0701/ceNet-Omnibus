@@ -3,6 +3,7 @@
 ###############################
 source('www/R/input_tabUI.R')
 source('www/R/construct_tabUI.R')
+source('www/R/analysis_tabServer.R')
 includeScript('www/js/all.js')
 options(shiny.maxRequestSize = 1000*1024^2)
 header=dashboardHeader(
@@ -129,7 +130,14 @@ visual_tab=tabItem(tabName = "visualization",
                   
 )
 analysis_tab=tabItem(tabName = "analysis",
-                     h2("Network Analysis")
+                     h2("Part1: Network Topology Properties",style='font-family:Georgia'),
+                     create_property_checkboxgroup(type='node',id='node_centrality',label='Nodes Centrality',
+                                                   items=c("Degree","Betweenness","Closeness",'Clustering Coefficient'),f='showNodeCentrality'),
+                     create_property_checkboxgroup(type='edge',id='edge_centrality',label='Edges Centrality',items=c("Betweenness"),f='showEdgeCentrality'),
+                     tags$br(),
+                     div(id="network_property",class="row"),
+                     h2("Part2: Network Modules",style='font-family:Georgia'),
+                     h2("Part3: Biological Properties",style='font-family:Georgia')
 )
 
 body=dashboardBody(
@@ -151,7 +159,7 @@ dashboardPage(
     tags$script(src='js/bootstrap-editable.js'),tags$script(src="js/process.js"),tags$script(src="js/ion.rangeSlider.min.js"),
     tags$script(src="js/construction.js"),
     tags$script(src="js/filterProcess.js"),tags$script(src="js/samplefilterprocess.js"),
-    tags$script(src="js/cytoscape.js"),tags$script(src='js/visualization.js')
+    tags$script(src="js/cytoscape.js"),tags$script(src='js/visualization.js'),tags$script(src='js/analysis.js')
 
     ),
   header=header,

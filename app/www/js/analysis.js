@@ -1,5 +1,4 @@
 $(document).ready(function(){
-   check123()
   /*$("#add_new_topological_property").on('click',function(e){
    
     //$("#modalbody").empty()
@@ -56,4 +55,40 @@ function showEdgeCentrality(box)
   obj['stamp']=Math.random()
   obj['value']=values
   Shiny.setInputValue("edgeCentrality",obj)
+}
+
+function nodeDetails(btn)
+{
+   if(!$('#infolist').hasClass('in'))
+   {
+      $('#infolist').modal({backdrop: 'static', keyboard: false});
+   }
+   else
+   {
+    $('#infolist').modal('hide');
+    $('#infolist').modal({backdrop: 'static', keyboard: false});
+   }
+   $("#modalSubmit").off("click").on('click',function(e){
+      $('#infolist').modal('hide');
+   })
+  Shiny.setInputValue("nodeDetails",Math.random())
+  Shiny.addCustomMessageHandler("nodeDetails",function(e){
+   
+  })
+}
+function edgeDetails(btn)
+{
+   if(!$('#infolist').hasClass('in'))
+   {
+      $('#infolist').modal({backdrop: 'static', keyboard: false});
+   }
+   else
+   {
+    $('#infolist').modal('hide');
+    $('#infolist').modal({backdrop: 'static', keyboard: false});
+   }
+   $("#modalSubmit").off("click").on('click',function(e){
+      $('#infolist').modal('hide');
+   })
+  Shiny.setInputValue("edgeDetails",Math.random())
 }

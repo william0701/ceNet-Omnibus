@@ -964,7 +964,10 @@ shinyServer(function(input,output,session) {
     
     tasks=condition[type,'task']
     logpath=paste(basepath,'/log/',type,'.txt',sep="")
-    
+    if(file.exists(logpath))
+    {
+      file.remove(logpath)
+    }
     if(type=="PCC")
     {
       if(dir.exists(paths = paste(basepath,'/log/')))
@@ -1114,7 +1117,9 @@ shinyServer(function(input,output,session) {
       result=readMat(paste(basepath,'/all.cor.mat',sep=""))
       cor=result$cor
       pvalue=result$pvalue
+      print(dim(after_slice_geneinfo))
       gene=rownames(after_slice_rna.exp)
+      print(dim(cor))
       rownames(cor)=gene
       colnames(cor)=gene
       rownames(pvalue)=gene
@@ -1250,6 +1255,7 @@ shinyServer(function(input,output,session) {
         if(id=="Degree")
         {
           degree=as.data.frame(degree(net_igraph))
+          after_slice_geneinfo[rownames(degree),'Degree']<<-degree[,1]
           data=as.data.frame(table(degree[,1]),stringsAsFactors = F)
           data$Var1=as.numeric(data$Var1)
           data=data[which(data$Var1!=0),]
@@ -1266,6 +1272,7 @@ shinyServer(function(input,output,session) {
         else if(id=="Betweenness")
         {
           betweenness=betweenness(net_igraph,directed = F)
+          after_slice_geneinfo[names(betweenness),'Betweenness']<<-betweenness
           density=density(x = betweenness,from = min(betweenness,na.rm = T),to = max(betweenness,na.rm = T),na.rm = T)
           density=data.frame(x=density$x,y=density$y)
           p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
@@ -1279,6 +1286,7 @@ shinyServer(function(input,output,session) {
         else if(id=="Closeness")
         {
           closeness=closeness(net_igraph,mode = 'all')
+          after_slice_geneinfo[names(closeness),'Closeness']<<-closeness
           density=density(x = closeness,from = min(closeness,na.rm = T),to = max(closeness,na.rm = T),na.rm = T)
           density=data.frame(x=density$x,y=density$y)
           p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
@@ -1292,6 +1300,7 @@ shinyServer(function(input,output,session) {
         else if(id=="Clustering Coefficient")
         {
           cc=transitivity(net_igraph,type='local',isolates = 'zero')
+          after_slice_geneinfo[V(net_igraph)$name,'Clustering Coefficient']<<-cc
           density=density(x = cc,from = min(cc,na.rm = T),to = max(cc,na.rm = T),na.rm = T)
           density=data.frame(x=density$x,y=density$y)
           p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
@@ -1322,6 +1331,13 @@ shinyServer(function(input,output,session) {
       if(id=="Betweenness")
       {
         betweenness=edge_betweenness(net_igraph,directed = F)
+        
+        edgelist=t(apply(X = as_edgelist(net_igraph),MARGIN = 1,FUN = sort))
+        edgename=t(apply(X = edgeinfo[,c('N1','N2')],MARGIN = 1,FUN = sort))
+        rownames(edgeinfo)<<-paste(edgename[,1],edgename[,2],sep="|")
+        edgeinfo[paste(edgename[,1],edgename[,2],sep="|"),'Betweenness']<<-betweenness
+        rownames(edgeinfo)<<-NULL
+        
         density=density(x = betweenness,from = min(betweenness,na.rm = T),to = max(betweenness,na.rm = T),na.rm = T)
         density=data.frame(x=density$x,y=density$y)
         p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
@@ -1333,6 +1349,37 @@ shinyServer(function(input,output,session) {
         },deleteFile=F)
       }
     }
+  })
+  observeEvent(input$nodeDetails,{
+    removeUI(selector = "#modalbody>",immediate = T)
+    insertUI(selector = "#modalbody",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "nodeDetailsTable"),immediate = T)
+    output$nodeDetailsTable=renderRHandsontable({
+      doubleColumn=which(unlist(lapply(X = after_slice_geneinfo,FUN = typeof))=='double')
+      rhandsontable(after_slice_geneinfo, width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
+        hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
+        hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = F) %>%
+        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter')%>%
+        hot_col(col = doubleColumn,format = '0.000e-0')%>%
+        hot_context_menu(customOpts = list(search=list(name="Search",
+                                                       callback=htmlwidgets::JS("function(key,options){
+                                                                                var srch=prompt('Search criteria');
+                                                                                this.search.query(srch);
+                                                                                this.render()
+                                                       }"))))
+      
+    })
+  })
+  observeEvent(input$edgeDetails,{
+    removeUI(selector = "#modalbody>",immediate = T)
+    insertUI(selector = "#modalbody",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "edgeDetailsTable"),immediate = T)
+    output$edgeDetailsTable=renderRHandsontable({
+      doubleColumn=which(unlist(lapply(X = after_slice_geneinfo,FUN = typeof))=='double')
+      rhandsontable(edgeinfo, width = "100%", height = "500",rowHeaders = NULL,readOnly = F) %>%
+        hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
+        hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = T) %>%
+        hot_col(col = doubleColumn,format='0.000e+0')%>%
+        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter')
+    })
   })
 })
 

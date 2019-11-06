@@ -15,7 +15,10 @@ create_property_box=function(type,id)
           ),
           div(class="box-body",style="display:block;",
               imageOutput(outputId = paste(type,"_",id,"_plot",sep=""),width = "100%",height = "100%"),
-              tableOutput(outputId = paste(type,"_",id,"_table",sep=""))
+              #tableOutput(outputId = paste(type,"_",id,"_table",sep=""))
+              tags$button(class="btn bg-maroon btn-block btn-flat",type='button',HTML("Details"),
+                          onclick=paste(ifelse(type=='node','node','edge'),"Details(this)",sep="")
+                         )
           )
       )    
   )

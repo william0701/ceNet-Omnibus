@@ -1,7 +1,7 @@
 var biotype_group=new Map();
 var remain=[];
 $(document).ready(function(){
-  var speed = 100;
+/*  var speed = 100;
   var scrollTop = null;
   var hold = 0;
   var float_banner;
@@ -10,8 +10,6 @@ $(document).ready(function(){
   var moveHeight = null;
   float_banner = document.getElementById("float_banner");
   $("#float_banner").css({"position":"absolute","left":"50%","top":"50px","width":"1200px","margin-left":"-300px","height":"30px","font-weight":"bold","z-index":"100"})
-/*  #float_banner{position:absolute;top:0;left:50%;width:900px;margin-left:-450px;height:30px;line-height:30px;text-align:center;background:#000;color:#fff;font-size:14px;font-weight:bold;z-index:2;}*/
-
   window.onscroll=scroll_ad;
   function scroll_ad(){
     scrollTop = document.documentElement.scrollTop+document.body.scrollTop;
@@ -23,8 +21,19 @@ $(document).ready(function(){
       float_banner.style.top = float_banner.offsetTop+moveHeight+"px";
       setTimeout(scroll_ad,speed);
     }
-//alert(scrollTop);
-  }
+  }*/
+  
+  $(window).scroll(function(oEl){
+    while (null !== oEl && $(oEl).attr("自定义属性") !== "特定属性值" && target.tagName !== "BODY") {
+      oEl = oEl.parentElement;
+    }
+    return oEl;
+  });
+/*  function fnGetTable(oEl) {
+    
+}*/
+  
+  
   creat_logtrans_button("log2","log2transform","Log2 conversion of gene expression data");
   creat_logtrans_button("log","logtransform","Log conversion of gene expression data");
   creat_logtrans_button("log10","log10transform","Log10 conversion of gene expression data");

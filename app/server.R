@@ -29,6 +29,8 @@ shinyServer(function(input,output,session) {
   expressgene_num2=""
 
   biotype_map=""
+  
+  visual_layout=""
   load('testdata/ph1.RData')
   ############Input Page Action##########
   observeEvent(input$onclick,{
@@ -414,8 +416,8 @@ shinyServer(function(input,output,session) {
       sendSweetAlert(session = session,title = "Warning..",text = 'Please choose valid value',type = 'warning')
       expressgene_num<<-rep(dim(sect_output_micro.exp)[1],time=dim(sect_output_micro.exp)[2])
     }
+    
     expressgene_num<<-expressgene_num/(dim(sect_output_micro.exp)[1])
-    # browser()
     process_sample<-data.frame(
       x=expressgene_num
     )
@@ -424,14 +426,36 @@ shinyServer(function(input,output,session) {
     draw_x<-(max(expressgene_num)+min(expressgene_num))/2  
 
     x2<-quantile(expressgene_num,value,type=3) 
-    draw_x2<-round(x2,2)
-    svg(filename = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),family = 'serif')
-    print(ggplot(process_sample, aes(x = x))+stat_ecdf()+
-      geom_hline(aes(yintercept=value), colour="#990000", linetype="dashed")+
-      geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")+
-      geom_point(x=x2,y=value)+geom_text(label=paste0("(",draw_x2,",",value,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
-      geom_text(label=paste0("Original Sample Number:",length(colnames(sect_output_micro.exp))),x=min(expressgene_num),y=1,colour = "red",family="serif",size=5)
+    draw_x2<-round(x2,3)
+    process_sample<-data.frame(
+      x=expressgene_num,
+      color=as.character(c(expressgene_num>x2)),stringsAsFactors = F
     )
+    svg(filename = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),family = 'serif')
+
+    liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num>x2)]))
+    
+    text1=paste("Thresh:",draw_x2)
+    text2=paste("Remain:",liuxiasum)
+    
+    p=ggplot(process_sample,aes(x=x,fill=..x..>x2))+
+      geom_histogram(color="black",bins = 100) +
+      scale_fill_manual(values=c('FALSE'="white",'TRUE'= "#9b59b6"))+
+      geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")
+    pp=ggplot_build(p)
+    axis_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
+    axis_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
+    x_pianyi=(axis_x[2]-axis_x[1])*0.2
+    
+    if(skewness(process_sample$x)<0){
+      text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+    }
+    else{
+      text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+    }
+    
+    print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+    
     dev.off()
     file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),
               to = paste('www/templePlot/microSampleFilter',session$token,'.svg',sep = ""))
@@ -511,22 +535,46 @@ shinyServer(function(input,output,session) {
       else{
         sendSweetAlert(session = session,title = "Warning..",text = 'Please choose valid value',type = 'warning')
         expressgene_num2<<-rep(dim(sect_output_rna.exp)[1],time=dim(sect_output_rna.exp)[2])
+        
+        process_sample<-data.frame(#also will crash the page
+          x=expressgene_num2,stringsAsFactors = F
+        )
       }
+  
       expressgene_num2<<-expressgene_num2/(dim(sect_output_rna.exp)[1])
-      process_sample<-data.frame(
-        x=c(expressgene_num2)
-      )
-      
       value=as.numeric(value)
       draw_x<-(max(expressgene_num2)+min(expressgene_num2))/2  
-
-      x2<-quantile(expressgene_num2,value,type=3) 
-      draw_x2<-round(x2,2)
+      
+      x2<-quantile(expressgene_num2,value,type=3)
+      process_sample<-data.frame(
+        x=expressgene_num2,
+        color=as.character(c(expressgene_num2>x2)),stringsAsFactors = F
+      )
+      draw_x2<-round(x2,3)
+      liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num2>x2)]))
       svg(filename = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),family = 'serif')
-      print(ggplot(process_sample, aes(x = x))+stat_ecdf()+
-              geom_hline(aes(yintercept=value), colour="#990000", linetype="dashed")+
-              geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")+
-              geom_point(x=x2,y=value)+geom_text(label=paste0("(",draw_x2,",",value,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5))
+      
+      text1=paste("Thresh:",draw_x2)
+      text2=paste("Remain:",liuxiasum)
+      
+      p=ggplot(process_sample,aes(x=x,fill=..x..>x2))+
+        geom_histogram(color="black",bins = 100) +
+        scale_fill_manual(values=c('FALSE'="white",'TRUE'= "#9b59b6"))+
+        geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")
+      pp=ggplot_build(p)
+      axis_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
+      axis_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
+      x_pianyi=(axis_x[2]-axis_x[1])*0.2
+      
+      if(skewness(process_sample$x)<0){
+        text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+      }
+      else{
+        text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+      }
+      
+      print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+      
       dev.off()
       file.copy(from = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),to = paste('www/templePlot/RNASampleFilter',session$token,'.svg',sep = ""))
       if(exist=="F"){
@@ -627,19 +675,47 @@ shinyServer(function(input,output,session) {
       xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_micro.exp)),stringsAsFactors = F)
       ypoint=length(which(xdata$SampleRatio<=ratio))/length(validGene)
       temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
-      draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2 
+      draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2
       number_ori=length(validGene)
       number_after=(1-ypoint)*number_ori
       x1 = min(xdata$SampleRatio)+0.2*max(xdata$SampleRatio)+min(xdata$SampleRatio)
       text_to_plot=data.frame(x=c(x1,x1),y=c(0.95,0.90),col=c("blue","blue"),text=c(paste("Original genes:",number_ori),paste("After seg:",number_after)))
       ypoint =round(ypoint,2)
+      
+      xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_micro.exp)),
+                         color=as.character(c(xdata$SampleRatio>ratio)),
+                         stringsAsFactors = F
+                         )
+      
       svg(filename = paste(basepath,"Plot","microStatistic.svg",sep = "/"),family = 'serif')
-      print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
-              geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
-              geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
-              geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
-              geom_text(data = text_to_plot,aes(x = text_to_plot$x,y = text_to_plot$y,label =text_to_plot$text),size =8,colour="blue")
-            )
+      # print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
+      #         geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
+      #         geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
+      #         geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
+      #         geom_text(data = text_to_plot,aes(x = text_to_plot$x,y = text_to_plot$y,label =text_to_plot$text),size =8,colour="blue")
+      #       )
+
+      text1=paste("Thresh:",ratio)
+      text2=paste("Remain:",number_after)
+  
+      p=ggplot(xdata,aes(x=SampleRatio,fill=..x..>ratio))+
+              geom_histogram(color="black",bins = 100) +
+              scale_fill_manual(values=c('FALSE'="white",'TRUE'= "#9b59b6"))+
+              geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")
+      pp=ggplot_build(p)
+      draw_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
+      draw_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
+      x_pianyi=(draw_x[2]-draw_x[1])*0.2
+      
+      if(skewness(xdata$SampleRatio)<0){
+        text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+      }
+      else{
+        text=data.frame(label=c(text1,text2),x=draw_x[2]-x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+      }
+      
+      print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+      
       dev.off()
       file.copy(from = paste(basepath,"Plot","microStatistic.svg",sep = "/"),to = paste('www/templePlot/microStatistic',session$token,'.svg',sep = ""))
 
@@ -666,7 +742,6 @@ shinyServer(function(input,output,session) {
       
     }
     else{
-      
       validGene=rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
       validSample = rowSums(after_slice_rna.exp[validGene,]>=number)
       ratio=as.numeric(line)
@@ -680,12 +755,39 @@ shinyServer(function(input,output,session) {
       svg(filename = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),family = 'serif')
       x1 = min(xdata$SampleRatio)+0.2*max(xdata$SampleRatio)+min(xdata$SampleRatio)
       text_to_plot=data.frame(x=c(x1,x1),y=c(0.95,0.90),col=c("blue","blue"),text=c(paste("Original genes:",number_ori),paste("After seg:",number_after)))
-      print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
-              geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
-              geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
-              geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
-              geom_text(data = text_to_plot,aes(x = text_to_plot$x,y = text_to_plot$y,label =text_to_plot$text),size =8,colour="blue")
-            )
+      # print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
+      #         geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
+      #         geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
+      #         geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
+      #         geom_text(data = text_to_plot,aes(x = text_to_plot$x,y = text_to_plot$y,label =text_to_plot$text),size =8,colour="blue")
+      #       )
+      xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_micro.exp)),
+                         color=as.character(c(xdata$SampleRatio>ratio)),
+                         stringsAsFactors = F
+      )
+      
+      text1=paste("Thresh:",ratio)
+      text2=paste("Remain:",number_after)
+      
+      p=ggplot(xdata,aes(x=SampleRatio,fill=..x..>ratio))+
+        geom_histogram(color="black",bins = 100) +
+        scale_fill_manual(values=c('FALSE'="white",'TRUE'= "#9b59b6"))+
+        geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")
+      pp=ggplot_build(p)
+      draw_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
+      draw_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
+      x_pianyi=(draw_x[2]-draw_x[1])*0.2
+      
+      if(skewness(xdata$SampleRatio)<0){
+        text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi*(draw_x[2]-draw_x[1]),y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+      }
+      else{
+        text=data.frame(label=c(text1,text2),x=draw_x[2]-x_pianyi*(draw_x[2]-draw_x[1]),y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+      }
+      
+      print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+      
+      
       dev.off()
       file.copy(from = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),to = paste('www/templePlot/',group,'Statistic',session$token,'.svg',sep = ""))
       
@@ -1222,17 +1324,49 @@ shinyServer(function(input,output,session) {
   observeEvent(input$network,{
     isolate({
       msg=input$network
-      type=msg$type
+      do_what =msg$do_what
     })
-    edge=as.data.frame(which(network==1,arr.ind = T))
-    edge[,1]=rownames(network)[edge[,1]]
-    edge[,2]=colnames(network)[edge[,2]]
-    nodes=unique(c(edge[,1],edge[,2]))
-    colnames(edge)=c('source','target')
-    nodes=data.frame(id=nodes,type='PCG',stringsAsFactors = F)
-    node=tibble(group="nodes",data=apply(X = nodes,MARGIN = 1,as.list))
-    edge=tibble(group="edges",data=apply(X = edge,MARGIN = 1,FUN = as.list))
-    session$sendCustomMessage('network',toJSON(list(nodes=node,edge=edge,type=type),auto_unbox = T))
+    if(do_what=="layout"){
+      type=msg$type
+      visual_layout<<-type
+      edge=as.data.frame(which(network==1,arr.ind = T))
+      edge[,1]=rownames(network)[edge[,1]]
+      edge[,2]=colnames(network)[edge[,2]]
+      nodes=unique(c(edge[,1],edge[,2]))
+      colnames(edge)=c('source','target')
+      num=which(colnames(after_slice_geneinfo)==".group")
+      new_after_geneinfo = after_slice_geneinfo
+      colnames(new_after_geneinfo)[num]="group"
+      nodes=data.frame(id=nodes,new_after_geneinfo[nodes,],stringsAsFactors = F)
+      node=tibble(group="nodes",data=apply(X = nodes,MARGIN = 1,as.list))
+      edge=tibble(group="edges",data=apply(X = edge,MARGIN = 1,FUN = as.list))
+      session$sendCustomMessage('network',toJSON(list(nodes=node,edge=edge,type=type,do_what=do_what),auto_unbox = T))
+    }
+  })
+  observeEvent(input$change_network_name,{
+    
+    session$sendCustomMessage('Gene_info_name_change',colnames(after_slice_geneinfo))
+  
+  })
+  observeEvent(input$net_color_shape,{
+    isolate({
+      msg=input$net_color_shape
+      type =msg$type
+    })
+    if(type=="group"){
+      vec = data.frame(type=after_slice_geneinfo[".group"])
+      vec = vec[[1]]
+      index = duplicated(vec)
+      vec = vec[!index]
+      session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+    }
+    else{
+      vec = data.frame(type=after_slice_geneinfo[type])
+      vec = vec[[1]]
+      index = duplicated(vec)
+      vec = vec[!index]
+      session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+    }
   })
   
   ##########Analysis Page Action###############

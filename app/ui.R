@@ -22,7 +22,6 @@ sidebar=dashboardSidebar(
 
 process_tab=tabItem(tabName = "process",
                     h2("Data Preprocess"),
-                    # div(id="float_banner",'这里是顶部的横幅，随着页面滚动而浮动'),
                     div(class="row" ,id="float_banner",
                       #box(title='Data Process',collapsible=T,collapsed=F,status='primary',solidHeader=T,width = 12,
                           value_BoxInput(value = 0,subtitle =  "Valid RNA", icon = "twitter",color = "red",width = 4,inputId="Rnaoutput" ),
@@ -30,7 +29,7 @@ process_tab=tabItem(tabName = "process",
                           value_BoxInput(value = 0,subtitle =  "Valid Sample", icon = "twitter",color = "yellow",width = 4,inputId="Sampleoutput" )
                     ),      
                     fluidRow(      
-                          box(title = "Info Map",status = 'success',solidHeader = F,width = 12,
+                          box(title = "Info Map",status = 'success',solidHeader = F,width = 12,id="Info_Map_all",
                               div(class='col-lg-6',style="padding:0px",
                                   prettyRadioButtons(inputId = 'biotype_map',label = 'Which Column is Gene Biotype',choices = c('None'),selected = 'None',status='success',inline=T,shape = 'round'),
                                   #multiInput(inputId = 'valid_biotype',label = 'Select Used Biotype',choices = c('None'),selected = NULL,options = list(enable_search = T,non_selected_header = "Choose between:",selected_header = "You have selected:")),
@@ -118,14 +117,18 @@ construction_tab=tabItem(tabName = "construction",
 visual_tab=tabItem(tabName = "visualization",
 
                    h2("Network Visualization"),
-                   div(
-                   h4("choose layout"),   
-                   tags$button(HTML("circle"),id="show_net_button_circle",class="btn-primary",style="z-index:1"),
-                   tags$button(HTML("random"),id="show_net_button_random",class="btn-primary",style="z-index:1"),
-                   tags$button(HTML("grid"),id="show_net_button_grid",class="btn-primary",style="z-index:1"),
-                   tags$button(HTML("concentric"),id="show_net_button_concentric",class="btn-primary",style="z-index:1"),
-                   tags$button(HTML("breadthfirst"),id="show_net_button_breadthfirst",class="btn-primary",style="z-index:1"),
-                   tags$button(HTML("cose"),id="show_net_button_cose",class="btn-primary",style="z-index:1")
+                   div(class='row',
+                     div(class='col-lg-2',
+                      div( id="choose_differ_layout",class="form-group",
+                        h4("choose layout",style="font-family:Georgia;font-weight:bold") 
+                  
+                      ),
+                      div(class="input-group-btn",id="choose_differ_name",
+                        h4("change gene name",style="font-family:Georgia;font-weight:bold"))
+                      ),
+                     div(class='col-lg-5',id='change_network_color'
+                       
+                      )
                    ),
                    div(id='cy')
                   
@@ -167,8 +170,10 @@ dashboardPage(
     tags$script(src='js/bootstrap-editable.js'),tags$script(src="js/process.js"),tags$script(src="js/ion.rangeSlider.min.js"),
     tags$script(src="js/construction.js"),
     tags$script(src="js/filterProcess.js"),tags$script(src="js/samplefilterprocess.js"),
-    tags$script(src="js/cytoscape.js"),tags$script(src='js/visualization.js'),tags$script(src='js/analysis.js')
-
+    tags$script(src="js/cytoscape.js"),tags$script(src='js/visualization.js'),
+    tags$link(href ='css/network-table.css',rel="stylesheet"),
+    tags$script(src="js/jscolor.js"),
+    tags$script(src='js/analysis.js')
     ),
   header=header,
   sidebar = sidebar,

@@ -7,8 +7,8 @@ source('www/R/analysis_tabServer.R')
 includeScript('www/js/all.js')
 options(shiny.maxRequestSize = 1000*1024^2)
 header=dashboardHeader(
-  title='CeRNA Network Construction and Analysis',
-  titleWidth=400
+  title='CeNet Omnibus',
+  titleWidth=280
 )
 sidebar=dashboardSidebar(
   sidebarMenu(
@@ -17,7 +17,7 @@ sidebar=dashboardSidebar(
     menuItem("3rd Step: Network Construction", tabName = "construction", icon = icon("connectdevelop"),badgeLabel = 3),
     menuItem("4th Step: Network Visualization", tabName = "visualization", icon = icon("project-diagram"),badgeLabel = 3),
     menuItem("5th Step: Network Analysis", tabName = "analysis", icon = icon("chart-line"),badgeLabel = 3)
-  ),width=400
+  ),width=280
 )
 
 process_tab=tabItem(tabName = "process",
@@ -141,11 +141,61 @@ analysis_tab=tabItem(tabName = "analysis",
                      tags$br(),
                      div(id="network_property",class="row"),
                      h2("Part2: Network Modules",style='font-family:Georgia'),
-                     box(solidHeader = T,width = 12,collapsible = T,status = 'primary',title = "Parameters Selection",
-                          pickerInput(inputId = 'community_algorithm',label = 'Community Detection Algorithm',
-                                      choices = c("NG Algorithm"="NG"),width = "40%",
+                     div(class="box box-solid box-primary",
+                         div(class='box-header',
+                             h3(class="box-title",HTML("Parameters Selection")),
+                             div(class="box-tools pull-right",
+                                 tags$button(class='btn btn-box-tool',"data-widget"="collapse",
+                                             tags$i(class='fa fa-minus')
+                                 )
+                             )
                          ),
-                         footer = tags$button(id="community_detection",class="btn btn-primary action-button pull-right shiny-bound-input",HTML("Perform"))
+                         div(class='box-body',
+                             pickerInput(inputId = 'community_algorithm',label = 'Community Detection Algorithm',
+                                         choices = c("NG Algorithm"="cluster_edge_betweenness",
+                                                     "Modularity Optimization"="cluster_fast_greedy",
+                                                     "Label Propagetion"="cluster_label_prop",
+                                                     "Eigenvectors Based"="cluster_leading_eigen",
+                                                     "Louvain Method"="cluster_louvain",
+                                                     "Maximal Modularity"="cluster_optimal",
+                                                     "Random Walk"="cluster_walktrap",
+                                                     "InfoMap"="cluster_infomap",
+                                                     "Cograph Community"="cluster_cograph"
+                                                    ),
+                                         width = "40%"
+                             ),
+                             
+                         ),
+                         div(class='box-footer',
+                             conditionalPanel('input.community_algorithm=="cluster_edge_betweenness"',
+                                              tags$cite(HTML("* Newman M E J, Girvan M. Finding and evaluating community structure in networks[J]. Physical review E, 2004, 69(2): 026113."),style="font-weight:bold")
+                             ),
+                             conditionalPanel('input.community_algorithm=="cluster_fast_greedy"',
+                                              tags$cite(HTML("* Clauset A, Newman M E J, Moore C. Finding community structure in very large networks[J]. Physical review E, 2004, 70(6): 066111."),style="font-weight:bold")
+                             ),
+                             conditionalPanel('input.community_algorithm=="cluster_label_prop"',
+                                              tags$cite(HTML("* Raghavan U N, Albert R, Kumara S. Near linear time algorithm to detect community structures in large-scale networks[J]. Physical review E, 2007, 76(3): 036106.",style="font-weight:bold"))
+                             ),
+                             conditionalPanel('input.community_algorithm=="cluster_leading_eigen"',
+                                              tags$cite(HTML("* Newman M E J. Finding community structure in networks using the eigenvectors of matrices[J]. Physical review E, 2006, 74(3): 036104."),style="font-weight:bold")
+                             ),
+                             conditionalPanel('input.community_algorithm=="cluster_louvain"',
+                                              tags$cite(HTML("* Blondel V D, Guillaume J L, Lambiotte R, et al. Fast unfolding of communities in large networks[J]. Journal of statistical mechanics: theory and experiment, 2008, 2008(10): P10008."),style="font-weight:bold")
+                             ),
+                             conditionalPanel('input.community_algorithm=="cluster_optimal"',
+                                              tags$cite(HTML("* Brandes U, Delling D, Gaertler M, et al. On modularity clustering[J]. IEEE transactions on knowledge and data engineering, 2007, 20(2): 172-188."),style="font-weight:bold")
+                             ),
+                             conditionalPanel('input.community_algorithm=="cluster_walktrap"',
+                                              tags$cite(HTML("* Pons P, Latapy M. Computing communities in large networks using random walks[C]//International symposium on computer and information sciences. Springer, Berlin, Heidelberg, 2005: 284-293."),style="font-weight:bold")
+                             ),
+                             conditionalPanel('input.community_algorithm=="cluster_infomap"',
+                                              tags$cite(HTML("* Rosvall M, Bergstrom C T. Maps of information flow reveal community structure in complex networks[J]. arXiv preprint physics.soc-ph/0707.0609, 2007."),style="font-weight:bold")
+                             ),
+                             conditionalPanel('input.community_algorithm=="cluster_cograph"',
+                                              tags$cite(HTML("* Jia S, Gao L, Gao Y, et al. Defining and identifying cograph communities in complex networks[J]. New Journal of Physics, 2015, 17(1): 013044."),style="font-weight:bold")
+                             ),
+                             tags$button(id="community_detection",class="btn btn-primary action-button pull-right shiny-bound-input",HTML("Perform"))
+                         )
                      ),
                      div(id="community_table"),
                      h2("Part3: Biological Properties",style='font-family:Georgia')

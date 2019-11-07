@@ -138,6 +138,13 @@ analysis_tab=tabItem(tabName = "analysis",
                      tags$br(),
                      div(id="network_property",class="row"),
                      h2("Part2: Network Modules",style='font-family:Georgia'),
+                     box(solidHeader = T,width = 12,collapsible = T,status = 'primary',title = "Parameters Selection",
+                          pickerInput(inputId = 'community_algorithm',label = 'Community Detection Algorithm',
+                                      choices = c("NG Algorithm"="NG"),width = "40%",
+                         ),
+                         footer = tags$button(id="community_detection",class="btn btn-primary action-button pull-right shiny-bound-input",HTML("Perform"))
+                     ),
+                     div(id="community_table"),
                      h2("Part3: Biological Properties",style='font-family:Georgia')
 )
 

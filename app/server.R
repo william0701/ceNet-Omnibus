@@ -1534,7 +1534,6 @@ shinyServer(function(input,output,session) {
         module_gene=names(membership)[which(membership==id)]
         community_list=c(community_list,list(module_gene))
       }
-      browser()
       names(community_list)=paste("Module",unique(membership),sep="")
       modules<<-community_list
     }
@@ -1725,7 +1724,24 @@ shinyServer(function(input,output,session) {
      names(community_list)=paste("Module",unique(community$cluster),sep="")
      modules<<-community_list
    }
-    
+    result=data.frame()
+    for(community in names(modules))
+    {
+      print(community)
+      module_genes=modules[[community]]
+      subgraph=subgraph(graph = net_igraph,v = module_genes)
+      node_count=length(module_genes)
+      edge_count=gsize(subgraph)
+      density=edge_count/(node_count*(node_count-1)/2)
+      result=rbind(result,data.frame("ModuleID"=community,"Node#"=node_count,"Edge#"=edge_count,
+                                     Density=density,Nodes="<a href='#'>Details</a>",Visualization="Display",stringsAsFactors = F))
+    }
+    removeUI(selector = "#module_info_table",immediate = T)
+    insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "moduleInfOTable"),immediate = T)
+    output$moduleInfOTable=renderRHandsontable({
+      rhandsontable(result)%>%
+        hot_col(col = "Nodes",renderer="")
+    })
   })
 })
 

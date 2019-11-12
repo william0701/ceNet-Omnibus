@@ -120,7 +120,7 @@ analysis_tab=tabItem(tabName = "analysis",
                                  )
                              )
                          ),
-                         div(class='box-body',
+                         div(class='box-body',id="module_info_box",
                              pickerInput(inputId = 'community_algorithm',label = 'Community Detection Algorithm',
                                          choices = c("NG Algorithm"="cluster_edge_betweenness",
                                                      "Modularity Optimization"="cluster_fast_greedy",
@@ -200,6 +200,7 @@ analysis_tab=tabItem(tabName = "analysis",
                                               )
                                              )
                          ),
+                         tags$br(),
                          div(class='box-footer',
                              conditionalPanel('input.community_algorithm=="cluster_edge_betweenness"',
                                               tags$cite(class="bg-orange-active",HTML("* Newman M E J, Girvan M. Finding and evaluating community structure in networks[J]. Physical review E, 2004, 69(2): 026113."),style="font-weight:bold")

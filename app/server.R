@@ -447,13 +447,17 @@ shinyServer(function(input,output,session) {
     axis_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
     x_pianyi=(axis_x[2]-axis_x[1])*0.2
     
-    if(skewness(process_sample$x)<0){
-      text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+    if(var(process_sample$x)!=0){
+      if(skewness(process_sample$x)<0){
+        text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+      }
+      else{
+        text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+      }
     }
     else{
-      text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+      text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
     }
-    
     print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
     
     dev.off()
@@ -566,13 +570,17 @@ shinyServer(function(input,output,session) {
       axis_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
       x_pianyi=(axis_x[2]-axis_x[1])*0.2
       
-      if(skewness(process_sample$x)<0){
-        text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+      if(var(process_sample$x)!=0){
+        if(skewness(process_sample$x)<0){
+          text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+        }
+        else{
+          text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+        }
       }
       else{
-        text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+        text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
       }
-      
       print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
       
       dev.off()
@@ -632,8 +640,7 @@ shinyServer(function(input,output,session) {
     }
     else{
       x2<-quantile(expressgene_num2,line,type=3) 
-      liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num2>=x2)]))
-      browser()
+      liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num2>x2)]))
       liuxiabaifenbi<-liuxiasum/length(colnames(sect_output_rna.exp))
       if(abs((1-line)-liuxiabaifenbi)<=0.05){
         after_slice_rna.exp<<-sect_output_rna.exp[,which(expressgene_num2>x2)]
@@ -706,12 +713,16 @@ shinyServer(function(input,output,session) {
       draw_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
       draw_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
       x_pianyi=(draw_x[2]-draw_x[1])*0.2
-      
-      if(skewness(xdata$SampleRatio)<0){
-        text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+      if(var(xdata$SampleRatio)!=0){
+        if(skewness(xdata$SampleRatio)<0){
+          text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+        }
+        else{
+          text=data.frame(label=c(text1,text2),x=draw_x[2]-x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+        }
       }
       else{
-        text=data.frame(label=c(text1,text2),x=draw_x[2]-x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+        text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
       }
       
       print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
@@ -778,11 +789,23 @@ shinyServer(function(input,output,session) {
       draw_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
       x_pianyi=(draw_x[2]-draw_x[1])*0.2
       
-      if(skewness(xdata$SampleRatio)<0){
-        text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi*(draw_x[2]-draw_x[1]),y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+      # if(skewness(xdata$SampleRatio)<0){
+      #   text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi*(draw_x[2]-draw_x[1]),y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+      # }
+      # else{
+      #   text=data.frame(label=c(text1,text2),x=draw_x[2]-x_pianyi*(draw_x[2]-draw_x[1]),y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+      # }
+      
+      if(var(xdata$SampleRatio)!=0){
+        if(skewness(xdata$SampleRatio)<0){
+          text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+        }
+        else{
+          text=data.frame(label=c(text1,text2),x=draw_x[2]-x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+        }
       }
       else{
-        text=data.frame(label=c(text1,text2),x=draw_x[2]-x_pianyi*(draw_x[2]-draw_x[1]),y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+        text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
       }
       
       print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))

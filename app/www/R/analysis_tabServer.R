@@ -87,3 +87,39 @@ cluster_cograph=function(netpath,outpath)
   cograph=.jnew(class = 'com/xidian/Cograph/CographMining',normalizePath(netpath),normalizePath(outpath))
   .jcall(obj = cograph,returnSig = 'V',method = 'run')
 }
+
+create_split_button=function(title,candidate,action)
+{
+  lilist=list()
+  for(c in candidate)
+  {
+    li=tags$li(tags$a(onclick=paste(action,"(this)",sep="")))
+    lilist=c(lilist,list(li))
+  }
+  browser()
+  ui=div(class="btn-group",
+         tags$button(class='btn btn-default',type="button",HTML(title)),
+         tags$button(class='btn btn-default',type="button","data-toggle"="dropdown","aria-expanded"="false",
+                     tags$span(class="caret"),tags$span(class="sr-only",HTML("Toggle Dropdown"))
+                    ),
+         tags$ul(class="dropdown-menu",role="menu",lilist)
+        )
+  return(ui)
+}
+
+create_module_visualization=function(id)
+{
+  ui=div(class="col-lg-6",id=paste("module_",id,sep=""),
+         div(class="box box-danger",
+             div(class="box-header",h4(id),
+                 dropdownButton(size = "xs",icon = icon("gear"),
+                                h5("Options"),
+                                create_split_button(title = "Layout",action = "_123",
+                                                    candidate = c("circle"="circle",'random'='random','gird'='grid','concentric'='concentric','breadthfirst','breadthfirst','cose'='cose'))
+                                
+                               )
+             )
+         )
+     )
+  return(ui)
+}

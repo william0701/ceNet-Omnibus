@@ -120,87 +120,92 @@ analysis_tab=tabItem(tabName = "analysis",
                                  )
                              )
                          ),
-                         div(class='box-body',id="module_info_box",
-                             pickerInput(inputId = 'community_algorithm',label = 'Community Detection Algorithm',
-                                         choices = c("NG Algorithm"="cluster_edge_betweenness",
-                                                     "Modularity Optimization"="cluster_fast_greedy",
-                                                     "Label Propagetion"="cluster_label_prop",
-                                                     "Eigenvectors Based"="cluster_leading_eigen",
-                                                     "Louvain Method"="cluster_louvain",
-                                                     "Maximal Modularity"="cluster_optimal",
-                                                     "Random Walk"="cluster_walktrap",
-                                                     "InfoMap"="cluster_infomap",
-                                                     "Cograph Community"="cluster_cograph",
-                                                     "Malcov Clustering"="cluster_mcl",
-                                                     "Linkcomm"="cluster_linkcomm",
-                                                     "MCODE"="cluster_mcode"
+                         div(class='box-body',
+                             div(
+                                   pickerInput(inputId = 'community_algorithm',label = 'Community Detection Algorithm',
+                                               choices = c("NG Algorithm"="cluster_edge_betweenness",
+                                                           "Modularity Optimization"="cluster_fast_greedy",
+                                                           "Label Propagetion"="cluster_label_prop",
+                                                           "Eigenvectors Based"="cluster_leading_eigen",
+                                                           "Louvain Method"="cluster_louvain",
+                                                           "Maximal Modularity"="cluster_optimal",
+                                                           "Random Walk"="cluster_walktrap",
+                                                           "InfoMap"="cluster_infomap",
+                                                           "Cograph Community"="cluster_cograph",
+                                                           "Malcov Clustering"="cluster_mcl",
+                                                           "Linkcomm"="cluster_linkcomm",
+                                                           "MCODE"="cluster_mcode"
+                                                          ),
+                                               width = "50%"
+                                   ),
+                                   conditionalPanel("input.community_algorithm=='cluster_edge_betweenness'"),
+                                   conditionalPanel("input.community_algorithm=='cluster_fast_greedy'"),
+                                   conditionalPanel("input.community_algorithm=='cluster_label_prop'"),
+                                   conditionalPanel("input.community_algorithm=='cluster_leading_eigen'"),
+                                   conditionalPanel("input.community_algorithm=='cluster_louvain'"),
+                                   conditionalPanel("input.community_algorithm=='cluster_optimal'"),
+                                   conditionalPanel("input.community_algorithm=='cluster_walktrap'",
+                                                    numericInput(inputId="walktrap_step",label = "Steps",value = 4,min=1,max=NA,step = 1,width = "25%")
+                                                   ),
+                                   conditionalPanel("input.community_algorithm=='cluster_infomap'",
+                                                    numericInput(inputId="infomap_nb_trails",label = "Module Counts",value = 10,min=2,max=NA,step = 1,width = "25%")
+                                                   ),
+                                   conditionalPanel("input.community_algorithm=='cluster_cograph'"),
+                                   conditionalPanel("input.community_algorithm=='cluster_mcl'",
+                                                    div(class='row',
+                                                        div(class='col-lg-2',
+                                                            numericInput(inputId="mcl_expansion",label = "Expansion",value = 2,min = 1,max = Inf,step = 0.1,width = "100%")
+                                                        ),
+                                                        div(class='col-lg-2',
+                                                            numericInput(inputId="mcl_inflation",label = "Inflation",value = 2,min = 1,max = Inf,step = 0.1,width = "100%")
+                                                        ),
+                                                        div(class='col-lg-2',
+                                                            numericInput(inputId="mcl_max_iter",label = "Maximal Iteration",value = 100,min = 1,max = Inf,step = 1,width = "100%")
+                                                        )
+                                                    )
+                                                   ),
+                                   conditionalPanel("input.community_algorithm=='cluster_linkcomm'",
+                                                    div(class='row',
+                                                        div(class='col-lg-2',
+                                                            pickerInput(inputId = "linkcomm_hcmethod",label = "Hierarchical Clustering Method ",
+                                                                        choices = c("average"="average",'ward'='ward','single'='single','complete'='complete','mcquitty'='mcquitty','median'='median','centroid'='centroid'),
+                                                                        selected='average',width="100%"
+                                                                       )
+                                                        )
+                                                    )
+                                                   ),
+                                   conditionalPanel("input.community_algorithm=='cluster_mcode'",
+                                                    div(class="row",
+                                                        div(class="col-lg-2",
+                                                            numericInput(inputId='mcode_vwp',label = "Vertex Weight Percentage",value = 0.5,min = 0,max = 1,step = 0.1,width = '100%')
+                                                        ),
+                                                        div(class="col-lg-2",
+                                                            div(class='form-group shiny-input-container',
+                                                                tags$label(HTML("Haircut")),
+                                                                switchInput(inputId='mcode_haircut',value = F,onLabel = 'True',offLabel = "False")
+                                                            )
+                                                        )
                                                     ),
-                                         width = "50%"
-                             ),
-                             conditionalPanel("input.community_algorithm=='cluster_edge_betweenness'"),
-                             conditionalPanel("input.community_algorithm=='cluster_fast_greedy'"),
-                             conditionalPanel("input.community_algorithm=='cluster_label_prop'"),
-                             conditionalPanel("input.community_algorithm=='cluster_leading_eigen'"),
-                             conditionalPanel("input.community_algorithm=='cluster_louvain'"),
-                             conditionalPanel("input.community_algorithm=='cluster_optimal'"),
-                             conditionalPanel("input.community_algorithm=='cluster_walktrap'",
-                                              numericInput(inputId="walktrap_step",label = "Steps",value = 4,min=1,max=NA,step = 1,width = "25%")
-                                             ),
-                             conditionalPanel("input.community_algorithm=='cluster_infomap'",
-                                              numericInput(inputId="infomap_nb_trails",label = "Module Counts",value = 10,min=2,max=NA,step = 1,width = "25%")
-                                             ),
-                             conditionalPanel("input.community_algorithm=='cluster_cograph'"),
-                             conditionalPanel("input.community_algorithm=='cluster_mcl'",
-                                              div(class='row',
-                                                  div(class='col-lg-2',
-                                                      numericInput(inputId="mcl_expansion",label = "Expansion",value = 2,min = 1,max = Inf,step = 0.1,width = "100%")
-                                                  ),
-                                                  div(class='col-lg-2',
-                                                      numericInput(inputId="mcl_inflation",label = "Inflation",value = 2,min = 1,max = Inf,step = 0.1,width = "100%")
-                                                  ),
-                                                  div(class='col-lg-2',
-                                                      numericInput(inputId="mcl_max_iter",label = "Maximal Iteration",value = 100,min = 1,max = Inf,step = 1,width = "100%")
-                                                  )
-                                              )
-                                             ),
-                             conditionalPanel("input.community_algorithm=='cluster_linkcomm'",
-                                              div(class='row',
-                                                  div(class='col-lg-2',
-                                                      pickerInput(inputId = "linkcomm_hcmethod",label = "Hierarchical Clustering Method ",
-                                                                  choices = c("average"="average",'ward'='ward','single'='single','complete'='complete','mcquitty'='mcquitty','median'='median','centroid'='centroid'),
-                                                                  selected='average',width="100%"
-                                                                 )
-                                                  )
-                                              )
-                                             ),
-                             conditionalPanel("input.community_algorithm=='cluster_mcode'",
-                                              div(class="row",
-                                                  div(class="col-lg-2",
-                                                      numericInput(inputId='mcode_vwp',label = "Vertex Weight Percentage",value = 0.5,min = 0,max = 1,step = 0.1,width = '100%')
-                                                  ),
-                                                  div(class="col-lg-2",
-                                                      div(class='form-group shiny-input-container',
-                                                          tags$label(HTML("Haircut")),
-                                                          switchInput(inputId='mcode_haircut',value = F,onLabel = 'True',offLabel = "False")
-                                                      )
-                                                  )
-                                              ),
-                                              div(class="row",
-                                                  div(class="col-lg-2",
-                                                      div(class='form-group shiny-input-container',
-                                                          tags$label(HTML("Fluff")),
-                                                          switchInput(inputId='mcode_fluff',value = F,onLabel = 'True',offLabel = "False")
-                                                      )                                                  
-                                                  ),
-                                                  conditionalPanel("input.mcode_fluff",
-                                                      div(class="col-lg-2",
-                                                          numericInput(inputId='mcode_fdt',label = "Cluster Density Cutoff",value = 0.8,min = 0,max = 1,step = 0.1,width = '100%')
-                                                      )
-                                                  )
-                                              )
-                                             )
-                         ),
-                         tags$br(),
+                                                    div(class="row",
+                                                        div(class="col-lg-2",
+                                                            div(class='form-group shiny-input-container',
+                                                                tags$label(HTML("Fluff")),
+                                                                switchInput(inputId='mcode_fluff',value = F,onLabel = 'True',offLabel = "False")
+                                                            )                                                  
+                                                        ),
+                                                        conditionalPanel("input.mcode_fluff",
+                                                            div(class="col-lg-2",
+                                                                numericInput(inputId='mcode_fdt',label = "Cluster Density Cutoff",value = 0.8,min = 0,max = 1,step = 0.1,width = '100%')
+                                                            )
+                                                        )
+                                                    )
+                                                   ),
+                                   tags$br()
+                               ),
+                             div(id="module_info_box"),
+                             div(id="module_visualization",class='row')
+                            ),
+                         
                          div(class='box-footer',
                              conditionalPanel('input.community_algorithm=="cluster_edge_betweenness"',
                                               tags$cite(class="bg-orange-active",HTML("* Newman M E J, Girvan M. Finding and evaluating community structure in networks[J]. Physical review E, 2004, 69(2): 026113."),style="font-weight:bold")

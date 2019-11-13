@@ -1507,7 +1507,7 @@ shinyServer(function(input,output,session) {
     removeUI(selector = "#modalbody>",immediate = T)
     insertUI(selector = "#modalbody",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "edgeDetailsTable"),immediate = T)
     output$edgeDetailsTable=renderRHandsontable({
-      doubleColumn=which(unlist(lapply(X = after_slice_geneinfo,FUN = typeof))=='double')
+      doubleColumn=which(unlist(lapply(X = edgeinfo,FUN = typeof))=='double')
       rhandsontable(edgeinfo, width = "100%", height = "500",rowHeaders = NULL,readOnly = F) %>%
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = T) %>%
@@ -1723,25 +1723,78 @@ shinyServer(function(input,output,session) {
      after_slice_geneinfo$module<<-sub(pattern = "^,",replacement = "",x = after_slice_geneinfo$module)
      names(community_list)=paste("Module",unique(community$cluster),sep="")
      modules<<-community_list
-   }
+    }
+    #Show Communities
     result=data.frame()
     for(community in names(modules))
     {
-      print(community)
       module_genes=modules[[community]]
       subgraph=subgraph(graph = net_igraph,v = module_genes)
       node_count=length(module_genes)
       edge_count=gsize(subgraph)
       density=edge_count/(node_count*(node_count-1)/2)
-      result=rbind(result,data.frame("ModuleID"=community,"Node#"=node_count,"Edge#"=edge_count,
-                                     Density=density,Nodes="<a href='#'>Details</a>",Visualization="Display",stringsAsFactors = F))
+      nodeDetails=paste("<a href='#' onclick=communityDetail('",community,"')>Details</a>",sep="")
+      edgeDetails=paste("<a href='#' onclick=communityEdgeDetail('",community,"')>Details</a>",sep="")
+      display=paste("<a href='#' onclick=displayCommunity('",community,"')>Display</a>",sep="")
+      print(nodeDetails)
+      result=rbind(result,data.frame("ModuleID"=community,"Node Count"=node_count,"Edge Count"=edge_count,
+                                     Density=density,Nodes=nodeDetails,Edges=edgeDetails,
+                                     Visualization=display,stringsAsFactors = F))
     }
     removeUI(selector = "#module_info_table",immediate = T)
     insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "moduleInfOTable"),immediate = T)
     output$moduleInfOTable=renderRHandsontable({
       rhandsontable(result)%>%
-        hot_col(col = "Nodes",renderer="")
+        hot_col(col = "Nodes",renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
+        hot_col(col = "Edges",renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
+        hot_col(col = "Visualization",renderer=htmlwidgets::JS("safeHtmlRenderer"))
     })
   })
+  observeEvent(input$communityDetals,{
+    isolate({
+      msg=input$communityDetals
+      id=msg$moduleid
+    })
+    modulegene=modules[[id]]
+    removeUI(selector = "#modalbody>",multiple = T,immediate = T)
+    insertUI(selector = "#modalbody",where = "beforeEnd",ui = rHandsontableOutput(outputId = "nodesDetailsTable"),immediate = T)
+    output$nodesDetailsTable=renderRHandsontable({
+      doubleColumn=which(unlist(lapply(X = after_slice_geneinfo,FUN = typeof))=='double')
+      rhandsontable(after_slice_geneinfo[modulegene,], width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
+        hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
+        hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = F) %>%
+        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter')%>%
+        hot_col(col = doubleColumn,format = '0.000e-0')
+    })
+  })
+  observeEvent(input$communityEdgeDetals,{
+    isolate({
+      msg=input$communityEdgeDetals
+      id=msg$moduleid
+    })
+    modulegene=modules[[id]]
+    index=which(edgeinfo$N1%in%modulegene&edgeinfo$N2%in%modulegene)
+    edges=edgeinfo[index,]
+    removeUI(selector = "#modalbody>",multiple = T,immediate = T)
+    insertUI(selector = "#modalbody",where = "beforeEnd",ui = rHandsontableOutput(outputId = "nodesDetailsTable"),immediate = T)
+    output$nodesDetailsTable=renderRHandsontable({
+      doubleColumn=which(unlist(lapply(X = edges,FUN = typeof))=='double')
+      rhandsontable(edges, width = "100%", height = "500",rowHeaders = NULL,readOnly = F) %>%
+        hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
+        hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = T) %>%
+        hot_col(col = doubleColumn,format='0.000e+0')%>%
+        hot_col(col = seq(1:dim(edges)[2]),halign='htCenter')
+    })
+  })
+  observeEvent(input$displayCommunity,{
+    isolate({
+      msg=input$displayCommunity
+      id=msg$moduleid
+    })
+    removeUI(selector = paste("#module",id,sep=""),multiple = T,immediate = T)
+    ui=create_module_visualization("id")
+    insertUI(selector = "#module_visualization",where = 'beforeEnd',ui = ui,immediate = T)
+  })
 })
+
 

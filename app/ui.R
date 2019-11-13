@@ -126,8 +126,14 @@ visual_tab=tabItem(tabName = "visualization",
                       div(class="input-group-btn",id="choose_differ_name",
                         h4("change gene name",style="font-family:Georgia;font-weight:bold"))
                       ),
-                     div(class='col-lg-5',id='change_network_color'
+                     div(class='col-lg-3',id='change_network_color'
                        
+                      ),
+                     div(class='col-lg-3',id='change_network_shape'),
+                     div(class='col-lg-3',id='select_network_node',
+                         h4("Select node",style="font-family:Georgia;font-weight:bold"),
+                         div(class='input-group margin',style="margin:0px"
+                         ) 
                       )
                    ),
                    div(id='cy')

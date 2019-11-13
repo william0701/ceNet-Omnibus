@@ -1,6 +1,7 @@
 var cy
-var network_color = "red"
-var network_shape = "star"
+var network_group = ""
+var network_group_shape= ""
+var network_select_group=""
 $(document).ready(function(){
    $("a[href='#shiny-tab-visualization']").on("click",function(e){
      var obj=Math.random()
@@ -26,7 +27,15 @@ $(document).ready(function(){
                   /*'line-color': '#ad1a66'*/
                   'curve-style': 'haystack'
                 }
+              },
+              {
+                selector: 'node:selected',
+                style:{
+                   "background-color": "#FC4C4C",
+                   "color": "#FC4C4C"
+                }
               }
+            
     ],
 
     layout: {
@@ -40,19 +49,36 @@ $(document).ready(function(){
   var $button_nameChoose=$('<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Which Column as Gene Name<span class="fa fa-caret-down"></span></button>')
   var $ul_nameChoose=$('<ul class="dropdown-menu"></ul>')
   var $button_change_color=$('<div class="input-group-btn"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Which label to choose as the gene type<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
-  var $nerwork_p = $('<div class="form-group"><h4 style="font-family:Georgia;font-weight:bold">choose network color and shape</h4></div>')
+  var $button_change_shape=$('<div class="input-group-btn"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Which label to choose as the gene type<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
+  var $network_p = $('<div class="form-group"><h4 style="font-family:Georgia;font-weight:bold">choose network color </h4></div>')
+  var $network_color_p =$('<div class="form-group"><h4 style="font-family:Georgia;font-weight:bold">choose network   shape</h4></div>')
+  var $network_select_button=$('<div class="input-group-btn open"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Choose label<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
+  var $network_select_input = $('<input type="text" class="form-control">')
+  var $network_select_span = $('<span class="input-group-btn"><button type="button" class="btn btn-info btn-flat">Go!</button></span>')
+  $('#select_network_node').children('div').append($network_select_button).append($network_select_input).append($network_select_span)
+  $network_select_span.on('click',function(e){
+    var value = $network_select_input.val()+''
+    if(cy.elements('node['+network_select_group+'="'+value+'"]').length===0){
+       sweetAlert("error","Error...","The node can't be found!!!")
+    }else{
+       cy.elements('node['+network_select_group+'="'+value+'"]').select()
+    }
+  })
   $("#choose_differ_layout").append($button_change_layout)
   var layout_name=new Array("circle","random","grid","concentric","breadthfirst","cose")
   for(var i=0;i<layout_name.length;i++){
     create_net_layout(layout_name[i])
   }
-  $("#change_network_color").append($nerwork_p)
+  $("#change_network_color").append($network_p)
   $("#choose_differ_name").append($button_nameChoose).append($ul_nameChoose)
-  $nerwork_p.append($button_change_color)
+  $("#change_network_shape").append($network_color_p)
+  $network_p.append($button_change_color)
+  $network_color_p.append($button_change_shape)
   var $table_color = $('<div class="col-lg-6" style="padding:0px"><div class="table" style="margin-top:5px"></div></div>')
-   $("#change_network_color").children('div.form-group').append($table_color)
-        
-     
+  var $table_shape = $('<div class="col-lg-6" style="padding:0px"><div class="table" style="margin-top:5px"></div></div>')
+  $("#change_network_color").children('div.form-group').append($table_color)
+  $("#change_network_shape").children('div.form-group').append($table_shape)
+  
 })
 create_net_layout = function(name){
     var $li =$('<li></li>')
@@ -60,6 +86,7 @@ create_net_layout = function(name){
     $('#choose_differ_layout').children('div').children('ul').append($li)
     $li.append($a)
     $li.on("click",function(){
+      $('#choose_differ_layout').children('div').children('button').html(name)
       var obj={}
       obj['stamp']=Math.random()
       obj['type']=name
@@ -73,6 +100,7 @@ creat_changeName = function(name){
   $('#choose_differ_name').children('ul').append($li)
   $li.append($a)
   $li.on("click",function(e){
+    $('#choose_differ_name').children('button').html(name)
     cy.style().selector('node').style('label', 'data('+name+')').update()
   })
 }
@@ -82,10 +110,57 @@ create_net_change_module_pre = function(name){
   $('#change_network_color').children('div.form-group').children('div').children('ul').append($li)
   $li.append($a)
   $li.on("click",function(e){
+     $('#change_network_color').children('div.form-group').children('div').children('button').html(name)
+     network_group = name
      var obj={}
+     obj['func'] = "color"
      obj['stamp']=Math.random()
      obj['type']=name
      Shiny.setInputValue("net_color_shape",obj)
+  })
+}
+create_net_change_shape_pre =function(name){
+  var $li =$('<li></li>')
+  var $a =$('<a>'+name+'</a>')
+  $('#change_network_shape').children('div.form-group').children('div').children('ul').append($li)
+  $li.append($a)
+  $li.on("click",function(e){
+     $('#change_network_shape').children('div.form-group').children('div').children('button').html(name)
+     network_group_shape = name
+     var obj={}
+     obj['func'] = "shape"
+     obj['stamp']=Math.random()
+     obj['type']=name
+     Shiny.setInputValue("net_color_shape",obj)
+  })
+}
+create_network_select_module = function(name){
+  var $li =$('<li></li>')
+  var $a =$('<a>'+name+'</a>')
+  $('#select_network_node').children('div').children('div').children('ul').append($li)
+  $li.append($a)
+  $li.on("click",function(e){
+     $('#select_network_node').children('div').children('div').children('button').html(name)
+     network_select_group = name
+  })
+}
+create_net_change_shape_module = function(type){
+  $table_tr = $('<div class="table-tr"></div>')
+  $table_tdname = $('<div class="table-tdr"><small class="bg-green" style="border-radius:10px;padding:3px 7px">'+type+'</small></div>')
+  $table_tdshape = $('<div class="table-tdl"> <select class="form-control" style="width:100px;height:30px; text-align: center;"></select></div>')
+  $option1 = $('<option>ellipse</option>')
+  $option2 = $('<option>barrel</option>')
+  $option3 = $('<option>round-triangle</option>')
+  $option4 = $('<option>rectangle</option>')
+  $option5 = $('<option>pentagon</option>')
+  $option6 = $('<option>star</option>')
+  $option7 = $('<option>hexagon</option>')
+  $option8 = $('<option>octagon</option>')
+  $("#change_network_shape").children('div.form-group').children('div.col-lg-6').children('div.table').append($table_tr)
+  $table_tr.append($table_tdname).append($table_tdshape)
+  $table_tdshape.children('select').append($option1).append($option2).append($option3).append($option4).append($option5).append($option6).append($option7).append($option8)
+  $table_tdshape.children('select').on('change',function(e){
+     cy.style().selector('node['+network_group_shape+'="'+type+'"]').style('shape',e.currentTarget.value).update()
   })
 }
 create_net_change_module = function(type){
@@ -94,31 +169,15 @@ create_net_change_module = function(type){
   $table_tdcolor = $('<div class="table-tdl"> <input class="jscolor" style="border-radius:15px;text-align:center" value="ab2567"></div>')
   $("#change_network_color").children('div.form-group').children('div.col-lg-6').children('div.table').append($table_tr)
   $table_tr.append($table_tdname).append($table_tdcolor)
-/*  $divcolor.children('p').append($buttoncolor)
-  var $select = $('<select class="form-control" style="width:100px;height:30px; text-align: center;"></select>')
-  $option1 = $('<option>star</option>')
-  $option2 = $('<option>triangle</option>')
-  $option3 = $('<option>round-triangle</option>')
-  $option4 = $('<option>rectangle</option>')
-  $option5 = $('<option>diamond</option>')
-  $divouter.append($select)
-  $select.append($option1).append($option2).append($option3).append($option4).append($option5)*/
-}
-/*creat_changeColor = function(name){
-  var $li =$('<li></li>')
-  var $a =$('<a>'+name+'</a>')
-  $('#change_network_color').children('ul').append($li)
-  $li.append($a)
-  $li.on("click",function(e){
-    cy.style().selector('node[group="'+name+'"]').style('background-color',''+network_color).style('shape',''+network_shape).update()
+
+  $table_tdcolor.on("change",function(e){
+    var color = (e.currentTarget).children[0].jscolor.rgb
+    cy.style().selector('node['+network_group+'="'+type+'"]').style('background-color',color).update()
   })
 }
-Shiny.addCustomMessageHandler("Gene_network_color_change",function(msg){
-  $("#change_network_color").children('ul').empty();
-  for(var i=0;i<msg.type.length;i++){
-    creat_changeColor(msg.type[i])
-  }
-})*/
+create_select_node_module = function(type){
+  
+}
 Shiny.addCustomMessageHandler("network",function(msg){
   if(msg.do_what=="layout"){
      var collection = cy.elements('node');
@@ -146,12 +205,17 @@ Shiny.addCustomMessageHandler("network",function(msg){
 })
 Shiny.addCustomMessageHandler("Gene_info_name_change",function(msg){
   $("#choose_differ_name").children('ul').empty();
+  $("#change_network_color").find('ul').empty();
+  $("#change_network_shape").find('ul').empty();
+  $("#select_network_node").find('ul').empty();
   for(var i=0;i<msg.length;i++){
     if(msg[i]==".group"){
       msg[i]="group"
     }
     creat_changeName(msg[i])
     create_net_change_module_pre(msg[i])
+    create_net_change_shape_pre(msg[i])
+    create_network_select_module(msg[i])
   }
 })
 Shiny.addCustomMessageHandler("Gene_network_color_change",function(msg){
@@ -162,4 +226,12 @@ Shiny.addCustomMessageHandler("Gene_network_color_change",function(msg){
     create_net_change_module(msg.type[i])
   }
   window.jscolor();
+})
+Shiny.addCustomMessageHandler("Gene_network_shape_change",function(msg){
+  $("#change_network_shape").children('div.form-group').children('div.col-lg-6').children('div.table').empty();
+  $table_head=$('<div class="table-tr"><div class="table-th">Item</div><div class="table-th">Shape</div></div>')
+  $("#change_network_shape").children('div.form-group').children('div.col-lg-6').children('div.table').append($table_head)
+  for(var i=0;i<msg.type.length;i++){
+    create_net_change_shape_module(msg.type[i])
+  }
 })

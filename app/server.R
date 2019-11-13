@@ -666,7 +666,8 @@ shinyServer(function(input,output,session) {
       exist=msg$exist
       line=msg$line
     })
-    
+    after_slice_micro.exp<<- sect_output_micro.exp[,colnames(after_slice_micro.exp)]
+    after_slice_rna.exp<<- sect_output_rna.exp[,colnames(after_slice_rna.exp)]
     #paint picture
     if(type=="micro"){  
       validGene=rownames(after_slice_micro.exp)
@@ -1352,20 +1353,39 @@ shinyServer(function(input,output,session) {
     isolate({
       msg=input$net_color_shape
       type =msg$type
+      func = msg$func;
     })
-    if(type=="group"){
-      vec = data.frame(type=after_slice_geneinfo[".group"])
-      vec = vec[[1]]
-      index = duplicated(vec)
-      vec = vec[!index]
-      session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+    if(func=="color"){
+      if(type=="group"){
+        vec = data.frame(type=after_slice_geneinfo[".group"])
+        vec = vec[[1]]
+        index = duplicated(vec)
+        vec = vec[!index]
+        session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+      }
+      else{
+        vec = data.frame(type=after_slice_geneinfo[type])
+        vec = vec[[1]]
+        index = duplicated(vec)
+        vec = vec[!index]
+        session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+      }
     }
-    else{
-      vec = data.frame(type=after_slice_geneinfo[type])
-      vec = vec[[1]]
-      index = duplicated(vec)
-      vec = vec[!index]
-      session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+    if(func=="shape"){
+      if(type=="group"){
+        vec = data.frame(type=after_slice_geneinfo[".group"])
+        vec = vec[[1]]
+        index = duplicated(vec)
+        vec = vec[!index]
+        session$sendCustomMessage('Gene_network_shape_change',data.frame(type=vec,stringsAsFactors = F))
+      }
+      else{
+        vec = data.frame(type=after_slice_geneinfo[type])
+        vec = vec[[1]]
+        index = duplicated(vec)
+        vec = vec[!index]
+        session$sendCustomMessage('Gene_network_shape_change',data.frame(type=vec,stringsAsFactors = F))
+      }
     }
   })
   

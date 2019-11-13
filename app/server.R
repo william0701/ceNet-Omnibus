@@ -447,13 +447,17 @@ shinyServer(function(input,output,session) {
     axis_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
     x_pianyi=(axis_x[2]-axis_x[1])*0.2
     
-    if(skewness(process_sample$x)<0){
-      text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+    if(var(process_sample$x)!=0){
+      if(skewness(process_sample$x)<0){
+        text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+      }
+      else{
+        text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+      }
     }
     else{
-      text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+      text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
     }
-    
     print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
     
     dev.off()
@@ -566,13 +570,17 @@ shinyServer(function(input,output,session) {
       axis_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
       x_pianyi=(axis_x[2]-axis_x[1])*0.2
       
-      if(skewness(process_sample$x)<0){
-        text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+      if(var(process_sample$x)!=0){
+        if(skewness(process_sample$x)<0){
+          text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+        }
+        else{
+          text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+        }
       }
       else{
-        text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+        text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
       }
-      
       print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
       
       dev.off()
@@ -632,8 +640,7 @@ shinyServer(function(input,output,session) {
     }
     else{
       x2<-quantile(expressgene_num2,line,type=3) 
-      liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num2>=x2)]))
-      browser()
+      liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num2>x2)]))
       liuxiabaifenbi<-liuxiasum/length(colnames(sect_output_rna.exp))
       if(abs((1-line)-liuxiabaifenbi)<=0.05){
         after_slice_rna.exp<<-sect_output_rna.exp[,which(expressgene_num2>x2)]
@@ -707,12 +714,16 @@ shinyServer(function(input,output,session) {
       draw_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
       draw_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
       x_pianyi=(draw_x[2]-draw_x[1])*0.2
-      
-      if(skewness(xdata$SampleRatio)<0){
-        text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+      if(var(xdata$SampleRatio)!=0){
+        if(skewness(xdata$SampleRatio)<0){
+          text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+        }
+        else{
+          text=data.frame(label=c(text1,text2),x=draw_x[2]-x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+        }
       }
       else{
-        text=data.frame(label=c(text1,text2),x=draw_x[2]-x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+        text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
       }
       
       print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
@@ -779,11 +790,23 @@ shinyServer(function(input,output,session) {
       draw_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
       x_pianyi=(draw_x[2]-draw_x[1])*0.2
       
-      if(skewness(xdata$SampleRatio)<0){
-        text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi*(draw_x[2]-draw_x[1]),y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+      # if(skewness(xdata$SampleRatio)<0){
+      #   text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi*(draw_x[2]-draw_x[1]),y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+      # }
+      # else{
+      #   text=data.frame(label=c(text1,text2),x=draw_x[2]-x_pianyi*(draw_x[2]-draw_x[1]),y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+      # }
+      
+      if(var(xdata$SampleRatio)!=0){
+        if(skewness(xdata$SampleRatio)<0){
+          text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+        }
+        else{
+          text=data.frame(label=c(text1,text2),x=draw_x[2]-x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+        }
       }
       else{
-        text=data.frame(label=c(text1,text2),x=draw_x[2]-x_pianyi*(draw_x[2]-draw_x[1]),y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
+        text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
       }
       
       print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
@@ -1527,7 +1550,7 @@ shinyServer(function(input,output,session) {
     removeUI(selector = "#modalbody>",immediate = T)
     insertUI(selector = "#modalbody",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "edgeDetailsTable"),immediate = T)
     output$edgeDetailsTable=renderRHandsontable({
-      doubleColumn=which(unlist(lapply(X = after_slice_geneinfo,FUN = typeof))=='double')
+      doubleColumn=which(unlist(lapply(X = edgeinfo,FUN = typeof))=='double')
       rhandsontable(edgeinfo, width = "100%", height = "500",rowHeaders = NULL,readOnly = F) %>%
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = T) %>%
@@ -1535,5 +1558,286 @@ shinyServer(function(input,output,session) {
         hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter')
     })
   })
+  observeEvent(input$community_detection,{
+    isolate({
+      algorithm=input$community_algorithm
+    })
+    if(algorithm=='cluster_edge_betweenness')
+    {
+      community=get(algorithm)(net_igraph)
+      communitySize=sizes(community)
+      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+      membership=membership(community)
+      membership[which(membership%in%singleNodeCommunity)]=0
+      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+      
+      community_list=list()
+      for(id in unique(membership))
+      {
+        module_gene=names(membership)[which(membership==id)]
+        community_list=c(community_list,list(module_gene))
+      }
+      names(community_list)=paste("Module",unique(membership),sep="")
+      modules<<-community_list
+    }
+    else if(algorithm=='cluster_fast_greedy')
+    {
+      community=get(algorithm)(net_igraph)
+      communitySize=sizes(community)
+      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+      membership=membership(community)
+      membership[which(membership%in%singleNodeCommunity)]=0
+      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+      
+      community_list=list()
+      for(id in unique(membership))
+      {
+        module_gene=names(membership)[which(membership==id)]
+        community_list=c(community_list,list(module_gene))
+      }
+      names(community_list)=paste("Module",unique(membership),sep="")
+      modules<<-community_list
+      
+    }
+    else if(algorithm=='cluster_label_prop')
+    {
+      community=get(algorithm)(net_igraph)
+      communitySize=sizes(community)
+      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+      membership=membership(community)
+      membership[which(membership%in%singleNodeCommunity)]=0
+      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+      
+      community_list=list()
+      for(id in unique(membership))
+      {
+        module_gene=names(membership)[which(membership==id)]
+        community_list=c(community_list,list(module_gene))
+      }
+      names(community_list)=paste("Module",unique(membership),sep="")
+      modules<<-community_list
+    }
+    else if(algorithm=='cluster_leading_eigen')
+    {
+      
+    }
+    else if(algorithm=='cluster_louvain')
+    {
+      community=get(algorithm)(net_igraph)
+      communitySize=sizes(community)
+      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+      membership=membership(community)
+      membership[which(membership%in%singleNodeCommunity)]=0
+      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+      
+      community_list=list()
+      for(id in unique(membership))
+      {
+        module_gene=names(membership)[which(membership==id)]
+        community_list=c(community_list,list(module_gene))
+      }
+      names(community_list)=paste("Module",unique(membership),sep="")
+      modules<<-community_list
+    }
+    else if(algorithm=='cluster_optimal')
+    {
+      community=get(algorithm)(net_igraph)
+      communitySize=sizes(community)
+      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+      membership=membership(community)
+      membership[which(membership%in%singleNodeCommunity)]=0
+      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+      
+      community_list=list()
+      for(id in unique(membership))
+      {
+        module_gene=names(membership)[which(membership==id)]
+        community_list=c(community_list,list(module_gene))
+      }
+      names(community_list)=paste("Module",unique(membership),sep="")
+      modules<<-community_list
+    }
+    else if(algorithm=='cluster_walktrap')
+    {
+      isolate({
+        step=floor(input$walktrap_step)
+      })
+      community=get(algorithm)(net_igraph,step=step)
+      communitySize=sizes(community)
+      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+      membership=membership(community)
+      membership[which(membership%in%singleNodeCommunity)]=0
+      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+      
+      community_list=list()
+      for(id in unique(membership))
+      {
+        module_gene=names(membership)[which(membership==id)]
+        community_list=c(community_list,list(module_gene))
+      }
+      names(community_list)=paste("Module",unique(membership),sep="")
+      modules<<-community_list
+    }
+    else if(algorithm=='cluster_infomap')
+    {
+      isolate({
+        nb.trials=floor(input$infomap_nb_trails)
+      })
+      community=get(algorithm)(net_igraph,nb.trials=nb.trials)
+      communitySize=sizes(community)
+      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+      membership=membership(community)
+      membership[which(membership%in%singleNodeCommunity)]=0
+      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+      
+      community_list=list()
+      for(id in unique(membership))
+      {
+        module_gene=names(membership)[which(membership==id)]
+        community_list=c(community_list,list(module_gene))
+      }
+      names(community_list)=paste("Module",unique(membership),sep="")
+      modules<<-community_list
+    }
+    else if(algorithm=='cluster_cograph')
+    {
+      netpath=paste(basepath,"/data/net_edge.txt",sep="")
+      write.table(x = edgeinfo[,c("N1","N2")],file = netpath,quote = F,sep = "\t",row.names = F,col.names = F)
+      outpath=paste(basepath,"/data/",sep="")
+      cluster_cograph(netpath = netpath,outpath = outpath)
+    }
+    else if(algorithm=='cluster_mcl')
+    {
+      isolate({
+        expansion=input$mcl_expansion
+        inflation=input$mcl_inflation
+        max.iter=floor(input$mcl_max_iter)
+      })
+      community=get(algorithm)(net_igraph,expansion=expansion,inflation=inflation,max.iter=max.iter)
+      after_slice_geneinfo[names(community),'module']<<-community
+      community_list=list()
+      for(id in unique(community))
+      {
+        module_gene=names(community)[which(community==id)]
+        community_list=c(community_list,list(module_gene))
+      }
+      browser()
+      names(community_list)=paste("Module",unique(community),sep="")
+      modules<<-community_list
+    }
+    else if(algorithm=='cluster_linkcomm')
+    {
+      isolate({
+        hcmethod=input$linkcomm_hcmethod
+      })
+      community=get(algorithm)(edgeinfo,hcmethod=hcmethod)
+      after_slice_geneinfo[,'module']<<-''
+      community_list=list()
+      for(id in unique(community$cluster))
+      {
+        module_gene=community$node[which(community$cluster==id)]
+        community_list=c(community_list,list(module_gene))
+        after_slice_geneinfo[module_gene,'module']<<-paste(after_slice_geneinfo[module_gene,'module'],',Module',id,sep="")
+      }
+      after_slice_geneinfo$module[which(after_slice_geneinfo$module=="")]<<-"Module0"
+      after_slice_geneinfo$module<<-sub(pattern = "^,",replacement = "",x = after_slice_geneinfo$module)
+      names(community_list)=paste("Module",unique(community$cluster),sep="")
+      modules<<-community_list
+    }
+    else if(algorithm=='cluster_mcode')
+    {
+     isolate({
+       vwp=input$mcode_vwp
+       haircut=input$mcode_haircut
+       fluff=input$mcode_fluff
+       fdt=input$mcode_fdt
+     })
+     community=get(algorithm)(net_igraph,vwp=vwp,haircut=haircut,fluff=fluff,fdt=fdt)
+     
+     after_slice_geneinfo[,'module']<<-''
+     community_list=list()
+     for(id in unique(community$cluster))
+     {
+       module_gene=community$node[which(community$cluster==id)]
+       community_list=c(community_list,list(module_gene))
+       after_slice_geneinfo[module_gene,'module']<<-paste(after_slice_geneinfo[module_gene,'module'],',Module',id,sep="")
+     }
+     after_slice_geneinfo$module[which(after_slice_geneinfo$module=="")]<<-"Module0"
+     after_slice_geneinfo$module<<-sub(pattern = "^,",replacement = "",x = after_slice_geneinfo$module)
+     names(community_list)=paste("Module",unique(community$cluster),sep="")
+     modules<<-community_list
+    }
+    #Show Communities
+    result=data.frame()
+    for(community in names(modules))
+    {
+      module_genes=modules[[community]]
+      subgraph=subgraph(graph = net_igraph,v = module_genes)
+      node_count=length(module_genes)
+      edge_count=gsize(subgraph)
+      density=edge_count/(node_count*(node_count-1)/2)
+      nodeDetails=paste("<a href='#' onclick=communityDetail('",community,"')>Details</a>",sep="")
+      edgeDetails=paste("<a href='#' onclick=communityEdgeDetail('",community,"')>Details</a>",sep="")
+      display=paste("<a href='#' onclick=displayCommunity('",community,"')>Display</a>",sep="")
+      print(nodeDetails)
+      result=rbind(result,data.frame("ModuleID"=community,"Node Count"=node_count,"Edge Count"=edge_count,
+                                     Density=density,Nodes=nodeDetails,Edges=edgeDetails,
+                                     Visualization=display,stringsAsFactors = F))
+    }
+    removeUI(selector = "#module_info_table",immediate = T)
+    insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "moduleInfOTable"),immediate = T)
+    output$moduleInfOTable=renderRHandsontable({
+      rhandsontable(result)%>%
+        hot_col(col = "Nodes",renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
+        hot_col(col = "Edges",renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
+        hot_col(col = "Visualization",renderer=htmlwidgets::JS("safeHtmlRenderer"))
+    })
+  })
+  observeEvent(input$communityDetals,{
+    isolate({
+      msg=input$communityDetals
+      id=msg$moduleid
+    })
+    modulegene=modules[[id]]
+    removeUI(selector = "#modalbody>",multiple = T,immediate = T)
+    insertUI(selector = "#modalbody",where = "beforeEnd",ui = rHandsontableOutput(outputId = "nodesDetailsTable"),immediate = T)
+    output$nodesDetailsTable=renderRHandsontable({
+      doubleColumn=which(unlist(lapply(X = after_slice_geneinfo,FUN = typeof))=='double')
+      rhandsontable(after_slice_geneinfo[modulegene,], width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
+        hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
+        hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = F) %>%
+        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter')%>%
+        hot_col(col = doubleColumn,format = '0.000e-0')
+    })
+  })
+  observeEvent(input$communityEdgeDetals,{
+    isolate({
+      msg=input$communityEdgeDetals
+      id=msg$moduleid
+    })
+    modulegene=modules[[id]]
+    index=which(edgeinfo$N1%in%modulegene&edgeinfo$N2%in%modulegene)
+    edges=edgeinfo[index,]
+    removeUI(selector = "#modalbody>",multiple = T,immediate = T)
+    insertUI(selector = "#modalbody",where = "beforeEnd",ui = rHandsontableOutput(outputId = "nodesDetailsTable"),immediate = T)
+    output$nodesDetailsTable=renderRHandsontable({
+      doubleColumn=which(unlist(lapply(X = edges,FUN = typeof))=='double')
+      rhandsontable(edges, width = "100%", height = "500",rowHeaders = NULL,readOnly = F) %>%
+        hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
+        hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = T) %>%
+        hot_col(col = doubleColumn,format='0.000e+0')%>%
+        hot_col(col = seq(1:dim(edges)[2]),halign='htCenter')
+    })
+  })
+  observeEvent(input$displayCommunity,{
+    isolate({
+      msg=input$displayCommunity
+      id=msg$moduleid
+    })
+    removeUI(selector = paste("#module",id,sep=""),multiple = T,immediate = T)
+    ui=create_module_visualization("id")
+    insertUI(selector = "#module_visualization",where = 'beforeEnd',ui = ui,immediate = T)
+  })
 })
+
 

@@ -92,3 +92,55 @@ function edgeDetails(btn)
    })
   Shiny.setInputValue("edgeDetails",Math.random())
 }
+
+function run_community_detection(obj)
+{
+  Shiny.setInputValue("community_detection",Math.random())
+}
+
+function communityDetail(id)
+{
+  var obj={};
+  obj['stamp']=Math.random();
+  obj['moduleid']=id
+  Shiny.setInputValue("communityDetals",obj)
+   if(!$('#infolist').hasClass('in'))
+   {
+      $('#infolist').modal({backdrop: 'static', keyboard: false});
+   }
+   else
+   {
+    $('#infolist').modal('hide');
+    $('#infolist').modal({backdrop: 'static', keyboard: false});
+   }
+   $("#modalSubmit").off("click").on('click',function(e){
+      $('#infolist').modal('hide');
+   })
+}
+function communityEdgeDetail(id)
+{
+  var obj={};
+  obj['stamp']=Math.random();
+  obj['moduleid']=id
+  Shiny.setInputValue("communityEdgeDetals",obj)
+   if(!$('#infolist').hasClass('in'))
+   {
+      $('#infolist').modal({backdrop: 'static', keyboard: false});
+   }
+   else
+   {
+    $('#infolist').modal('hide');
+    $('#infolist').modal({backdrop: 'static', keyboard: false});
+   }
+   $("#modalSubmit").off("click").on('click',function(e){
+      $('#infolist').modal('hide');
+   })
+}
+
+function displayCommunity(id)
+{
+  var obj={};
+  obj['stamp']=Math.random();
+  obj['moduleid']=id
+  Shiny.setInputValue("displayCommunity",obj)
+}

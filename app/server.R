@@ -1538,5 +1538,233 @@ shinyServer(function(input,output,session) {
         hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter')
     })
   })
+  observeEvent(input$community_detection,{
+    isolate({
+      algorithm=input$community_algorithm
+    })
+    if(algorithm=='cluster_edge_betweenness')
+    {
+      community=get(algorithm)(net_igraph)
+      communitySize=sizes(community)
+      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+      membership=membership(community)
+      membership[which(membership%in%singleNodeCommunity)]=0
+      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+      
+      community_list=list()
+      for(id in unique(membership))
+      {
+        module_gene=names(membership)[which(membership==id)]
+        community_list=c(community_list,list(module_gene))
+      }
+      names(community_list)=paste("Module",unique(membership),sep="")
+      modules<<-community_list
+    }
+    else if(algorithm=='cluster_fast_greedy')
+    {
+      community=get(algorithm)(net_igraph)
+      communitySize=sizes(community)
+      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+      membership=membership(community)
+      membership[which(membership%in%singleNodeCommunity)]=0
+      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+      
+      community_list=list()
+      for(id in unique(membership))
+      {
+        module_gene=names(membership)[which(membership==id)]
+        community_list=c(community_list,list(module_gene))
+      }
+      names(community_list)=paste("Module",unique(membership),sep="")
+      modules<<-community_list
+      
+    }
+    else if(algorithm=='cluster_label_prop')
+    {
+      community=get(algorithm)(net_igraph)
+      communitySize=sizes(community)
+      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+      membership=membership(community)
+      membership[which(membership%in%singleNodeCommunity)]=0
+      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+      
+      community_list=list()
+      for(id in unique(membership))
+      {
+        module_gene=names(membership)[which(membership==id)]
+        community_list=c(community_list,list(module_gene))
+      }
+      names(community_list)=paste("Module",unique(membership),sep="")
+      modules<<-community_list
+    }
+    else if(algorithm=='cluster_leading_eigen')
+    {
+      
+    }
+    else if(algorithm=='cluster_louvain')
+    {
+      community=get(algorithm)(net_igraph)
+      communitySize=sizes(community)
+      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+      membership=membership(community)
+      membership[which(membership%in%singleNodeCommunity)]=0
+      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+      
+      community_list=list()
+      for(id in unique(membership))
+      {
+        module_gene=names(membership)[which(membership==id)]
+        community_list=c(community_list,list(module_gene))
+      }
+      names(community_list)=paste("Module",unique(membership),sep="")
+      modules<<-community_list
+    }
+    else if(algorithm=='cluster_optimal')
+    {
+      community=get(algorithm)(net_igraph)
+      communitySize=sizes(community)
+      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+      membership=membership(community)
+      membership[which(membership%in%singleNodeCommunity)]=0
+      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+      
+      community_list=list()
+      for(id in unique(membership))
+      {
+        module_gene=names(membership)[which(membership==id)]
+        community_list=c(community_list,list(module_gene))
+      }
+      names(community_list)=paste("Module",unique(membership),sep="")
+      modules<<-community_list
+    }
+    else if(algorithm=='cluster_walktrap')
+    {
+      isolate({
+        step=floor(input$walktrap_step)
+      })
+      community=get(algorithm)(net_igraph,step=step)
+      communitySize=sizes(community)
+      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+      membership=membership(community)
+      membership[which(membership%in%singleNodeCommunity)]=0
+      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+      
+      community_list=list()
+      for(id in unique(membership))
+      {
+        module_gene=names(membership)[which(membership==id)]
+        community_list=c(community_list,list(module_gene))
+      }
+      names(community_list)=paste("Module",unique(membership),sep="")
+      modules<<-community_list
+    }
+    else if(algorithm=='cluster_infomap')
+    {
+      isolate({
+        nb.trials=floor(input$infomap_nb_trails)
+      })
+      community=get(algorithm)(net_igraph,nb.trials=nb.trials)
+      communitySize=sizes(community)
+      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+      membership=membership(community)
+      membership[which(membership%in%singleNodeCommunity)]=0
+      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+      
+      community_list=list()
+      for(id in unique(membership))
+      {
+        module_gene=names(membership)[which(membership==id)]
+        community_list=c(community_list,list(module_gene))
+      }
+      names(community_list)=paste("Module",unique(membership),sep="")
+      modules<<-community_list
+    }
+    else if(algorithm=='cluster_cograph')
+    {
+      netpath=paste(basepath,"/data/net_edge.txt",sep="")
+      write.table(x = edgeinfo[,c("N1","N2")],file = netpath,quote = F,sep = "\t",row.names = F,col.names = F)
+      outpath=paste(basepath,"/data/",sep="")
+      cluster_cograph(netpath = netpath,outpath = outpath)
+    }
+    else if(algorithm=='cluster_mcl')
+    {
+      isolate({
+        expansion=input$mcl_expansion
+        inflation=input$mcl_inflation
+        max.iter=floor(input$mcl_max_iter)
+      })
+      community=get(algorithm)(net_igraph,expansion=expansion,inflation=inflation,max.iter=max.iter)
+      after_slice_geneinfo[names(community),'module']<<-community
+      community_list=list()
+      for(id in unique(community))
+      {
+        module_gene=names(community)[which(community==id)]
+        community_list=c(community_list,list(module_gene))
+      }
+      browser()
+      names(community_list)=paste("Module",unique(community),sep="")
+      modules<<-community_list
+    }
+    else if(algorithm=='cluster_linkcomm')
+    {
+      isolate({
+        hcmethod=input$linkcomm_hcmethod
+      })
+      community=get(algorithm)(edgeinfo,hcmethod=hcmethod)
+      after_slice_geneinfo[,'module']<<-''
+      community_list=list()
+      for(id in unique(community$cluster))
+      {
+        module_gene=community$node[which(community$cluster==id)]
+        community_list=c(community_list,list(module_gene))
+        after_slice_geneinfo[module_gene,'module']<<-paste(after_slice_geneinfo[module_gene,'module'],',Module',id,sep="")
+      }
+      after_slice_geneinfo$module[which(after_slice_geneinfo$module=="")]<<-"Module0"
+      after_slice_geneinfo$module<<-sub(pattern = "^,",replacement = "",x = after_slice_geneinfo$module)
+      names(community_list)=paste("Module",unique(community$cluster),sep="")
+      modules<<-community_list
+    }
+    else if(algorithm=='cluster_mcode')
+    {
+     isolate({
+       vwp=input$mcode_vwp
+       haircut=input$mcode_haircut
+       fluff=input$mcode_fluff
+       fdt=input$mcode_fdt
+     })
+     community=get(algorithm)(net_igraph,vwp=vwp,haircut=haircut,fluff=fluff,fdt=fdt)
+     
+     after_slice_geneinfo[,'module']<<-''
+     community_list=list()
+     for(id in unique(community$cluster))
+     {
+       module_gene=community$node[which(community$cluster==id)]
+       community_list=c(community_list,list(module_gene))
+       after_slice_geneinfo[module_gene,'module']<<-paste(after_slice_geneinfo[module_gene,'module'],',Module',id,sep="")
+     }
+     after_slice_geneinfo$module[which(after_slice_geneinfo$module=="")]<<-"Module0"
+     after_slice_geneinfo$module<<-sub(pattern = "^,",replacement = "",x = after_slice_geneinfo$module)
+     names(community_list)=paste("Module",unique(community$cluster),sep="")
+     modules<<-community_list
+   }
+    result=data.frame()
+    for(community in names(modules))
+    {
+      print(community)
+      module_genes=modules[[community]]
+      subgraph=subgraph(graph = net_igraph,v = module_genes)
+      node_count=length(module_genes)
+      edge_count=gsize(subgraph)
+      density=edge_count/(node_count*(node_count-1)/2)
+      result=rbind(result,data.frame("ModuleID"=community,"Node#"=node_count,"Edge#"=edge_count,
+                                     Density=density,Nodes="<a href='#'>Details</a>",Visualization="Display",stringsAsFactors = F))
+    }
+    removeUI(selector = "#module_info_table",immediate = T)
+    insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "moduleInfOTable"),immediate = T)
+    output$moduleInfOTable=renderRHandsontable({
+      rhandsontable(result)%>%
+        hot_col(col = "Nodes",renderer="")
+    })
+  })
 })
 

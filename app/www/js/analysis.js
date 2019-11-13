@@ -92,3 +92,8 @@ function edgeDetails(btn)
    })
   Shiny.setInputValue("edgeDetails",Math.random())
 }
+
+function run_community_detection(obj)
+{
+  setInputValue("community_detection",Math.random())
+}

@@ -111,15 +111,27 @@ visual_tab=tabItem(tabName = "visualization",
 )
 analysis_tab=tabItem(tabName = "analysis",
                      h2("Part1: Network Topology Properties",style='font-family:Georgia'),
-                     create_property_checkboxgroup(type='node',id='node_centrality',label='Nodes Centrality',
-                                                   items=c("Degree","Betweenness","Closeness",'Clustering Coefficient'),f='showNodeCentrality'),
-                     create_property_checkboxgroup(type='edge',id='edge_centrality',label='Edges Centrality',items=c("Betweenness"),f='showEdgeCentrality'),
-                     tags$br(),
-                     div(id="network_property",class="row"),
+                     div(class="box box-solid box-primary",
+                         div(class="box-header",
+                             h3(class="box-title"),
+                             div(class="box-tools pull-right",
+                                 tags$button(class='btn btn-box-tool',"data-widget"="collapse",
+                                             tags$i(class='fa fa-minus')
+                                 )
+                              )
+                         ),
+                         div(class="box-body",
+                             create_property_checkboxgroup(type='node',id='node_centrality',label='Nodes Centrality',
+                                                           items=c("Degree","Betweenness","Closeness",'Clustering Coefficient'),f='showNodeCentrality'),
+                             create_property_checkboxgroup(type='edge',id='edge_centrality',label='Edges Centrality',items=c("Betweenness"),f='showEdgeCentrality'),
+                             tags$br(),
+                             div(id="network_property",class="row")
+                         )
+                     ),
                      h2("Part2: Network Modules",style='font-family:Georgia'),
                      div(class="box box-solid box-primary",
                          div(class='box-header',
-                             h3(class="box-title",HTML("Parameters Selection")),
+                             h3(class="box-title"),
                              div(class="box-tools pull-right",
                                  tags$button(class='btn btn-box-tool',"data-widget"="collapse",
                                              tags$i(class='fa fa-minus')

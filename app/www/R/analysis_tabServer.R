@@ -84,8 +84,14 @@ create_module_info=function()
     node_count=length(module_genes)
     edge_count=gsize(subgraph)
     density=edge_count/(node_count*(node_count-1)/2)
+   
+    node_type_count=data.frame(count=rep(0,times=length(unique(after_slice_geneinfo$.group))),row.names = unique(after_slice_geneinfo$.group))
+    nodetype=table(after_slice_geneinfo[module_genes,'.group'])
+    node_type_count[names(nodetype),'count']=nodetype
+    node_type_count=t(node_type_count)
+    colnames(node_type_count)=paste(colnames(node_type_count),".count",sep="")
+    rownames(node_type_count)=NULL
     
-   # browser()
     tmpmicro=as.matrix(target[module_genes,rownames(after_slice_micro.exp)])
     subnet=as.matrix(as_adjacency_matrix(subgraph))
     subnet=subnet[module_genes,module_genes]
@@ -103,7 +109,7 @@ create_module_info=function()
     nodeDetails=paste("<a onclick=communityDetail('",community,"')>Details</a>",sep="")
     edgeDetails=paste("<a onclick=communityEdgeDetail('",community,"')>Details</a>",sep="")
     display=paste("<a href='#",paste("module_",community,sep=""),"' onclick=displayCommunity('",community,"')>Display</a>",sep="")
-    moduleinfo<<-rbind(moduleinfo,data.frame("ModuleID"=community,"Node Count"=node_count,"Edge Count"=edge_count,
+    moduleinfo<<-rbind(moduleinfo,data.frame("ModuleID"=community,"Node Count"=node_count,"Edge Count"=edge_count,node_type_count,
                                    Density=density,Average.MicroRNA=ave.micro,scores,
                                    Nodes=nodeDetails,Edges=edgeDetails,
                                    Visualization=display,stringsAsFactors = F))
@@ -243,5 +249,22 @@ create_modal_setting=function(id)
            )
         )
   )
+  return(ui)
+}
+
+create_progress=function(msg)
+{
+  ui=div(class='progress active',
+         div(class='progress-bar progress-bar-primary progress-bar-striped',"aria-valuenow"="100","aria-valuemin"="0","aria-valuemax"="100",style="width:100%",
+             tags$span(msg)
+            )
+        )
+}
+
+create_alert_box=function(header,msg,class){
+  ui=div(class=paste("alert alert-info alert-dismissible",class),
+         h4(tags$i(class="icon fa fa-info"),HTML(header)),
+         HTML(msg)
+         )
   return(ui)
 }

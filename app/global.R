@@ -20,7 +20,7 @@ library(linkcomm)
 library(MCL)
 library(visNetwork)
 library(colourpicker)
-#library(ProNet)
+library(ProNet)
 
 # library(future)
 # library(promises)

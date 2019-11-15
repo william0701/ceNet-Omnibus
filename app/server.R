@@ -5,7 +5,7 @@
 print(options('shiny.maxRequestSize'))
 
 shinyServer(function(input,output,session) {
-  source('www/R/input_tabServer.R',)
+  source('www/R/input_tabServer.R')
   source('www/R/construct_tabServer.R')
   source('www/R/analysis_tabServer.R')
   source('www/R/process_tabServer.R')
@@ -1531,7 +1531,7 @@ shinyServer(function(input,output,session) {
       rhandsontable(after_slice_geneinfo, width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = F) %>%
-        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter')%>%
+        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter',readOnly = T,copyable = T)%>%
         hot_col(col = doubleColumn,format = '0.000e-0')%>%
         hot_context_menu(customOpts = list(search=list(name="Search",
                                                        callback=htmlwidgets::JS("function(key,options){
@@ -1551,7 +1551,7 @@ shinyServer(function(input,output,session) {
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = T) %>%
         hot_col(col = doubleColumn,format='0.000e+0')%>%
-        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter')
+        hot_col(col = seq(1:dim(edgeinfo)[2]),halign='htCenter',readOnly = T,copyable = T)
     })
   })
   observeEvent(input$community_detection,{
@@ -1560,6 +1560,7 @@ shinyServer(function(input,output,session) {
     })
     removeUI(selector = "#module_info_box>",multiple = T,immediate = T)
     removeUI(selector = "#module_visualization>",multiple = T,immediate = T)
+    insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = create_progress(paste0("Running ",algorithm,"...")),immediate = T)
     moduleinfo<<-""
     module.configure<<-list()
     gc()
@@ -1770,12 +1771,14 @@ shinyServer(function(input,output,session) {
     }
     #Show Communities
     create_module_info()
-    removeUI(selector = "#module_info_table",immediate = T)
-    insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "moduleInfOTable"),immediate = T)
-    output$moduleInfOTable=renderRHandsontable({
+    removeUI(selector = "#module_info_box>",immediate = T,multiple = T)
+    insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = create_alert_box(header="Tips",msg="The <i>Module0</i> is consisted of all isolated nodes",class="col-lg-4"),immediate = T)
+    insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "moduleInfoTable"),immediate = T)
+    output$moduleInfoTable=renderRHandsontable({
       rhandsontable(moduleinfo)%>%
         hot_cols(columnSorting = T)%>%
-        hot_col(col = seq(1:dim(moduleinfo)[2]),halign='htCenter')%>%
+        hot_table(contextMenu = F)%>%
+        hot_col(col = seq(1:dim(moduleinfo)[2]),halign='htCenter',readOnly = T,copyable=T)%>%
         hot_col(col = "Nodes",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
         hot_col(col = "Edges",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
         hot_col(col = "Visualization",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))
@@ -1794,7 +1797,7 @@ shinyServer(function(input,output,session) {
       rhandsontable(after_slice_geneinfo[modulegene,], width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = F) %>%
-        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter')%>%
+        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter',readOnly = T,copyable = T)%>%
         hot_col(col = doubleColumn,format = '0.000e-0')
     })
   })
@@ -1814,7 +1817,7 @@ shinyServer(function(input,output,session) {
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = T) %>%
         hot_col(col = doubleColumn,format='0.000e+0')%>%
-        hot_col(col = seq(1:dim(edges)[2]),halign='htCenter')
+        hot_col(col = seq(1:dim(edges)[2]),halign='htCenter',readOnly = T,copyable = T)
     })
   })
   observeEvent(input$displayCommunity,{

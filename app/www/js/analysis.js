@@ -143,4 +143,31 @@ function displayCommunity(id)
   obj['stamp']=Math.random();
   obj['moduleid']=id
   Shiny.setInputValue("displayCommunity",obj)
+  window.location.href="#module_"+id
+}
+
+function module_setting(btn)
+{
+  var id=$(btn).attr("id")
+  id=id.replace(/_setting$/,"")
+  var obj={}
+  obj['stamp']=Math.random()
+  obj['id']=id
+  Shiny.setInputValue("module_setting",obj)
+  if(!$('#infolist').hasClass('in'))
+  {
+    $('#infolist').modal({backdrop: 'static', keyboard: false});
+  }
+  else
+  {
+    $('#infolist').modal('hide');
+    $('#infolist').modal({backdrop: 'static', keyboard: false});
+  }
+  $("#modalSubmit").off('click').on("click",function(e){
+    var obj={}
+    obj['stamp']=Math.random()
+    obj['id']=id
+    Shiny.setInputValue("Update_community_style",obj)
+    $("#infolist").modal("hide")
+  })
 }

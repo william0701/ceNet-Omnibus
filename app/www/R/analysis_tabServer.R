@@ -3,6 +3,7 @@ edge_property=c()
 modules=list()
 module.configure=list()
 moduleinfo=""
+nodeNewInfo=""
 default.configure=list(color="red",
                        color.attr="All",
                        layout="layout_nicely",

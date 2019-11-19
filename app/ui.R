@@ -291,8 +291,25 @@ analysis_tab=tabItem(tabName = "analysis",
                              )
                          )
                      ),
-                     div(id="community_table"),
-                     h2("Part3: Biological Properties",style='font-family:Georgia')
+                     h2("Part3: Biological Properties",style='font-family:Georgia'),
+                     h2("Part4: Survival Analysis",style='font-family:Georgia'),
+                     div(class="box box-solid box-primary",
+                         div(class="box-header",
+                           h3(class="box-title"),
+                           div(class="box-tools pull-right",
+                               tags$button(class="btn btn-box-tool","data-widget"="collapse",
+                                           tags$i(class="fa fa-minus")
+                               )
+                           )
+                         ),
+                         div(class="box-body",
+                             div(class="row",
+                                 div(class="col-lg-3",
+                                     selectInput()
+                                 )
+                             )
+                         )
+                     )
 )
 
 body=dashboardBody(

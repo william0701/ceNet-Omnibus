@@ -1420,6 +1420,11 @@ shinyServer(function(input,output,session) {
     removeUI(selector = paste("#node_",deleted,sep=""),multiple = T,immediate = T)
     newadd=setdiff(centrality,node_property)
     node_property<<-centrality
+    if(nodeNewInfo=="")
+    {
+      nodeNewInfo<<-data.frame(id=rownames(after_slice_geneinfo),stringsAsFactors = F,row.names = rownames(after_slice_geneinfo))
+    }
+      
     for(id in newadd)
     {
         ui=create_property_box('node',id)
@@ -1428,7 +1433,7 @@ shinyServer(function(input,output,session) {
         if(id=="Degree")
         {
           degree=as.data.frame(degree(net_igraph))
-          after_slice_geneinfo[rownames(degree),'Degree']<<-degree[,1]
+          nodeNewInfo[rownames(degree),'Degree']<<-degree[,1]
           data=as.data.frame(table(degree[,1]),stringsAsFactors = F)
           data$Var1=as.numeric(data$Var1)
           data=data[which(data$Var1!=0),]
@@ -1445,7 +1450,7 @@ shinyServer(function(input,output,session) {
         else if(id=="Betweenness")
         {
           betweenness=betweenness(net_igraph,directed = F)
-          after_slice_geneinfo[names(betweenness),'Betweenness']<<-betweenness
+          nodeNewInfo[names(betweenness),'Betweenness']<<-betweenness
           density=density(x = betweenness,from = min(betweenness,na.rm = T),to = max(betweenness,na.rm = T),na.rm = T)
           density=data.frame(x=density$x,y=density$y)
           p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
@@ -1459,7 +1464,7 @@ shinyServer(function(input,output,session) {
         else if(id=="Closeness")
         {
           closeness=closeness(net_igraph,mode = 'all')
-          after_slice_geneinfo[names(closeness),'Closeness']<<-closeness
+          nodeNewInfo[names(closeness),'Closeness']<<-closeness
           density=density(x = closeness,from = min(closeness,na.rm = T),to = max(closeness,na.rm = T),na.rm = T)
           density=data.frame(x=density$x,y=density$y)
           p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
@@ -1473,7 +1478,7 @@ shinyServer(function(input,output,session) {
         else if(id=="Clustering Coefficient")
         {
           cc=transitivity(net_igraph,type='local',isolates = 'zero')
-          after_slice_geneinfo[V(net_igraph)$name,'Clustering Coefficient']<<-cc
+          nodeNewInfo[V(net_igraph)$name,'Clustering Coefficient']<<-cc
           density=density(x = cc,from = min(cc,na.rm = T),to = max(cc,na.rm = T),na.rm = T)
           density=data.frame(x=density$x,y=density$y)
           p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
@@ -1527,18 +1532,13 @@ shinyServer(function(input,output,session) {
     removeUI(selector = "#modalbody>",immediate = T)
     insertUI(selector = "#modalbody",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "nodeDetailsTable"),immediate = T)
     output$nodeDetailsTable=renderRHandsontable({
-      doubleColumn=which(unlist(lapply(X = after_slice_geneinfo,FUN = typeof))=='double')
-      rhandsontable(after_slice_geneinfo, width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
+      showtable=data.frame(after_slice_geneinfo,nodeNewInfo[,-1],stringsAsFactors = F,check.rows = T,check.names = T)
+      doubleColumn=which(unlist(lapply(X = showtable,FUN = typeof))=='double')
+      rhandsontable(showtable, width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = F) %>%
-        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter',readOnly = T,copyable = T)%>%
-        hot_col(col = doubleColumn,format = '0.000e-0')%>%
-        hot_context_menu(customOpts = list(search=list(name="Search",
-                                                       callback=htmlwidgets::JS("function(key,options){
-                                                                                var srch=prompt('Search criteria');
-                                                                                this.search.query(srch);
-                                                                                this.render()
-                                                       }"))))
+        hot_col(col = seq(1:dim(showtable)[2]),halign='htCenter',readOnly = T,copyable = T)%>%
+        hot_col(col = doubleColumn,format = '0.000e-0')
       
     })
   })
@@ -1793,11 +1793,12 @@ shinyServer(function(input,output,session) {
     removeUI(selector = "#modalbody>",multiple = T,immediate = T)
     insertUI(selector = "#modalbody",where = "beforeEnd",ui = rHandsontableOutput(outputId = "nodesDetailsTable"),immediate = T)
     output$nodesDetailsTable=renderRHandsontable({
-      doubleColumn=which(unlist(lapply(X = after_slice_geneinfo,FUN = typeof))=='double')
-      rhandsontable(after_slice_geneinfo[modulegene,], width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
+      showtable=data.frame(after_slice_geneinfo,nodeNewInfo[,-1],stringsAsFactors = F,check.rows = T,check.names = T)
+      doubleColumn=which(unlist(lapply(X = showtable,FUN = typeof))=='double')
+      rhandsontable(showtable[modulegene,], width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = F) %>%
-        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter',readOnly = T,copyable = T)%>%
+        hot_col(col = seq(1:dim(showtable)[2]),halign='htCenter',readOnly = T,copyable = T)%>%
         hot_col(col = doubleColumn,format = '0.000e-0')
     })
   })
@@ -1838,7 +1839,8 @@ shinyServer(function(input,output,session) {
     insertUI(selector = "#module_visualization",where = 'beforeEnd',ui = ui,immediate = T)
     output[[paste(id,"_plot",sep="")]]=renderVisNetwork({
       module.gene=modules[[id]]
-      node=data.frame(id=module.gene,label=module.gene,group=after_slice_geneinfo[module.gene,'.group'],color='red')
+      node=data.frame(id=module.gene,label=module.gene,
+                      group=after_slice_geneinfo[module.gene,'.group'],color='red')
       edgeindex=which(edgeinfo$N1%in%module.gene&edgeinfo$N2%in%module.gene)
       edge=edgeinfo[edgeindex,c("N1","N2")]
       colnames(edge)=c("from",'to')

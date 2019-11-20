@@ -23,12 +23,7 @@ $(document).ready(function(){
     }
   }*/
   
-  $(window).scroll(function(oEl){
-    while (null !== oEl && $(oEl).attr("自定义属性") !== "特定属性值" && target.tagName !== "BODY") {
-      oEl = oEl.parentElement;
-    }
-    return oEl;
-  });
+
 /*  function fnGetTable(oEl) {
     
 }*/

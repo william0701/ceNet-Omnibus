@@ -249,7 +249,81 @@ analysis_tab=tabItem(tabName = "analysis",
                          )
                      ),
                      div(id="community_table"),
-                     h2("Part3: Biological Properties",style='font-family:Georgia')
+                     h2("Part3: Biological Properties",style='font-family:Georgia'),
+                     div(class="box box-solid box-primary",
+                         div(class='box-header',
+                             h3(class="box-title",HTML("Parameters Selection")),
+                             div(class="box-tools pull-right",
+                                 tags$button(class='btn btn-box-tool',"data-widget"="collapse",
+                                             tags$i(class='fa fa-minus')
+                                 )
+                             )
+                         ),
+                         
+                         
+                         
+                         div(class='box-body',
+                             div(class='row',
+                                div(class='col-lg-3',
+                                    pickerInput(inputId = 'community_algorithm',label = 'Community Detection Algorithm',
+                                           choices = c("gProfile(Online)"="...",
+                                                       "Cluster Profiler(Offline)"="..."
+                                           ),
+                                           width = "100%"
+                                    )
+                                 )
+                             ),
+                             div(class='row',
+                                 div(class='col-lg-3',
+                                    prettyRadioButtons(
+                                    inputId = "Id036",
+                                    label = "Choose:", 
+                                    choices = c("Module analysis"="Module_analysis", "Custom input"="Custom_input"),
+                                    inline = TRUE
+                                    ),
+                                    conditionalPanel("input.Id036=='Module_analysis'",
+                                        pickerInput(inputId = 'Module_analysis1',label = 'Module analysis',
+                                            choices = c("NG Algorithm"="cluster_edge_betweenness",
+                                                "Modularity Optimization"="cluster_fast_greedy"
+                                                        ),
+                                                 multiple = TRUE,
+                                                 width = "100%"
+                                                  )
+                                 ),
+                                 conditionalPanel( "input.Id036=='Custom_input'",
+                                                   textAreaInput("Custom_input1", "Custom input", "gene", width = "500px",height = "200px")
+                                 )
+                                 )
+                             ),
+                             
+                             pickerInput(inputId = 'Significance_threshold',label = 'Significance threshold',
+                                         choices = c("g:SCS threshold"="g:SCS_threshold",
+                                                     "Bonferroni correction"="Bonferroni_correction",
+                                                     "Benjamini-Hochberg FDR"="Benjamini-Hochberg_FDR"
+                                         ),
+                                         
+                                         width = "50%"
+                             ),
+                             
+                             textInput("User_threshold", "User threshold", "0.05",width="400px"),
+                             
+                             pickerInput(inputId = 'Numeric_IDs_treated_as',label = 'Numeric IDs treated as',
+                                         
+                                         choices =c(),
+                                         width = "50%"
+                             ),
+                             
+                             pickerInput(inputId = 'Data_Sources',label = 'Data Sources',
+                                         choices = c("NG Algorithm"="cluster_edge_betweenness",
+                                                     "Modularity Optimization"="cluster_fast_greedy"
+                                                     
+                                         ),
+                                         multiple = TRUE,
+                                         width = "50%"
+                             )
+                             
+                          )
+                     )
 )
 
 body=dashboardBody(

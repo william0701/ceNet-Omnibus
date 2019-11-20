@@ -458,8 +458,19 @@ shinyServer(function(input,output,session) {
     else{
       text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
     }
-    print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
     
+
+    # p_test1=p+xlim(axis_x[1], axis_x[2])+
+    #   geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
+    # p_test2=ggplot_build(p_test1)
+    print(p+xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)+
+          geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
+            )
+
+    
+    # print(p+
+    #         geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
+    # )
     dev.off()
     file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),
               to = paste('www/templePlot/microSampleFilter',session$token,'.svg',sep = ""))
@@ -581,7 +592,13 @@ shinyServer(function(input,output,session) {
       else{
         text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
       }
-      print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+      # print(p+xlim(axis_x[1], axis_x[2])+
+      #         geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
+      # )
+      
+      print(p+xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)+
+              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
+      )
       
       dev.off()
       file.copy(from = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),to = paste('www/templePlot/RNASampleFilter',session$token,'.svg',sep = ""))
@@ -725,7 +742,8 @@ shinyServer(function(input,output,session) {
         text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
       }
       
-      print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+      print(p+xlim(draw_x[1]-x_pianyi*5/150, draw_x[2]+x_pianyi*5/150)+
+              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
       
       dev.off()
       file.copy(from = paste(basepath,"Plot","microStatistic.svg",sep = "/"),to = paste('www/templePlot/microStatistic',session$token,'.svg',sep = ""))
@@ -789,13 +807,6 @@ shinyServer(function(input,output,session) {
       draw_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
       x_pianyi=(draw_x[2]-draw_x[1])*0.2
       
-      # if(skewness(xdata$SampleRatio)<0){
-      #   text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi*(draw_x[2]-draw_x[1]),y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
-      # }
-      # else{
-      #   text=data.frame(label=c(text1,text2),x=draw_x[2]-x_pianyi*(draw_x[2]-draw_x[1]),y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
-      # }
-      
       if(var(xdata$SampleRatio)!=0){
         if(skewness(xdata$SampleRatio)<0){
           text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
@@ -808,7 +819,8 @@ shinyServer(function(input,output,session) {
         text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
       }
       
-      print(p+geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+      print(p+xlim(draw_x[1]-x_pianyi*5/150, draw_x[2]+x_pianyi*5/150)+
+              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
       
       
       dev.off()

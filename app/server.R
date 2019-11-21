@@ -1942,6 +1942,25 @@ shinyServer(function(input,output,session) {
     module.configure[[id]]$color.attr<<-color_map
     module.configure[[id]]$shape.attr<<-shape_map
   })
+  
+  observeEvent(list(input$clinical_file,input$clinical_seperator,input$clinical_header),{
+    isolate({
+      file=input$clinical_file
+      seperator=input$clinical_seperator
+      header=as.logical(input$clinical_header)
+    })
+    if(!is.null(file))
+    {
+      removeUI(selector = "#clinical_data_preview>",multiple = T,immediate = T)
+      insertUI(selector = "#clinical_data_preview",where = 'beforeEnd',ui = div(class="overlay",id="icon",tags$i(class="fa fa-spinner fa-spin",style="font-size:50px")))
+      insertUI(selector = "#clinical_data_preview",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "clinical_data_table"))
+      clinical_data<<-read.table(file = file$datapath,header = header,sep = seperator,stringsAsFactors = F)
+      output[['clinical_data_table']]=renderRHandsontable({
+        rhandsontable(head(clinical_data))
+      })
+      removeUI(selector = "#icon")
+    }
+  })
 })
 
 

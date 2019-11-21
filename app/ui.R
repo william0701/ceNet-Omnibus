@@ -161,7 +161,7 @@ analysis_tab=tabItem(tabName = "analysis",
                                       div(class="col-lg-2",style="padding:0;margin:0",
                                            div(class="form-group shiny-input-container",
                                                 tags$label(class="control-label"),tags$br(),
-                                                tags$button(id="community_detection",class="btn btn-info btn-flat action-button shiny-bound-input",HTML("Perform"),
+                                                tags$button(id="community_detection",class="btn btn-primary btn-flat action-button shiny-bound-input",HTML("Perform"),
                                                                     onclick="run_community_detection(this)"
                                                )
                                            )
@@ -291,7 +291,7 @@ analysis_tab=tabItem(tabName = "analysis",
                              )
                          )
                      ),
-                     h2("Part3: Biological Properties",style='font-family:Georgia'),
+                     h2("Part3: Enrichment Analysis",style='font-family:Georgia'),
                      h2("Part4: Survival Analysis",style='font-family:Georgia'),
                      div(class="box box-solid box-primary",
                          div(class="box-header",
@@ -303,11 +303,66 @@ analysis_tab=tabItem(tabName = "analysis",
                            )
                          ),
                          div(class="box-body",
-                             div(class="row",
-                                 div(class="col-lg-3",
-                                     selectInput()
-                                 )
-                             )
+                             tabsetPanel(type="tabs",
+                                         tabPanel(title="Parameter",
+                                                  div(class="col-lg-4",style="padding:0px",
+                                                      tags$fieldset(tags$legend(HTML("Clinical Information")),
+                                                                    div(class="row",
+                                                                        div(class="col-lg-12",
+                                                                            fileInput(inputId="clinical_file",label = "Clinical Data")
+                                                                        ),
+                                                                        div(class='col-lg-12',
+                                                                            prettyRadioButtons(inputId = 'clinical_seperator',label = 'Seprator',choices = c("Tab"="\t",'Common'=',','Space'=' ','Semicolon'=';'),status='primary',inline=T)
+                                                                        ),
+                                                                        div(class="col-lg-12",
+                                                                            prettyRadioButtons(inputId = 'clinical_header',label = 'Header',choices = c("With header"=T,'Without header'=F),selected=T,status='primary',inline=T)
+                                                                        )
+                                                                    ),
+                                                                    div(class="row",
+                                                                        div(class="col-lg-12",
+                                                                            selectInput(inputId = "survival_model",label = "Survival Model",
+                                                                                        choices = c("Log Rank"="log.rank","Cox Model"="cox.model","Random Forest"="random.forest"))
+                                                                        )
+                                                                    )
+                                                      )
+                                                  ),
+                                                  div(class="col-lg-5",
+                                                      tags$fieldset(tags$legend(HTML("Expression Data")),
+                                                                    div(class="row",
+                                                                        div(class="col-lg-4",
+                                                                            div(class="form-group shiny-input-container",
+                                                                                tags$label(HTML("Use Current Expression?")),
+                                                                                switchInput(inputId = "survival_exp_con",value = T,onLabel = "Yes",offLabel = "No"),
+                                                                            )
+                                                                        ),
+                                                                        conditionalPanel("!input.survival_exp_con",
+                                                                          div(class="col-lg-6",
+                                                                              fileInput(inputId="survival_exp_data",label = "Expression Data")
+                                                                          )
+                                                                        )
+                                                                    ),
+                                                                    conditionalPanel("!input.survival_exp_con",
+                                                                        div(class="row",
+                                                                            div(class='col-lg-12',
+                                                                                prettyRadioButtons(inputId = 'survival_exp_seperator',label = 'Seprator',choices = c("Tab"="\t",'Common'=',','Space'=' ','Semicolon'=';'),status='primary',inline=T)
+                                                                            ),
+                                                                            div(class="col-lg-12",
+                                                                                prettyRadioButtons(inputId = 'survival_exp_header',label = 'Header',choices = c("With header"=T,'Without header'=F),selected=T,status='primary',inline=T)
+                                                                            )
+                                                                        ),
+                                                                        div(class="row",
+                                                                            div(class="col-lg-12",
+                                                                                selectInput(inputId = "survival_model",label = "Survival Model",
+                                                                                            choices = c("Log Rank"="log.rank","Cox Model"="cox.model","Random Forest"="random.forest"))
+                                                                            )
+                                                                        )
+                                                                    )
+                                                      )
+                                                  )
+                                         ),
+                                         tabPanel(title="Clinical Data Preview",div(id="clinical_data_preview",style="margin:10px")),
+                                         tabPanel(title="Expression Data Preview",div(id="survival_exp_preview",style="margin:10px"))
+                                        )
                          )
                      )
 )

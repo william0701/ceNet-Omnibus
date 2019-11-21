@@ -412,7 +412,7 @@ analysis_tab=tabItem(tabName = "analysis",
                                                                         div(class="col-lg-4",
                                                                             div(class="form-group shiny-input-container",
                                                                                 tags$label(HTML("Use Current Expression?")),
-                                                                                switchInput(inputId = "survival_exp_con",value = T,onLabel = "Yes",offLabel = "No"),
+                                                                                switchInput(inputId = "survival_exp_con",value = T,onLabel = "Yes",offLabel = "No")
                                                                             )
                                                                         ),
                                                                         conditionalPanel("!input.survival_exp_con",

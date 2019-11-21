@@ -11,6 +11,9 @@ default.configure=list(color="red",
                        shape.attr="All",
                        size=5,
                        label="")
+clinical_data=""
+survival_exp=""
+
 
 create_property_box=function(type,id)
 {

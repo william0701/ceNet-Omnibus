@@ -3,7 +3,7 @@
 ###############################
 source('www/R/input_tabUI.R')
 source('www/R/construct_tabUI.R')
-source('www/R/analysis_tabServer.R')
+source('www/R/analysis_tabUI.R')
 includeScript('www/js/all.js')
 options(shiny.maxRequestSize = 1000*1024^2)
 header=dashboardHeader(
@@ -96,8 +96,14 @@ visual_tab=tabItem(tabName = "visualization",
                       div(class="input-group-btn",id="choose_differ_name",
                         h4("change gene name",style="font-family:Georgia;font-weight:bold"))
                       ),
-                     div(class='col-lg-5',id='change_network_color'
+                     div(class='col-lg-3',id='change_network_color'
                        
+                      ),
+                     div(class='col-lg-3',id='change_network_shape'),
+                     div(class='col-lg-3',id='select_network_node',
+                         h4("Select node",style="font-family:Georgia;font-weight:bold"),
+                         div(class='input-group margin',style="margin:0px"
+                         ) 
                       )
                    ),
                    div(id='cy')
@@ -105,15 +111,27 @@ visual_tab=tabItem(tabName = "visualization",
 )
 analysis_tab=tabItem(tabName = "analysis",
                      h2("Part1: Network Topology Properties",style='font-family:Georgia'),
-                     create_property_checkboxgroup(type='node',id='node_centrality',label='Nodes Centrality',
-                                                   items=c("Degree","Betweenness","Closeness",'Clustering Coefficient'),f='showNodeCentrality'),
-                     create_property_checkboxgroup(type='edge',id='edge_centrality',label='Edges Centrality',items=c("Betweenness"),f='showEdgeCentrality'),
-                     tags$br(),
-                     div(id="network_property",class="row"),
+                     div(class="box box-solid box-primary",
+                         div(class="box-header",
+                             h3(class="box-title"),
+                             div(class="box-tools pull-right",
+                                 tags$button(class='btn btn-box-tool',"data-widget"="collapse",
+                                             tags$i(class='fa fa-minus')
+                                 )
+                              )
+                         ),
+                         div(class="box-body",
+                             create_property_checkboxgroup(type='node',id='node_centrality',label='Nodes Centrality',
+                                                           items=c("Degree","Betweenness","Closeness",'Clustering Coefficient'),f='showNodeCentrality'),
+                             create_property_checkboxgroup(type='edge',id='edge_centrality',label='Edges Centrality',items=c("Betweenness"),f='showEdgeCentrality'),
+                             tags$br(),
+                             div(id="network_property",class="row")
+                         )
+                     ),
                      h2("Part2: Network Modules",style='font-family:Georgia'),
                      div(class="box box-solid box-primary",
                          div(class='box-header',
-                             h3(class="box-title",HTML("Parameters Selection")),
+                             h3(class="box-title"),
                              div(class="box-tools pull-right",
                                  tags$button(class='btn btn-box-tool',"data-widget"="collapse",
                                              tags$i(class='fa fa-minus')
@@ -121,23 +139,36 @@ analysis_tab=tabItem(tabName = "analysis",
                              )
                          ),
                          div(class='box-body',
-                             div(
-                                   pickerInput(inputId = 'community_algorithm',label = 'Community Detection Algorithm',
-                                               choices = c("NG Algorithm"="cluster_edge_betweenness",
-                                                           "Modularity Optimization"="cluster_fast_greedy",
-                                                           "Label Propagetion"="cluster_label_prop",
-                                                           "Eigenvectors Based"="cluster_leading_eigen",
-                                                           "Louvain Method"="cluster_louvain",
-                                                           "Maximal Modularity"="cluster_optimal",
-                                                           "Random Walk"="cluster_walktrap",
-                                                           "InfoMap"="cluster_infomap",
-                                                           "Cograph Community"="cluster_cograph",
-                                                           "Malcov Clustering"="cluster_mcl",
-                                                           "Linkcomm"="cluster_linkcomm",
-                                                           "MCODE"="cluster_mcode"
-                                                          ),
-                                               width = "50%"
+                                  div(class="row",
+                                      div(class="col-lg-4",
+                                           pickerInput(inputId = 'community_algorithm',label = 'Community Detection Algorithm',
+                                                       choices = c("NG Algorithm"="cluster_edge_betweenness",
+                                                                   "Modularity Optimization"="cluster_fast_greedy",
+                                                                   "Label Propagetion"="cluster_label_prop",
+                                                                   "Eigenvectors Based"="cluster_leading_eigen",
+                                                                   "Louvain Method"="cluster_louvain",
+                                                                   "Maximal Modularity"="cluster_optimal",
+                                                                   "Random Walk"="cluster_walktrap",
+                                                                   "InfoMap"="cluster_infomap",
+                                                                   "Cograph Community"="cluster_cograph",
+                                                                   "Malcov Clustering"="cluster_mcl",
+                                                                   "Linkcomm"="cluster_linkcomm",
+                                                                   "MCODE"="cluster_mcode"
+                                                                  ),
+                                                       width = "100%"
+                                           )
+                                        ),
+                                      div(class="col-lg-2",style="padding:0;margin:0",
+                                           div(class="form-group shiny-input-container",
+                                                tags$label(class="control-label"),tags$br(),
+                                                tags$button(id="community_detection",class="btn btn-info btn-flat action-button shiny-bound-input",HTML("Perform"),
+                                                                    onclick="run_community_detection(this)"
+                                               )
+                                           )
+                                       )
                                    ),
+                                  div(class="row",
+                                      div(class="col-lg-12",
                                    conditionalPanel("input.community_algorithm=='cluster_edge_betweenness'"),
                                    conditionalPanel("input.community_algorithm=='cluster_fast_greedy'"),
                                    conditionalPanel("input.community_algorithm=='cluster_label_prop'"),
@@ -145,28 +176,32 @@ analysis_tab=tabItem(tabName = "analysis",
                                    conditionalPanel("input.community_algorithm=='cluster_louvain'"),
                                    conditionalPanel("input.community_algorithm=='cluster_optimal'"),
                                    conditionalPanel("input.community_algorithm=='cluster_walktrap'",
-                                                    numericInput(inputId="walktrap_step",label = "Steps",value = 4,min=1,max=NA,step = 1,width = "25%")
+                                                    div(class="col-lg-4",style="padding-left:0",
+                                                        numericInput(inputId="walktrap_step",label = "Steps",value = 4,min=1,max=NA,step = 1,width = "100%")
+                                                    )
                                                    ),
                                    conditionalPanel("input.community_algorithm=='cluster_infomap'",
-                                                    numericInput(inputId="infomap_nb_trails",label = "Module Counts",value = 10,min=2,max=NA,step = 1,width = "25%")
+                                                    div(class="col-lg-4",style="padding-left:0",
+                                                        numericInput(inputId="infomap_nb_trails",label = "Module Counts",value = 10,min=2,max=NA,step = 1)
+                                                    )
                                                    ),
                                    conditionalPanel("input.community_algorithm=='cluster_cograph'"),
                                    conditionalPanel("input.community_algorithm=='cluster_mcl'",
                                                     div(class='row',
-                                                        div(class='col-lg-2',
+                                                        div(class='col-lg-2 col-md-6',
                                                             numericInput(inputId="mcl_expansion",label = "Expansion",value = 2,min = 1,max = Inf,step = 0.1,width = "100%")
                                                         ),
-                                                        div(class='col-lg-2',
+                                                        div(class='col-lg-2 col-md-6',
                                                             numericInput(inputId="mcl_inflation",label = "Inflation",value = 2,min = 1,max = Inf,step = 0.1,width = "100%")
                                                         ),
-                                                        div(class='col-lg-2',
+                                                        div(class='col-lg-2 col-md-6',
                                                             numericInput(inputId="mcl_max_iter",label = "Maximal Iteration",value = 100,min = 1,max = Inf,step = 1,width = "100%")
                                                         )
                                                     )
                                                    ),
                                    conditionalPanel("input.community_algorithm=='cluster_linkcomm'",
                                                     div(class='row',
-                                                        div(class='col-lg-2',
+                                                        div(class='col-lg-4',
                                                             pickerInput(inputId = "linkcomm_hcmethod",label = "Hierarchical Clustering Method ",
                                                                         choices = c("average"="average",'ward'='ward','single'='single','complete'='complete','mcquitty'='mcquitty','median'='median','centroid'='centroid'),
                                                                         selected='average',width="100%"
@@ -201,9 +236,20 @@ analysis_tab=tabItem(tabName = "analysis",
                                                     )
                                                    ),
                                    tags$br()
-                               ),
-                             div(id="module_info_box"),
-                             div(id="module_visualization",class='row')
+                                      )
+                                  ),
+                             div(class="row",
+                                 div(class="col-lg-12",
+                                     tags$label(HTML("Module Summary")),
+                                      div(id="module_info_box")
+                                 )
+                             ),
+                             div(class='row',
+                                 div(class="col-lg-12",
+                                     tags$label(HTML("Module Visualization")),
+                                     div(id="module_visualization",class='row')
+                                 )
+                             )
                             ),
                          
                          div(class='box-footer',
@@ -242,12 +288,10 @@ analysis_tab=tabItem(tabName = "analysis",
                              ),
                              conditionalPanel('input.community_algorithm=="cluster_mcode"',
                                               tags$cite(class="bg-orange-active",HTML("* Bader G D, Hogue C W V. An automated method for finding molecular complexes in large protein interaction networks[J]. BMC bioinformatics, 2003, 4(1): 2."),style="font-weight:bold")
-                             ),
-                             tags$button(id="community_detection",class="btn btn-primary action-button pull-right shiny-bound-input",HTML("Perform"),
-                                         onclick="run_community_detection(this)"
-                                        )
+                             )
                          )
                      ),
+
                      div(id="community_table"),
                      h2("Part3: Biological Properties",style='font-family:Georgia'),
                      div(class="box box-solid box-primary",
@@ -323,6 +367,26 @@ analysis_tab=tabItem(tabName = "analysis",
                              )
                              
                           )
+                     ),
+                     # h2("Part3: Biological Properties",style='font-family:Georgia'),
+                     h2("Part4: Survival Analysis",style='font-family:Georgia'),
+                     div(class="box box-solid box-primary",
+                         div(class="box-header",
+                           h3(class="box-title"),
+                           div(class="box-tools pull-right",
+                               tags$button(class="btn btn-box-tool","data-widget"="collapse",
+                                           tags$i(class="fa fa-minus")
+                               )
+                           )
+                         ),
+                         div(class="box-body",
+                             div(class="row",
+                                 div(class="col-lg-3",
+                                     selectInput()
+                                 )
+                             )
+                         )
+
                      )
 )
 

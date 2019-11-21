@@ -3,11 +3,14 @@
 ####################################
 
 print(options('shiny.maxRequestSize'))
+
 shinyServer(function(input,output,session) {
   source('www/R/input_tabServer.R')
   source('www/R/construct_tabServer.R')
   source('www/R/analysis_tabServer.R')
+  source('www/R/process_tabServer.R')
   ##创建临时文件???
+  
   tmpdir=tempdir()
   basepath = paste(tmpdir,'/session_tmp_file',session$token,sep="");
   dir.create(path = basepath)
@@ -16,22 +19,15 @@ shinyServer(function(input,output,session) {
   dir.create(paste(basepath,'code',sep="/"))
   dir.create(paste(basepath,'data',sep="/"))
   dir.create(paste(basepath,'log',sep="/"))
-  ##
-  sect_output_rna.exp=""
-  sect_output_micro.exp=""
-  sect_output_target=""
-  sect_output_geneinfo=""
 
-  after_slice_micro.exp=""
-  after_slice_rna.exp=""
-  after_slice_geneinfo=""
-  expressgene_num=""
-  expressgene_num2=""
-
-  biotype_map=""
-  
   visual_layout=""
-  load('testdata/ph1.RData')
+  
+  load('testdata/ph1.RData',envir = globalenv())
+  # rna.exp<<-rna.exp
+  # geneinfo<<-geneinfo
+  # micro.exp<<-micro.exp
+  # target<<-target
+  # select.gene<<-select.gene
   ############Input Page Action##########
   observeEvent(input$onclick,{
     isolate({msg=fromJSON(input$onclick)})
@@ -690,7 +686,8 @@ shinyServer(function(input,output,session) {
       exist=msg$exist
       line=msg$line
     })
-    
+    after_slice_micro.exp<<- sect_output_micro.exp[,colnames(after_slice_micro.exp)]
+    after_slice_rna.exp<<- sect_output_rna.exp[,colnames(after_slice_rna.exp)]
     #paint picture
     if(type=="micro"){  
       validGene=rownames(after_slice_micro.exp)
@@ -1387,20 +1384,39 @@ shinyServer(function(input,output,session) {
     isolate({
       msg=input$net_color_shape
       type =msg$type
+      func = msg$func;
     })
-    if(type=="group"){
-      vec = data.frame(type=after_slice_geneinfo[".group"])
-      vec = vec[[1]]
-      index = duplicated(vec)
-      vec = vec[!index]
-      session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+    if(func=="color"){
+      if(type=="group"){
+        vec = data.frame(type=after_slice_geneinfo[".group"])
+        vec = vec[[1]]
+        index = duplicated(vec)
+        vec = vec[!index]
+        session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+      }
+      else{
+        vec = data.frame(type=after_slice_geneinfo[type])
+        vec = vec[[1]]
+        index = duplicated(vec)
+        vec = vec[!index]
+        session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+      }
     }
-    else{
-      vec = data.frame(type=after_slice_geneinfo[type])
-      vec = vec[[1]]
-      index = duplicated(vec)
-      vec = vec[!index]
-      session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+    if(func=="shape"){
+      if(type=="group"){
+        vec = data.frame(type=after_slice_geneinfo[".group"])
+        vec = vec[[1]]
+        index = duplicated(vec)
+        vec = vec[!index]
+        session$sendCustomMessage('Gene_network_shape_change',data.frame(type=vec,stringsAsFactors = F))
+      }
+      else{
+        vec = data.frame(type=after_slice_geneinfo[type])
+        vec = vec[[1]]
+        index = duplicated(vec)
+        vec = vec[!index]
+        session$sendCustomMessage('Gene_network_shape_change',data.frame(type=vec,stringsAsFactors = F))
+      }
     }
   })
   
@@ -1416,6 +1432,11 @@ shinyServer(function(input,output,session) {
     removeUI(selector = paste("#node_",deleted,sep=""),multiple = T,immediate = T)
     newadd=setdiff(centrality,node_property)
     node_property<<-centrality
+    if(nodeNewInfo=="")
+    {
+      nodeNewInfo<<-data.frame(id=rownames(after_slice_geneinfo),stringsAsFactors = F,row.names = rownames(after_slice_geneinfo))
+    }
+      
     for(id in newadd)
     {
         ui=create_property_box('node',id)
@@ -1424,7 +1445,7 @@ shinyServer(function(input,output,session) {
         if(id=="Degree")
         {
           degree=as.data.frame(degree(net_igraph))
-          after_slice_geneinfo[rownames(degree),'Degree']<<-degree[,1]
+          nodeNewInfo[rownames(degree),'Degree']<<-degree[,1]
           data=as.data.frame(table(degree[,1]),stringsAsFactors = F)
           data$Var1=as.numeric(data$Var1)
           data=data[which(data$Var1!=0),]
@@ -1441,7 +1462,7 @@ shinyServer(function(input,output,session) {
         else if(id=="Betweenness")
         {
           betweenness=betweenness(net_igraph,directed = F)
-          after_slice_geneinfo[names(betweenness),'Betweenness']<<-betweenness
+          nodeNewInfo[names(betweenness),'Betweenness']<<-betweenness
           density=density(x = betweenness,from = min(betweenness,na.rm = T),to = max(betweenness,na.rm = T),na.rm = T)
           density=data.frame(x=density$x,y=density$y)
           p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
@@ -1455,7 +1476,7 @@ shinyServer(function(input,output,session) {
         else if(id=="Closeness")
         {
           closeness=closeness(net_igraph,mode = 'all')
-          after_slice_geneinfo[names(closeness),'Closeness']<<-closeness
+          nodeNewInfo[names(closeness),'Closeness']<<-closeness
           density=density(x = closeness,from = min(closeness,na.rm = T),to = max(closeness,na.rm = T),na.rm = T)
           density=data.frame(x=density$x,y=density$y)
           p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
@@ -1469,7 +1490,7 @@ shinyServer(function(input,output,session) {
         else if(id=="Clustering Coefficient")
         {
           cc=transitivity(net_igraph,type='local',isolates = 'zero')
-          after_slice_geneinfo[V(net_igraph)$name,'Clustering Coefficient']<<-cc
+          nodeNewInfo[V(net_igraph)$name,'Clustering Coefficient']<<-cc
           density=density(x = cc,from = min(cc,na.rm = T),to = max(cc,na.rm = T),na.rm = T)
           density=data.frame(x=density$x,y=density$y)
           p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
@@ -1523,18 +1544,13 @@ shinyServer(function(input,output,session) {
     removeUI(selector = "#modalbody>",immediate = T)
     insertUI(selector = "#modalbody",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "nodeDetailsTable"),immediate = T)
     output$nodeDetailsTable=renderRHandsontable({
-      doubleColumn=which(unlist(lapply(X = after_slice_geneinfo,FUN = typeof))=='double')
-      rhandsontable(after_slice_geneinfo, width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
+      showtable=data.frame(after_slice_geneinfo,nodeNewInfo[,-1],stringsAsFactors = F,check.rows = T,check.names = T)
+      doubleColumn=which(unlist(lapply(X = showtable,FUN = typeof))=='double')
+      rhandsontable(showtable, width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = F) %>%
-        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter')%>%
-        hot_col(col = doubleColumn,format = '0.000e-0')%>%
-        hot_context_menu(customOpts = list(search=list(name="Search",
-                                                       callback=htmlwidgets::JS("function(key,options){
-                                                                                var srch=prompt('Search criteria');
-                                                                                this.search.query(srch);
-                                                                                this.render()
-                                                       }"))))
+        hot_col(col = seq(1:dim(showtable)[2]),halign='htCenter',readOnly = T,copyable = T)%>%
+        hot_col(col = doubleColumn,format = '0.000e-0')
       
     })
   })
@@ -1547,13 +1563,20 @@ shinyServer(function(input,output,session) {
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = T) %>%
         hot_col(col = doubleColumn,format='0.000e+0')%>%
-        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter')
+        hot_col(col = seq(1:dim(edgeinfo)[2]),halign='htCenter',readOnly = T,copyable = T)
     })
   })
   observeEvent(input$community_detection,{
     isolate({
       algorithm=input$community_algorithm
     })
+    removeUI(selector = "#module_info_box>",multiple = T,immediate = T)
+    removeUI(selector = "#module_visualization>",multiple = T,immediate = T)
+    insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = create_progress(paste0("Running ",algorithm,"...")),immediate = T)
+    moduleinfo<<-""
+    module.configure<<-list()
+    gc()
+    
     if(algorithm=='cluster_edge_betweenness')
     {
       community=get(algorithm)(net_igraph)
@@ -1713,7 +1736,6 @@ shinyServer(function(input,output,session) {
         module_gene=names(community)[which(community==id)]
         community_list=c(community_list,list(module_gene))
       }
-      browser()
       names(community_list)=paste("Module",unique(community),sep="")
       modules<<-community_list
     }
@@ -1760,29 +1782,18 @@ shinyServer(function(input,output,session) {
      modules<<-community_list
     }
     #Show Communities
-    result=data.frame()
-    for(community in names(modules))
-    {
-      module_genes=modules[[community]]
-      subgraph=subgraph(graph = net_igraph,v = module_genes)
-      node_count=length(module_genes)
-      edge_count=gsize(subgraph)
-      density=edge_count/(node_count*(node_count-1)/2)
-      nodeDetails=paste("<a href='#' onclick=communityDetail('",community,"')>Details</a>",sep="")
-      edgeDetails=paste("<a href='#' onclick=communityEdgeDetail('",community,"')>Details</a>",sep="")
-      display=paste("<a href='#' onclick=displayCommunity('",community,"')>Display</a>",sep="")
-      print(nodeDetails)
-      result=rbind(result,data.frame("ModuleID"=community,"Node Count"=node_count,"Edge Count"=edge_count,
-                                     Density=density,Nodes=nodeDetails,Edges=edgeDetails,
-                                     Visualization=display,stringsAsFactors = F))
-    }
-    removeUI(selector = "#module_info_table",immediate = T)
-    insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "moduleInfOTable"),immediate = T)
-    output$moduleInfOTable=renderRHandsontable({
-      rhandsontable(result)%>%
-        hot_col(col = "Nodes",renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
-        hot_col(col = "Edges",renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
-        hot_col(col = "Visualization",renderer=htmlwidgets::JS("safeHtmlRenderer"))
+    create_module_info()
+    removeUI(selector = "#module_info_box>",immediate = T,multiple = T)
+    insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = create_alert_box(header="Tips",msg="The <i>Module0</i> is consisted of all isolated nodes",class="col-lg-4"),immediate = T)
+    insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "moduleInfoTable"),immediate = T)
+    output$moduleInfoTable=renderRHandsontable({
+      rhandsontable(moduleinfo)%>%
+        hot_cols(columnSorting = T)%>%
+        hot_table(contextMenu = F)%>%
+        hot_col(col = seq(1:dim(moduleinfo)[2]),halign='htCenter',readOnly = T,copyable=T)%>%
+        hot_col(col = "Nodes",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
+        hot_col(col = "Edges",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
+        hot_col(col = "Visualization",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))
     })
   })
   observeEvent(input$communityDetals,{
@@ -1794,11 +1805,12 @@ shinyServer(function(input,output,session) {
     removeUI(selector = "#modalbody>",multiple = T,immediate = T)
     insertUI(selector = "#modalbody",where = "beforeEnd",ui = rHandsontableOutput(outputId = "nodesDetailsTable"),immediate = T)
     output$nodesDetailsTable=renderRHandsontable({
-      doubleColumn=which(unlist(lapply(X = after_slice_geneinfo,FUN = typeof))=='double')
-      rhandsontable(after_slice_geneinfo[modulegene,], width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
+      showtable=data.frame(after_slice_geneinfo,nodeNewInfo[,-1],stringsAsFactors = F,check.rows = T,check.names = T)
+      doubleColumn=which(unlist(lapply(X = showtable,FUN = typeof))=='double')
+      rhandsontable(showtable[modulegene,], width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = F) %>%
-        hot_col(col = seq(1:dim(after_slice_geneinfo)[2]),halign='htCenter')%>%
+        hot_col(col = seq(1:dim(showtable)[2]),halign='htCenter',readOnly = T,copyable = T)%>%
         hot_col(col = doubleColumn,format = '0.000e-0')
     })
   })
@@ -1818,7 +1830,7 @@ shinyServer(function(input,output,session) {
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
         hot_cols(columnSorting = T,manualColumnMove = T,manualColumnResize = T) %>%
         hot_col(col = doubleColumn,format='0.000e+0')%>%
-        hot_col(col = seq(1:dim(edges)[2]),halign='htCenter')
+        hot_col(col = seq(1:dim(edges)[2]),halign='htCenter',readOnly = T,copyable = T)
     })
   })
   observeEvent(input$displayCommunity,{
@@ -1826,9 +1838,121 @@ shinyServer(function(input,output,session) {
       msg=input$displayCommunity
       id=msg$moduleid
     })
-    removeUI(selector = paste("#module",id,sep=""),multiple = T,immediate = T)
-    ui=create_module_visualization("id")
+    
+    if(is.null(module.configure[[id]]))
+    {
+      tmp.configure=list(default.configure)
+      names(tmp.configure)=id
+      module.configure<<-c(module.configure,tmp.configure)
+    }
+    
+    removeUI(selector = paste("#module_",id,sep=""),multiple = T,immediate = T)
+    ui=create_module_visualization(id)
     insertUI(selector = "#module_visualization",where = 'beforeEnd',ui = ui,immediate = T)
+    output[[paste(id,"_plot",sep="")]]=renderVisNetwork({
+      module.gene=modules[[id]]
+      node=data.frame(id=module.gene,label=module.gene,
+                      group=after_slice_geneinfo[module.gene,'.group'],color='red')
+      edgeindex=which(edgeinfo$N1%in%module.gene&edgeinfo$N2%in%module.gene)
+      edge=edgeinfo[edgeindex,c("N1","N2")]
+      colnames(edge)=c("from",'to')
+      visNetwork(nodes = node,edges = edge,width = "100%",height = "100%")%>%
+        visPhysics(stabilization = FALSE)%>%
+        visEdges(smooth = FALSE)%>% 
+        visInteraction(navigationButtons = TRUE)%>%
+        visIgraphLayout()%>% 
+        visOptions(highlightNearest = TRUE)
+    })
+  })
+  observeEvent(input$module_setting,{
+    isolate({
+      msg=input$module_setting
+      id=msg$id
+    })
+    removeUI(selector = "#modalbody>",multiple = T,immediate = T)
+    ui=create_modal_setting(id)
+    insertUI(selector = "#modalbody",where = "beforeEnd",ui = ui,multiple = F,immediate = T)
+  })
+  
+  observeEvent(input$Update_community_style,{
+    isolate({
+      msg=input$Update_community_style
+      id=msg$id
+      layout=input$module_layout
+      label=input$module_label
+      color_map=input$module_color
+      shape_map=input$module_shape
+    })
+    
+    module.gene=modules[[id]]
+    node=data.frame(id=module.gene,
+                    label=after_slice_geneinfo[module.gene,label],
+                    color='',
+                    shpe='',stringsAsFactors = F
+    )
+    rownames(node)=node$id
+    edgeindex=which(edgeinfo$N1%in%module.gene&edgeinfo$N2%in%module.gene)
+    edge=edgeinfo[edgeindex,c("N1","N2")]
+    colnames(edge)=c("from",'to')
+    if(color_map=="All")
+    {
+      isolate({
+        color=input[["All_color"]]
+      })
+      node$color=color
+      module.configure[[id]]$color<<-color
+    }
+    else
+    {
+      module.configure[[id]]$color<<-list()
+      items=as.character(unique(after_slice_geneinfo[module.gene,color_map]))
+      for(item in items)
+      {
+        isolate({
+          color=input[[paste0(item,"_color")]]
+        })
+        node[module.gene[which(after_slice_geneinfo[module.gene,color_map]==item)],'color']=color
+        
+        module.configure[[id]]$color<<-c(module.configure[[id]]$color,list(color))
+      }
+      names(module.configure[[id]]$color)<<-items
+    }
+    if(shape_map=="All")
+    {
+      isolate({
+        shape=input[["All_shape"]]
+      })
+      node$shape=shape
+      module.configure[[id]]$shape<<-shape
+    }
+    else
+    {
+      module.configure[[id]]$shape<<-list()
+      items=as.character(unique(after_slice_geneinfo[module.gene,shape_map]))
+      for(item in items)
+      {
+        isolate({
+          shape=input[[paste0(item,"_shape")]]
+        })
+        node[module.gene[which(after_slice_geneinfo[module.gene,shape_map]==item)],'shape']=shape
+        
+        module.configure[[id]]$shape<<-c(module.configure[[id]]$shape,list(shape))
+      }
+      names(module.configure[[id]]$shape)<<-items
+    }
+    output[[paste(id,"_plot",sep="")]]=renderVisNetwork({
+      visNetwork(nodes = node,edges = edge,width = "100%",height = "100%")%>%
+        visPhysics(stabilization = FALSE)%>%
+        visEdges(smooth = FALSE)%>% 
+        visInteraction(navigationButtons = TRUE)%>%
+        visIgraphLayout(layout = layout)%>%
+        visOptions(highlightNearest = TRUE) 
+    })
+    
+    module.configure[[id]]$layout<<-layout
+    module.configure[[id]]$label<<-label
+    module.configure[[id]]$color.attr<<-color_map
+    module.configure[[id]]$shape.attr<<-shape_map
   })
 })
 

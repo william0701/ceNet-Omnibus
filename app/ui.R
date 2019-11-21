@@ -293,9 +293,8 @@ analysis_tab=tabItem(tabName = "analysis",
                      ),
 
 
-                     div(id="community_table"),
+                     # div(id="community_table"),
                      # h2("Part3: Biological Properties",style='font-family:Georgia'),
-                     
                      # h2("Part3: Biological Properties",style='font-family:Georgia'),
                      h2("Part3: Enrichment Analysis",style='font-family:Georgia'),
                      div(class="box box-solid box-primary",
@@ -307,9 +306,6 @@ analysis_tab=tabItem(tabName = "analysis",
                                  )
                              )
                          ),
-                         
-                         
-                         
                          div(class='box-body',
                              div(class='row',
                                  div(class='col-lg-3',
@@ -343,35 +339,28 @@ analysis_tab=tabItem(tabName = "analysis",
                                      )
                                  )
                              ),
-                             
                              pickerInput(inputId = 'Significance_threshold',label = 'Significance threshold',
                                          choices = c("g:SCS threshold"="g:SCS_threshold",
                                                      "Bonferroni correction"="Bonferroni_correction",
                                                      "Benjamini-Hochberg FDR"="Benjamini-Hochberg_FDR"
                                          ),
-                                         
                                          width = "50%"
                              ),
-                             
                              textInput("User_threshold", "User threshold", "0.05",width="400px"),
-                             
                              pickerInput(inputId = 'Numeric_IDs_treated_as',label = 'Numeric IDs treated as',
-                                         
                                          choices =c(),
                                          width = "50%"
                              ),
-                             
                              pickerInput(inputId = 'Data_Sources',label = 'Data Sources',
                                          choices = c("NG Algorithm"="cluster_edge_betweenness",
                                                      "Modularity Optimization"="cluster_fast_greedy"
-                                                     
                                          ),
                                          multiple = TRUE,
                                          width = "50%"
                              )
-                             
                          )
                      ),
+                     
                      h2("Part4: Survival Analysis",style='font-family:Georgia'),
                      div(class="box box-solid box-primary",
                          div(class="box-header",

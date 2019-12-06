@@ -956,8 +956,7 @@ shinyServer(function(input,output,session) {
     after_slice_micro.exp<<-sect_output_micro.exp[rownamemicro,colnamemicro]
     sendSweetAlert(session = session,title = "Success..",text = "Successful Cancel Transform Opera",type = 'success')
   })
-  #Construction Page Action
-
+  
   #########Construction Page Action########
   observeEvent(input$construction_data_confirm,{
     samples=intersect(colnames(after_slice_rna.exp),colnames(after_slice_micro.exp))
@@ -1434,7 +1433,7 @@ shinyServer(function(input,output,session) {
     node_property<<-centrality
     if(nodeNewInfo=="")
     {
-      nodeNewInfo<<-data.frame(id=rownames(after_slice_geneinfo),stringsAsFactors = F,row.names = rownames(after_slice_geneinfo))
+      nodeNewInfo<<-data.frame(.id=rownames(after_slice_geneinfo),stringsAsFactors = F,row.names = rownames(after_slice_geneinfo))
     }
       
     for(id in newadd)
@@ -1444,7 +1443,8 @@ shinyServer(function(input,output,session) {
                  immediate = T)
         if(id=="Degree")
         {
-          degree=as.data.frame(degree(net_igraph))
+          degree=as.data.frame(igraph::degree(net_igraph))
+          nodeNewInfo$Degree<<-""
           nodeNewInfo[rownames(degree),'Degree']<<-degree[,1]
           data=as.data.frame(table(degree[,1]),stringsAsFactors = F)
           data$Var1=as.numeric(data$Var1)
@@ -1462,6 +1462,7 @@ shinyServer(function(input,output,session) {
         else if(id=="Betweenness")
         {
           betweenness=betweenness(net_igraph,directed = F)
+          nodeNewInfo$Betweenness<<-""
           nodeNewInfo[names(betweenness),'Betweenness']<<-betweenness
           density=density(x = betweenness,from = min(betweenness,na.rm = T),to = max(betweenness,na.rm = T),na.rm = T)
           density=data.frame(x=density$x,y=density$y)
@@ -1476,6 +1477,7 @@ shinyServer(function(input,output,session) {
         else if(id=="Closeness")
         {
           closeness=closeness(net_igraph,mode = 'all')
+          nodeNewInfo$Closeness<<-""
           nodeNewInfo[names(closeness),'Closeness']<<-closeness
           density=density(x = closeness,from = min(closeness,na.rm = T),to = max(closeness,na.rm = T),na.rm = T)
           density=data.frame(x=density$x,y=density$y)
@@ -1490,7 +1492,8 @@ shinyServer(function(input,output,session) {
         else if(id=="Clustering Coefficient")
         {
           cc=transitivity(net_igraph,type='local',isolates = 'zero')
-          nodeNewInfo[V(net_igraph)$name,'Clustering Coefficient']<<-cc
+          nodeNewInfo$Clustering.Coefficient<<-""
+          nodeNewInfo[V(net_igraph)$name,'Clustering.Coefficient']<<-cc
           density=density(x = cc,from = min(cc,na.rm = T),to = max(cc,na.rm = T),na.rm = T)
           density=data.frame(x=density$x,y=density$y)
           p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
@@ -1544,7 +1547,16 @@ shinyServer(function(input,output,session) {
     removeUI(selector = "#modalbody>",immediate = T)
     insertUI(selector = "#modalbody",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "nodeDetailsTable"),immediate = T)
     output$nodeDetailsTable=renderRHandsontable({
-      showtable=data.frame(after_slice_geneinfo,nodeNewInfo[,-1],stringsAsFactors = F,check.rows = T,check.names = T)
+      if(nodeNewInfo!="")
+      {
+        showtable=cbind(after_slice_geneinfo,nodeNewInfo[rownames(after_slice_geneinfo),])
+        index=which(colnames(showtable)==".id")
+        showtable=showtable[,-1*index]
+      }
+      else
+      {
+        showtable=after_slice_geneinfo
+      }
       doubleColumn=which(unlist(lapply(X = showtable,FUN = typeof))=='double')
       rhandsontable(showtable, width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
@@ -1795,6 +1807,7 @@ shinyServer(function(input,output,session) {
         hot_col(col = "Edges",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
         hot_col(col = "Visualization",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))
     })
+    updatePickerInput(session = session,inputId = "clinical_module",choices = names(modules))
   })
   observeEvent(input$communityDetals,{
     isolate({
@@ -1805,7 +1818,16 @@ shinyServer(function(input,output,session) {
     removeUI(selector = "#modalbody>",multiple = T,immediate = T)
     insertUI(selector = "#modalbody",where = "beforeEnd",ui = rHandsontableOutput(outputId = "nodesDetailsTable"),immediate = T)
     output$nodesDetailsTable=renderRHandsontable({
-      showtable=data.frame(after_slice_geneinfo,nodeNewInfo[,-1],stringsAsFactors = F,check.rows = T,check.names = T)
+      if(nodeNewInfo!="")
+      {
+        showtable=cbind(after_slice_geneinfo,nodeNewInfo[rownames(after_slice_geneinfo),])#,stringsAsFactors = F,check.rows = T,check.names = T)
+        index=which(colnames(showtable)==".id")
+        showtable=showtable[,-1*index]
+      }
+      else
+      {
+        showtable=after_slice_geneinfo
+      }
       doubleColumn=which(unlist(lapply(X = showtable,FUN = typeof))=='double')
       rhandsontable(showtable[modulegene,], width = "100%", height = "500",rowHeaders = NULL,search = T) %>%
         hot_table(highlightCol = TRUE, highlightRow = TRUE) %>%
@@ -1955,23 +1977,519 @@ shinyServer(function(input,output,session) {
     module.configure[[id]]$shape.attr<<-shape_map
   })
   
-  observeEvent(list(input$clinical_file,input$clinical_seperator,input$clinical_header),{
+  observeEvent(list(input$clinical_file,input$clinical_seperator,input$clinical_header,input$clinical_first_col),{
     isolate({
       file=input$clinical_file
       seperator=input$clinical_seperator
       header=as.logical(input$clinical_header)
+      first_column=as.logical(input$clinical_first_col)
     })
     if(!is.null(file))
     {
+      # if(!is.null(after_slice_rna.exp))
+      # {
+      #   survival_exp<<-after_slice_rna.exp
+      # }
       removeUI(selector = "#clinical_data_preview>",multiple = T,immediate = T)
       insertUI(selector = "#clinical_data_preview",where = 'beforeEnd',ui = div(class="overlay",id="icon",tags$i(class="fa fa-spinner fa-spin",style="font-size:50px")))
       insertUI(selector = "#clinical_data_preview",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "clinical_data_table"))
       clinical_data<<-read.table(file = file$datapath,header = header,sep = seperator,stringsAsFactors = F)
+      if(first_column)
+      {
+        clinical_data[,1]<<-gsub(pattern = "-",replacement = ".",x = clinical_data[,1])
+        rownames(clinical_data)<<-clinical_data[,1]
+        clinical_data<<-clinical_data[,-1]
+      }
       output[['clinical_data_table']]=renderRHandsontable({
-        rhandsontable(head(clinical_data))
+        rhandsontable(head(clinical_data,n=20),readOnly = T)
       })
       removeUI(selector = "#icon")
+      column=colnames(clinical_data)
+      names(column)=column
+      updatePickerInput(session = session,inputId = 'clinical_survival_time',choices = column)
+      updatePickerInput(session = session,inputId = 'clinical_survival_status',choices = column)
+      updatePickerInput(session = session,inputId = 'survival_extern_factor_continous',choices = column)
+      updatePickerInput(session = session,inputId = 'survival_extern_factor_categorical',choices = column)
+      updatePickerInput(session = session,inputId = 'survival_stratified_factor',choices = column)
+      
+      output$clinical_patient_count=renderUI({
+        div(class="external-event bg-light-blue",style="font-size:16px",
+            list(tags$span("Patients in Clinical Data"),
+                 tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(dim(clinical_data)[1])))
+        )
+      })
+      
+      if(survival_exp!="")
+      {
+        valid_patient<<-intersect(rownames(clinical_data),colnames(survival_exp))
+        output$clinical_valid_patient_count=renderUI({
+          div(class="external-event bg-light-blue",style="font-size:16px",
+              list(tags$span("Valid Patients"),
+                   tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(length(valid_patient))))
+          )
+        })
+      }
+      
     }
+    
+  })
+
+  observeEvent(list(input$survival_exp_data,input$survival_exp_seperator,input$survival_exp_header,input$survival_exp_first_column),{
+    isolate({
+      file=input$survival_exp_data
+      seperator=input$survival_exp_seperator
+      header=as.logical(input$survival_exp_header)
+      first_column=as.logical(input$survival_exp_first_column)
+    })
+    if(!is.null(file))
+    {
+      removeUI(selector = "#survival_exp_preview>",multiple = T,immediate = T)
+      insertUI(selector = "#survival_exp_preview",where = 'beforeEnd',ui = div(class="overlay",id="icon",tags$i(class="fa fa-spinner fa-spin",style="font-size:50px")))
+      insertUI(selector = "#survival_exp_preview",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "survival_exp_data_table"))
+      survival_exp<<-read.table(file = file$datapath,header = header,sep = seperator,stringsAsFactors = F)
+      if(first_column)
+      {
+        survival_exp[,1]<<-gsub(pattern = "-",replacement = ".",x = survival_exp[,1])
+        rownames(survival_exp)<<-survival_exp[,1]
+        survival_exp<<-survival_exp[,-1]
+      }
+      output[['survival_exp_data_table']]=renderRHandsontable({
+        rhandsontable(head(survival_exp,n=20),readOnly = T)
+      })
+      removeUI(selector = "#icon")
+      column=colnames(clinical_data)
+      names(column)=column
+      updatePickerInput(session = session,inputId = 'clinical_survival_time',choices = column)
+      updatePickerInput(session = session,inputId = 'clinical_survival_status',choices = column)
+      
+      output$exp_patient_count=renderUI({
+        div(class="external-event bg-light-blue",style="font-size:16px",
+            list(tags$span("Patients in Expression Data"),
+                 tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(dim(survival_exp)[2])))
+        )
+      })
+      
+      if(clinical_data!="")
+      {
+        valid_patient<<-intersect(rownames(clinical_data),colnames(survival_exp))
+        output$clinical_valid_patient_count=renderUI({
+          div(class="external-event bg-light-blue",style="font-size:16px",
+              list(tags$span("Valid Patients"),
+                   tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(length(valid_patient))))
+          )
+        })
+      }
+    }
+  })
+  
+  observeEvent(input$clinical_survival_status,{
+    isolate({
+      status_column=input$clinical_survival_status
+    })
+    if(status_column!="")
+    {
+      updatePickerInput(session = session,inputId = "clinical_survival_status_variable",choices = unique(clinical_data[,status_column]))
+    }
+  })
+  observeEvent(input$survival_exp_con,{
+    isolate({
+      msg=as.logical(input$survival_exp_con)
+    })
+    if(msg)
+    {
+      survival_exp<<-after_slice_rna.exp
+      output$exp_patient_count=renderUI({
+        div(class="external-event bg-light-blue",style="font-size:16px",
+            list(tags$span("Patients in Expression Data"),
+                 tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(dim(survival_exp)[2])))
+        )
+      })
+      
+      if(clinical_data!="")
+      {
+        valid_patient<<-intersect(rownames(clinical_data),colnames(survival_exp))
+        output$clinical_valid_patient_count=renderUI({
+          div(class="external-event bg-light-blue",style="font-size:16px",
+              list(tags$span("Valid Patients"),
+                   tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(length(valid_patient))))
+          )
+        })
+      }
+    }
+    else
+    {
+      removeUI(selector = "#surv_exp_data_panel>",immediate = T,multiple = T)
+      removeUI(selector = "#survival_exp_preview>",multiple = T,immediate = T)
+      removeUI(selector = "#exp_patient_count>",multiple = T,immediate = T)
+      removeUI(selector = "#clinical_valid_patient_count>",multiple = T,immediate = T)
+      insertUI(selector = "#surv_exp_data_panel",where = 'beforeEnd',ui = fileInput(inputId="survival_exp_data",label = "Expression Data"),immediate = T)
+      survival_exp<<-""
+    }
+  })
+  observeEvent(input$execute_survival,{
+    isolate({
+      model=input$survival_model
+      time=input$clinical_survival_time
+      status=input$clinical_survival_status
+      variable=input$clinical_survival_status_variable
+    })
+    if(clinical_data=="")
+    {
+      sendSweetAlert(session = session,title = "Error...",text = "Please Upload Clinical Data!",type = 'error')
+      return()
+    }
+    if(time=="")
+    {
+      sendSweetAlert(session = session,title = "Error...",text = "Please Choose Column for Survival Time!",type = 'error')
+      return()
+    }
+    if(status=="")
+    {
+      sendSweetAlert(session = session,title = "Error...",text = "Please Choose Column for Survival Status!",type = 'error')
+      return()
+    }
+    if(variable=="")
+    {
+      sendSweetAlert(session = session,title = "Error...",text = "Please Choose Column for Censor Variable!",type = 'error')
+      return()
+    }
+    
+    isolate({
+      genesource=input$clinical_gene_source
+      singlelabel=input$clinical_single_gene
+      quantile=input$single_quantile
+      moduleset=input$clinical_module
+      customgene=input$survival_custom_gene_input
+      extern_factor_continous=input$survival_extern_factor_continous
+      extern_factor_categorical=input$survival_extern_factor_categorical
+      strata_factor=input$survival_stratified_factor
+      if_module_group=input$survival_module_cluster_sample
+      if_custom_group=input$survival_custom_cluster_sample
+      if_single_group=input$survival_single_group_sample
+    })
+    
+    if(genesource=="module")
+    {
+      if(is.null(moduleset))
+      {
+        sendSweetAlert(session = session,title = "Error...",text = "Please Select Modules for Analysis!",type = 'error')
+        return()
+      }
+    }
+    else if(genesource=="single.gene")
+    {
+      if(singlelabel=="")
+      {
+        sendSweetAlert(session = session,title = "Error...",text = "Please Input Gene Name!",type = 'error')
+        return()
+      } 
+    }
+    else if(genesource=="custom")
+    {
+      if(customgene=="")
+      {
+        sendSweetAlert(session = session,title = "Error...",text = "Please Input Gene Name!",type = 'error')
+        return()
+      }
+    }
+  
+    clinical_data=clinical_data[valid_patient,]
+    survival_exp=survival_exp[,valid_patient]
+    index=which(clinical_data[,status]==variable)
+    clinical_data[,status]=1
+    clinical_data[index,status]=0
+   
+   removeUI(selector = "#survival_result_panel>",multiple = T,immediate = T)
+    
+   if(model=="km_analysis")
+   {
+     if(genesource=="module")
+     {
+       print(moduleset)
+       
+       for(m in moduleset)
+       {
+         modulegene=modules[[m]]
+         modulegene=modulegene[which(modulegene%in%rownames(survival_exp))]
+         patient.cluster=kmeans(t(survival_exp[modulegene,]),centers = 2)$cluster
+         
+         tmpclinical=clinical_data[,c(time,status)]
+         tmpclinical$group=""
+         
+         for(cl in unique(patient.cluster))
+         {
+           tmpclinical[names(patient.cluster)[which(patient.cluster==cl)],'group']=paste("Group",cl,sep="")
+         }
+         
+         tmpclinical=tmpclinical[which(tmpclinical$group!=""),]
+         p=km.analysis(data = tmpclinical,time = time,status = status,factor = "group")
+         create_survival_result_box(session,label=paste("Survival Result of ",m,sep=""),id=m,model=model)
+         
+         imagepath_heat=paste(basepath,"/Plot/",m,"_",model,"_survival_cluster.png",sep="")
+         Heatmaps(survival_exp[modulegene,],tmpclinical,imagepath_heat)
+         #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
+         local({
+           id=m
+           print(id)
+           plot=p
+           imagepe_for_heat=imagepath_heat
+           output[[paste(id,model,"survival_curve",sep="_")]]=renderImage({
+             imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_curve.svg",sep="")
+             svg(imagepath,family = "serif")
+             print(plot$plot)
+             dev.off()
+             list(src=imagepath,width="100%",height="100%")
+           },deleteFile = F)
+           output[[paste(id,model,"survival_cluster",sep="_")]]=renderImage({
+             list(src=imagepe_for_heat,width="100%",height="100%")
+           },deleteFile = F)
+           output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
+             rhandsontable(plot$data.survtable)
+           })
+         })
+      }
+     }
+     else if(genesource=="single.gene")
+     {
+       research_gene=unlist(strsplit(x = singlelabel,split = "\n|\r\n"))
+       research_gene=research_gene[research_gene%in%rownames(survival_exp)]
+       for(rg in research_gene)
+       {
+         thresh=quantile(survival_exp[rg,],probs = quantile)[1,1]
+         tmpclinical=clinical_data[,c(time,status)]
+         tmpclinical$group=""
+         high_group=colnames(survival_exp)[which(as.numeric(survival_exp[rg,])>=thresh)]
+         low_group=colnames(survival_exp)[which(as.numeric(survival_exp[rg,])<thresh)]
+         tmpclinical[high_group,"group"]="High Expressed"
+         tmpclinical[low_group,"group"]="Low Expressed"
+         p=km.analysis(data = tmpclinical,time = time,status = status,factor = "group")
+         create_survival_result_box(session,label=paste("Survival Result of ",rg,sep=""),id=rg,model=model)
+         disp=SingleExpress(survival_exp[rg,],thresh,tmpclinical)
+         #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
+         local({
+           id=rg
+           print(id)
+           plot1=p
+           plot2=disp
+           output[[paste(id,model,"survival_curve",sep="_")]]=renderImage({
+             imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_curve.svg",sep="")
+             svg(imagepath,family = "serif")
+             print(plot1$plot)
+             dev.off()
+             list(src=imagepath,width="100%",height="100%")
+           },deleteFile = F)
+           output[[paste(id,model,"survival_cluster",sep="_")]]=renderImage({
+             imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_cluster.svg",sep="")
+             svg(imagepath,family = "serif")
+             print(plot2)
+             dev.off()
+             list(src=imagepath,width="100%",height="100%")
+           },deleteFile = F)
+           output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
+             rhandsontable(plot1$data.survtable)
+           })
+         })
+          
+       }
+     }
+     else if(genesource=="custom")
+     {
+       customgene=unlist(strsplit(x = customgene,split = "\r\n|\n"))
+       customgene=customgene[which(customgene%in%rownames(survival_exp))]
+       if(length(customgene)==1)
+       {
+         sendSweetAlert(session = session,title = "Warning...",text = "Please select Single Gene Model",type = "warning")
+         return()
+       }
+       patient.cluster=kmeans(t(survival_exp[customgene,]),centers = 2)$cluster
+       
+       tmpclinical=clinical_data[,c(time,status)]
+       tmpclinical$group=""
+       
+       for(cl in unique(patient.cluster))
+       {
+         tmpclinical[names(patient.cluster)[which(patient.cluster==cl)],'group']=paste("Group",cl,sep="")
+       }
+       
+       tmpclinical=tmpclinical[which(tmpclinical$group!=""),]
+       p=km.analysis(data = tmpclinical,time = time,status = status,factor = "group")
+       create_survival_result_box(session,label=paste("Survival Result of Custom Gene Set",sep=""),id="custom",model=model)
+       
+       imagepath_heat=paste(basepath,"/Plot/","custom","_",model,"_survival_cluster.png",sep="")
+       Heatmaps(survival_exp[customgene,],tmpclinical,imagepath_heat)
+       #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
+       local({
+         id="custom"
+         print(id)
+         plot=p
+         imagepe_for_heat=imagepath_heat
+         output[[paste(id,model,"survival_curve",sep="_")]]=renderImage({
+           imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_curve.svg",sep="")
+           svg(imagepath,family = "serif")
+           print(plot$plot)
+           dev.off()
+           list(src=imagepath,width="100%",height="100%")
+         },deleteFile = F)
+         output[[paste(id,model,"survival_cluster",sep="_")]]=renderImage({
+           list(src=imagepe_for_heat,width="100%",height="100%")
+         },deleteFile = F)
+         output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
+           rhandsontable(plot$data.survtable)
+         })
+       })
+     }
+   }
+   else if(model=="cox_model")
+   {
+     if(!is.null(extern_factor_continous)|!is.null(extern_factor_categorical))
+     {
+       tmpfactor=intersect(extern_factor_continous,extern_factor_categorical)
+       if(length(tmpfactor)>0)
+       {
+         sendSweetAlert(session = session,title = "Error...",text = paste("Confused Factors Type in (",paste(tmpfactor,collapse = ", "),")",sep=""),type = "error")
+         return()
+       }
+     }
+     if(genesource=="module")
+     {
+       print(moduleset)
+       for(m in moduleset)
+       {
+         modulegene=modules[[m]]
+         modulegene=modulegene[which(modulegene%in%rownames(survival_exp))]
+         
+         fit=cox.analysis(session,clinical_data,survival_exp,time,status,if_module_group,modulegene,extern_factor_continous,extern_factor_categorical,strata_factor)
+         create_cox_survival_result_box(session,label=paste("Survival Result of ",m,sep=""),id=m,model=model)
+         # 
+         # # imagepath_heat=paste(basepath,"/Plot/",m,"_",model,"_survival_cluster.png",sep="")
+         # # Heatmaps(survival_exp[modulegene,],tmpclinical,imagepath_heat)
+         # # #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
+         local({
+           id=m
+           result=summary(fit)
+           coefficients=result$coefficients
+           conf.int=result$conf.int
+           #imagepe_for_heat=imagepath_heat
+           output[[paste(id,model,"survival_coefficient",sep="_")]]=renderTable({
+             coefficients
+           },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
+           output[[paste(id,model,"survival_hazard",sep="_")]]=renderTable({
+             conf.int
+           },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
+           # output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
+           #   rhandsontable(plot$data.survtable)
+           #})
+         })
+       }
+     }
+     else if(genesource=="single.gene")
+     {
+       research_gene=unlist(strsplit(x = singlelabel,split = "\n|\r\n"))
+       research_gene=research_gene[research_gene%in%rownames(survival_exp)]
+       print(research_gene)
+       for(rg in research_gene)
+       {
+         tmpclinical=clinical_data
+         if(if_single_group)
+         {
+           thresh=quantile(survival_exp[rg,],probs = quantile)[1,1]
+           tmpclinical$group=""
+           high_group=colnames(survival_exp)[which(as.numeric(survival_exp[rg,])>=thresh)]
+           low_group=colnames(survival_exp)[which(as.numeric(survival_exp[rg,])<thresh)]
+           tmpclinical[high_group,"group"]="High Expressed"
+           tmpclinical[low_group,"group"]="Low Expressed"
+           if(length(unique(tmpclinical$group))==1)
+           {
+             sendSweetAlert(session = session,title = "Error...",text = paste("Patients can't be grouped by Gene ",rg,sep=""),type = 'error')
+             next
+           }
+           fit=cox.analysis(session = session,clinical = tmpclinical,exp = survival_exp,
+                            time = time,status = status,ifgroup = F,gene = rg,
+                            external_continous = extern_factor_continous,
+                            external_categorical = extern_factor_categorical,strata_factor = strata_factor,
+                            single_grouped=T)
+         }
+         else
+         {
+           fit=cox.analysis(session = session,clinical = tmpclinical,exp = survival_exp,
+                            time = time,status = status,ifgroup = F,gene = rg,
+                            external_continous = extern_factor_continous,
+                            external_categorical = extern_factor_categorical,strata_factor = strata_factor,
+                            single_grouped=F)
+         }
+         create_cox_survival_result_box(session,label=paste("Survival Result of ",rg,sep=""),id=rg,model=model)
+         local({
+           id=rg
+           result=summary(fit)
+           coefficients=result$coefficients
+           conf.int=result$conf.int
+           #imagepe_for_heat=imagepath_heat
+           output[[paste(id,model,"survival_coefficient",sep="_")]]=renderTable({
+             coefficients
+           },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
+           output[[paste(id,model,"survival_hazard",sep="_")]]=renderTable({
+             conf.int
+           },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
+           # output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
+           #   rhandsontable(plot$data.survtable)
+           #})
+         })
+       }
+     }
+     else if(genesource=="custom")
+     {
+       customgene=unlist(strsplit(x = customgene,split = "\r\n|\n"))
+       customgene=customgene[which(customgene%in%rownames(survival_exp))]
+       if(length(customgene)==1)
+       {
+         sendSweetAlert(session = session,title = "Warning...",text = "Please select Single Gene Model",type = "warning")
+         return()
+       }
+       fit=cox.analysis(session = session,clinical = clinical_data,exp = survival_exp,time = time,
+                        status = status,ifgroup = if_custom_group,gene = customgene,
+                        external_continous = extern_factor_continous,
+                        external_categorical = extern_factor_categorical,
+                        strata_factor = strata_factor,single_grouped = F)
+       create_cox_survival_result_box(session,label=paste("Survival Result of Custom Genes",sep=""),id="custom",model=model)
+       # 
+       # # imagepath_heat=paste(basepath,"/Plot/",m,"_",model,"_survival_cluster.png",sep="")
+       # # Heatmaps(survival_exp[modulegene,],tmpclinical,imagepath_heat)
+       # # #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
+       local({
+         id="custom"
+         result=summary(fit)
+         coefficients=result$coefficients
+         conf.int=result$conf.int
+         #imagepe_for_heat=imagepath_heat
+         output[[paste(id,model,"survival_coefficient",sep="_")]]=renderTable({
+           coefficients
+         },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
+         output[[paste(id,model,"survival_hazard",sep="_")]]=renderTable({
+           conf.int
+         },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
+         # output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
+         #   rhandsontable(plot$data.survtable)
+         #})
+       })
+     }
+   }
+   else if(model=="random.forest")
+   {
+     if(genesource=="module")
+     {
+       print(moduleset)
+     }
+     else if(genesource=="single.gene")
+     {
+       print(singlelabel)
+     }
+     else if(genesource=="custom")
+     {
+       print(customgene)
+     }
+   }
+    
+    
   })
 })
 

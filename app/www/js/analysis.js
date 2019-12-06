@@ -139,3 +139,8 @@ function module_setting(btn)
     $("#infolist").modal("hide")
   })
 }
+
+function survival(obj)
+{
+  Shiny.setInputValue("execute_survival",Math.random())
+}

@@ -294,9 +294,7 @@ analysis_tab=tabItem(tabName = "analysis",
 
 
                      div(id="community_table"),
-                     # h2("Part3: Biological Properties",style='font-family:Georgia'),
-                     
-                     # h2("Part3: Biological Properties",style='font-family:Georgia'),
+
                      h2("Part3: Enrichment Analysis",style='font-family:Georgia'),
                      div(class="box box-solid box-primary",
                          div(class='box-header',
@@ -375,77 +373,170 @@ analysis_tab=tabItem(tabName = "analysis",
                      h2("Part4: Survival Analysis",style='font-family:Georgia'),
                      div(class="box box-solid box-primary",
                          div(class="box-header",
-                           h3(class="box-title"),
-                           div(class="box-tools pull-right",
-                               tags$button(class="btn btn-box-tool","data-widget"="collapse",
-                                           tags$i(class="fa fa-minus")
-                               )
-                           )
+                             h3(class="box-title"),
+                             div(class="box-tools pull-right",
+                                 tags$button(class="btn btn-box-tool","data-widget"="collapse",
+                                             tags$i(class="fa fa-minus")
+                                 )
+                             )
                          ),
                          div(class="box-body",
                              tabsetPanel(type="tabs",
                                          tabPanel(title="Parameter",
                                                   div(class="col-lg-4",style="padding:0px",
-                                                      tags$fieldset(tags$legend(HTML("Clinical Information")),
-                                                                    div(class="row",
-                                                                        div(class="col-lg-12",
-                                                                            fileInput(inputId="clinical_file",label = "Clinical Data")
-                                                                        ),
-                                                                        div(class='col-lg-12',
-                                                                            prettyRadioButtons(inputId = 'clinical_seperator',label = 'Seprator',choices = c("Tab"="\t",'Common'=',','Space'=' ','Semicolon'=';'),status='primary',inline=T)
-                                                                        ),
-                                                                        div(class="col-lg-12",
-                                                                            prettyRadioButtons(inputId = 'clinical_header',label = 'Header',choices = c("With header"=T,'Without header'=F),selected=T,status='primary',inline=T)
-                                                                        )
-                                                                    ),
-                                                                    div(class="row",
-                                                                        div(class="col-lg-12",
-                                                                            selectInput(inputId = "survival_model",label = "Survival Model",
-                                                                                        choices = c("Log Rank"="log.rank","Cox Model"="cox.model","Random Forest"="random.forest"))
-                                                                        )
-                                                                    )
+                                                      tags$fieldset(
+                                                        tags$legend(HTML("Clinical Information")),
+                                                        div(class="col-lg-12",style="padding:0px",
+                                                            fileInput(inputId="clinical_file",label = "Clinical Data")
+                                                        ),
+                                                        div(class='col-lg-12',style="padding:0px",
+                                                            prettyRadioButtons(inputId = 'clinical_seperator',label = 'Seprator',choices = c("Tab"="\t",'Common'=',','Space'=' ','Semicolon'=';'),status='primary',inline=T)
+                                                        ),
+                                                        div(class="col-lg-12",style="padding:0px",
+                                                            prettyRadioButtons(inputId = 'clinical_header',label = 'Header',choices = c("With header"=T,'Without header'=F),selected=T,status='primary',inline=T)
+                                                        ),
+                                                        div(class="col-lg-12",style="padding:0px",
+                                                            prettyRadioButtons(inputId = 'clinical_first_col',label = 'First Column For Row Name?',choices = c("Yes"=T,'No'=F),selected=F,status='primary',inline=T)
+                                                        )
                                                       )
                                                   ),
                                                   div(class="col-lg-5",
-                                                      tags$fieldset(tags$legend(HTML("Expression Data")),
-                                                                    div(class="row",
-                                                                        div(class="col-lg-4",
-                                                                            div(class="form-group shiny-input-container",
-                                                                                tags$label(HTML("Use Current Expression?")),
-                                                                                switchInput(inputId = "survival_exp_con",value = T,onLabel = "Yes",offLabel = "No")
-                                                                            )
-                                                                        ),
-                                                                        conditionalPanel("!input.survival_exp_con",
-                                                                          div(class="col-lg-6",
-                                                                              fileInput(inputId="survival_exp_data",label = "Expression Data")
-                                                                          )
-                                                                        )
-                                                                    ),
-                                                                    conditionalPanel("!input.survival_exp_con",
-                                                                        div(class="row",
-                                                                            div(class='col-lg-12',
-                                                                                prettyRadioButtons(inputId = 'survival_exp_seperator',label = 'Seprator',choices = c("Tab"="\t",'Common'=',','Space'=' ','Semicolon'=';'),status='primary',inline=T)
-                                                                            ),
-                                                                            div(class="col-lg-12",
-                                                                                prettyRadioButtons(inputId = 'survival_exp_header',label = 'Header',choices = c("With header"=T,'Without header'=F),selected=T,status='primary',inline=T)
-                                                                            )
-                                                                        ),
-                                                                        div(class="row",
-                                                                            div(class="col-lg-12",
-                                                                                selectInput(inputId = "survival_model",label = "Survival Model",
-                                                                                            choices = c("Log Rank"="log.rank","Cox Model"="cox.model","Random Forest"="random.forest"))
-                                                                            )
-                                                                        )
-                                                                    )
+                                                      tags$fieldset(
+                                                        tags$legend(HTML("Expression Data")),
+                                                        div(class="row",
+                                                            div(class="col-lg-4",
+                                                                div(class="form-group shiny-input-container",
+                                                                    tags$label(HTML("Use Current Expression?")),
+                                                                    switchInput(inputId = "survival_exp_con",value = F,onLabel = "Yes",offLabel = "No")
+                                                                )
+                                                            ),
+                                                            conditionalPanel("!input.survival_exp_con",
+                                                                             div(class="col-lg-6",style="padding:0px",id="surv_exp_data_panel",
+                                                                                 fileInput(inputId="survival_exp_data",label = "Expression Data")
+                                                                             )
+                                                            )
+                                                        ),
+                                                        conditionalPanel("!input.survival_exp_con",
+                                                                         div(class="row",
+                                                                             div(class='col-lg-12',
+                                                                                 prettyRadioButtons(inputId = 'survival_exp_seperator',label = 'Seprator',choices = c("Tab"="\t",'Common'=',','Space'=' ','Semicolon'=';'),status='primary',inline=T)
+                                                                             ),
+                                                                             div(class="col-lg-12",
+                                                                                 prettyRadioButtons(inputId = 'survival_exp_header',label = 'Header',choices = c("With header"=T,'Without header'=F),selected=T,status='primary',inline=T)
+                                                                             ),
+                                                                             div(class="col-lg-12",
+                                                                                 prettyRadioButtons(inputId = 'survival_exp_first_column',label = 'First Column For Row Name?',choices = c("Yes"=T,'No'=F),selected=T,status='primary',inline=T)
+                                                                             )
+                                                                         )
+                                                        )
+                                                      )
+                                                  ),
+                                                  div(class="col-lg-3",
+                                                      tags$fieldset(
+                                                        tags$legend(HTML("Valid Patiens")),
+                                                        div(class="col-lg-12",id="survival_valid_sample_panel",style="padding:0px;margin:0px",
+                                                            uiOutput(outputId = "clinical_patient_count",class="col-lg-12"),
+                                                            uiOutput(outputId = "exp_patient_count",class="col-lg-12"),
+                                                            uiOutput(outputId = "clinical_valid_patient_count",class="col-lg-12")
+                                                        )
+                                                      )
+                                                  ),
+                                                  # tags$br(),
+                                                  div(class="col-lg-12",style="padding:0px",
+                                                      tags$fieldset(
+                                                        tags$legend("Survival Model Parameter"),
+                                                        div(class="row",
+                                                            div(class="col-lg-3",
+                                                                pickerInput(inputId = "survival_model",label = "Survival Model",choices = c("Kaplan-Meier Analysis"="km_analysis",'Cox Model'='cox_model'))#,'Random Survival Forest'='random.forest'))
+                                                            ),
+                                                            div(class="col-lg-3",
+                                                                pickerInput(inputId='clinical_survival_time',label="Survival Time",choices = c(),options = list(title="Select Column for Survival Time"))
+                                                            ),
+                                                            div(class="col-lg-3",
+                                                                pickerInput(inputId='clinical_survival_status',label="Survival Status",choices = c(),options = list(title="Select Column for Survival Status"))
+                                                            ),
+                                                            div(class='col-lg-3',
+                                                                pickerInput(inputId = "clinical_survival_status_variable",label = "Censor Label (For \"Alive\" or \"Lost\")",choices = c())
+                                                            )
+                                                        ),
+                                                        conditionalPanel("input.survival_model!='km_analysis'",
+                                                                         div(class="row",
+                                                                             div(class="col-lg-4",
+                                                                                 pickerInput(inputId = "survival_extern_factor_continous",label = "External Included Continus Factors",choices = c(),multiple = T,options = list(`live-search` = TRUE,`actions-box`=T))
+                                                                             ),
+                                                                             div(class="col-lg-4",
+                                                                                 pickerInput(inputId = "survival_extern_factor_categorical",label = "External Included Categorical Factors",choices = c(),multiple = T,options = list(`live-search` = TRUE,`actions-box`=T))
+                                                                             ),
+                                                                             div(class="col-lg-4",
+                                                                                 pickerInput(inputId = "survival_stratified_factor",label = "Stratified Factors",choices = c(),multiple = T,options = list(`live-search` = TRUE,`actions-box`=T))
+                                                                             )
+                                                                         )
+                                                        ),
+                                                        div(class="row",
+                                                            div(class="col-lg-3",
+                                                                pickerInput(inputId = "clinical_gene_source",label = "Gene Set Source",choices = c("Modules"="module",'Single Gene'='single.gene','Custom'='custom'))
+                                                            ),
+                                                            
+                                                            conditionalPanel("input.clinical_gene_source=='module'",
+                                                                             div(class="col-lg-3",
+                                                                                 pickerInput(inputId = "clinical_module",label = "Module ID",choices = c(),multiple = T,options = list("actions-box"=T))
+                                                                             ),
+                                                                             conditionalPanel("input.survival_model=='cox_model'",
+                                                                                              div(class="col-lg-3",
+                                                                                                  div(class="form-group shiny-input-container",
+                                                                                                      tags$label("Cluster Patients with Module?"),
+                                                                                                      switchInput(inputId = "survival_module_cluster_sample",label = "",value = T,onLabel = "Yes",offLabel = "No")
+                                                                                                  )
+                                                                                              )
+                                                                             )
+                                                            ),
+                                                            conditionalPanel("input.clinical_gene_source=='single.gene'",
+                                                                             conditionalPanel("input.survival_model!='km_analysis'",
+                                                                                              div(class='col-lg-2',
+                                                                                                  div(class="form-group shiny-input-container",
+                                                                                                      tags$label("Seprate Patients with Expression?"),
+                                                                                                      switchInput(inputId = "survival_single_group_sample",label = "",value = T,onLabel = "Yes",offLabel = "No")
+                                                                                                  )
+                                                                                              )
+                                                                             ),
+                                                                             conditionalPanel("input.survival_model=='km_analysis'||input.survival_single_group_sample",
+                                                                                              div(class="col-lg-3",
+                                                                                                  sliderTextInput(inputId = "single_quantile",label = "Bifurcate Quantile",choices = seq(0,1,0.05),selected = 0.5,animate = F,grid = T)
+                                                                                              )
+                                                                             ),
+                                                                             div(class='col-lg-10',
+                                                                                 textAreaInput(inputId = "clinical_single_gene",label = "Gene Label",value = "",placeholder = "Please Input Gene Name",rows = 10,resize = 'none')
+                                                                             )
+                                                            ),
+                                                            conditionalPanel("input.clinical_gene_source=='custom'",
+                                                                             conditionalPanel("input.survival_model!='km_analysis'",
+                                                                                              div(class='col-lg-3',
+                                                                                                  div(class="form-group shiny-input-container",
+                                                                                                      tags$label("Cluster Patients with Custom Gene Set?"),
+                                                                                                      switchInput(inputId = "survival_custom_cluster_sample",label = "",value = T,onLabel = "Yes",offLabel = "No")
+                                                                                                  )
+                                                                                              )
+                                                                             ),
+                                                                             div(class="col-lg-10",
+                                                                                 textAreaInput(inputId="survival_custom_gene_input",label = "Custom Gene Set",value = "",width = "100%",rows = 10,placeholder = "Input Custom Genes",resize = 'none')
+                                                                             )
+                                                            )
+                                                        ),
+                                                        tags$hr()
+                                                      )
+                                                  ),
+                                                  div(class="row",
+                                                      div(class="col-lg-2 pull-right",
+                                                          tags$button(class="btn btn-block btn-primary pull-right",type="button",HTML("Execute"),onclick="survival(this)")
                                                       )
                                                   )
                                          ),
                                          tabPanel(title="Clinical Data Preview",div(id="clinical_data_preview",style="margin:10px")),
                                          tabPanel(title="Expression Data Preview",div(id="survival_exp_preview",style="margin:10px"))
-                                        )
+                             )
                          )
-
-                     )
+                     ),
+                     div(id="survival_result_panel",class="row")
 )
 
 body=dashboardBody(
@@ -474,5 +565,6 @@ dashboardPage(
     ),
   header=header,
   sidebar = sidebar,
-  body=body
+  body=body,
+  
 )

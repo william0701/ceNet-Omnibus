@@ -13,6 +13,7 @@ default.configure=list(color="red",
                        label="")
 clinical_data=""
 survival_exp=""
+valid_patient=""
 
 
 create_property_box=function(type,id)
@@ -271,4 +272,289 @@ create_alert_box=function(header,msg,class){
          HTML(msg)
          )
   return(ui)
+}
+
+km.analysis=function(data,time,status,factor)
+{
+  surv_obj=Surv(data[,time],data[,status])
+  fit=do.call(what = survfit,args = list(formula=as.formula(paste("surv_obj~",factor,sep="")), data = data))
+  p=ggsurvplot(fit = fit,pval = T)
+  return(p)
+}
+cox.analysis=function(session,clinical,exp,time,status,ifgroup,gene,external_continous,
+                      external_categorical,strata_factor,single_grouped=F)
+{
+  if(ifgroup)
+  {
+    patient.cluster=kmeans(t(exp[gene,]),centers = 2)$cluster
+    clinical$group=""
+    
+    for(cl in unique(patient.cluster))
+    {
+      clinical[names(patient.cluster)[which(patient.cluster==cl)],'group']=paste("Group",cl,sep="")
+    }
+    
+    clinical=clinical[which(clinical$group!=""),]
+    clinical$group=as.factor(clinical$group)
+  }
+  
+  surv_obj=Surv(clinical[,time],clinical[,status])
+  if(!is.null(external_categorical))
+  {
+    for(f in external_categorical)
+    {
+      clinical[,f]=as.factor(clinical[,f])
+    }
+  }
+  if(length(intersect(external_continous,external_categorical))>0)
+  {
+    factor=intersect(external_continous,external_categorical)
+    sendSweetAlert(session = session,title = "Error...",text = paste("Factors(",paste(factor,collapse = ", "),") conflict between stratified and categorical.",sep=""),type = "error")
+    return()
+  }
+  if(length(intersect(strata_factor,external_categorical))>0)
+  {
+    factor=intersect(strata_factor,external_categorical)
+    sendSweetAlert(session = session,title = "Warning...",text = paste("Factors(",paste(factor,collapse = ", "),") conflict between stratified and categorical, and will be regard as stratified factors",sep=""),type = "warning")
+    external_categorical=setdiff(external_categorical,strata_factor)
+  }
+  if(length(intersect(strata_factor,external_continous))>0)
+  {
+    factor=intersect(strata_factor,external_continous)
+    sendSweetAlert(session = session,title = "Warning...",text = paste("Factors(",paste(factor,collapse = ", "),") conflict between stratified and continous, and will be regard as stratified factors",sep=""),type = "warning")
+    external_continous=setdiff(external_continous,strata_factor)
+  }
+  
+  if(is.null(strata_factor))
+  {
+    strata_formula=NULL
+  }
+  else
+  {
+    strata_formula=paste(paste("strata(",strata_factor,')',sep=""),collapse = "+")
+  }
+  
+  if(is.null(c(external_continous,external_categorical)))
+  {
+    factor_formula=NULL
+  }
+  else
+  {
+    factor_formula=paste(c(external_continous,external_categorical),collapse = "+")
+  }
+  if(ifgroup)
+  {
+    factor_formula=paste(factor_formula,"group",sep="+")
+  }
+  else if(!single_grouped)
+  {
+    factor_formula=paste(factor_formula,paste(gene,collapse = "+"),sep = "+")
+    clinical=cbind(clinical,t(exp[gene,rownames(clinical)]))
+  }
+  if(single_grouped)
+  {
+    factor_formula=paste(factor_formula,"group",sep="+")
+  }
+  formula=paste("surv_obj~",paste(strata_formula,factor_formula,sep="+"),sep="")
+  formula=gsub(pattern = "\\+\\+",replacement = "\\+",x=formula)
+  formula=gsub(pattern = "~\\+",replacement = "~",x = formula)
+  formula=gsub(pattern = "\\+$",replacement = "",x = formula)
+  fit=do.call(coxph,list(formula = as.formula(formula),data = clinical))
+  return(fit)
+  # browser()
+  # p=ggadjustedcurves(fit = fit)
+  # return(p)
+}
+
+create_survival_result_box=function(session,label,id,model)
+{
+  panel1=div(class="panel box box-success",
+             div(class="box-header with-border",
+                 h4(class="box-title",
+                    tags$a(class="","data-toggle"="collapse",href=paste("#",id,"_",model,"_","survival_curve_panel",sep=""),"aria-expanded"="true","data-parent"=paste("#",paste(id,model,sep="_"),'_group',sep=""),
+                           HTML("Survival Curve")
+                    )
+                )
+             ),
+             div(class="panel-collapse collapse in","aria-expanded"="true",id=paste(id,"_",model,"_","survival_curve_panel",sep=""),
+                 div(class="box-body",
+                     imageOutput(outputId = paste(id,model,"survival_curve",sep="_"),width = "100%",height = "100%")
+                 )
+             )
+  )
+  panel2=div(class="panel box box-info",
+             div(class="box-header with-border",
+                 h4(class="box-title",
+                    tags$a(class="collapsed","data-toggle"="collapse",href=paste("#",id,"_",model,"_","survival_cluster_panel",sep=""),"aria-expanded"="false","data-parent"=paste("#",paste(id,model,sep="_"),'_group',sep=""),
+                           HTML("Patient Cluster")
+                    )
+                 )
+             ),
+             div(class="panel-collapse collapse","aria-expanded"="false",id=paste(id,"_",model,"_","survival_cluster_panel",sep=""),
+                 div(class="box-body",
+                     imageOutput(outputId = paste(id,model,"survival_cluster",sep="_"),width = "100%",height = "100%")
+                 )
+             )
+  )
+  panel3=div(class="panel box box-warning",
+             div(class="box-header with-border",
+                 h4(class="box-title",
+                    tags$a(class="collapsed","data-toggle"="collapse",href=paste("#",id,"_",model,"_","survival_table_panel",sep=""),"aria-expanded"="false","data-parent"=paste("#",paste(id,model,sep="_"),'_group',sep=""),
+                           HTML("Survival Table")
+                    )
+                 )
+             ),
+             div(class="panel-collapse collapse","aria-expanded"="false",id=paste(id,"_",model,"_","survival_table_panel",sep=""),
+                 div(class="box-body",
+                     rHandsontableOutput(outputId = paste(id,model,"survival_table",sep="_"),width = "100%",height = "100%")
+                 )
+             )
+  )
+  box=div(class="col-lg-6 col-md-12",
+          div(class="box box-primary",id=paste(id,model,sep="_"),
+              div(class="box-header with-border",
+                  h4(label)
+              ),
+              div(class="box-body",
+                  div(class="box-group",id=paste(id,model,"group",sep="_"),
+                      panel1,
+                      panel2,
+                      panel3
+                  )
+              )
+              
+          )
+      )
+  insertUI(selector = "#survival_result_panel",where = "beforeEnd",ui = box,immediate = T,session = session)
+  
+}
+
+create_cox_survival_result_box=function(session,label,id,model)
+{
+  panel1=div(class="panel box box-success",
+             div(class="box-header with-border",
+                 h4(class="box-title",
+                    tags$a(class="","data-toggle"="collapse",href=paste("#",id,"_",model,"_","survival_coefficient_panel",sep=""),"aria-expanded"="true","data-parent"=paste("#",paste(id,model,sep="_"),'_group',sep=""),
+                           HTML("Coefficient Estimates")
+                    )
+                 )
+             ),
+             div(class="panel-collapse collapse in","aria-expanded"="true",id=paste(id,"_",model,"_","survival_coefficient_panel",sep=""),
+                 div(class="box-body",
+                     tableOutput(outputId = paste(id,model,"survival_coefficient",sep="_"))
+                 )
+             )
+  )
+  panel2=div(class="panel box box-info",
+             div(class="box-header with-border",
+                 h4(class="box-title",
+                    tags$a(class="collapsed","data-toggle"="collapse",href=paste("#",id,"_",model,"_","survival_hazard_panel",sep=""),"aria-expanded"="false","data-parent"=paste("#",paste(id,model,sep="_"),'_group',sep=""),
+                           HTML("Hazard Ratio")
+                    )
+                 )
+             ),
+             div(class="panel-collapse collapse","aria-expanded"="false",id=paste(id,"_",model,"_","survival_hazard_panel",sep=""),
+                 div(class="box-body",
+                     tableOutput(outputId = paste(id,model,"survival_hazard",sep="_"))
+                 )
+             )
+  )
+  # panel3=div(class="panel box box-warning",
+  #            div(class="box-header with-border",
+  #                h4(class="box-title",
+  #                   tags$a(class="collapsed","data-toggle"="collapse",href=paste("#",id,"_",model,"_","survival_table_panel",sep=""),"aria-expanded"="false","data-parent"=paste("#",paste(id,model,sep="_"),'_group',sep=""),
+  #                          HTML("Survival Table")
+  #                   )
+  #                )
+  #            ),
+  #            div(class="panel-collapse collapse","aria-expanded"="false",id=paste(id,"_",model,"_","survival_table_panel",sep=""),
+  #                div(class="box-body",
+  #                    rHandsontableOutput(outputId = paste(id,model,"survival_table",sep="_"),width = "100%",height = "100%")
+  #                )
+  #            )
+  # )
+  box=div(class="col-lg-6 col-md-12",
+          div(class="box box-primary",id=paste(id,model,sep="_"),
+              div(class="box-header with-border",
+                  h4(label)
+              ),
+              div(class="box-body",
+                  div(class="box-group",id=paste(id,model,"group",sep="_"),
+                      panel1,
+                      panel2
+                  )
+              )
+              
+          )
+  )
+  insertUI(selector = "#survival_result_panel",where = "beforeEnd",ui = box,immediate = T,session = session)
+  
+}
+
+
+Heatmaps=function(exp,clinical,imagepath)
+{
+  if(sum(exp<0)==0)
+  {
+    exp=t(scale(log(t(exp)+1)))
+  }
+  clinical=clinical[order(clinical$group),]
+  exp=exp[,rownames(clinical)]
+  #remove all NA row
+  index=which(rowSums(is.na(exp))==dim(exp)[2])
+  if(length(index)>0)
+  {
+    exp=exp[(-1*index),]
+  }
+  
+  exp=t(exp)
+  
+  group=unique(clinical$group)
+  group.color=c(usedcolors[5],usedcolors[3])
+  names(group.color)=group
+  ann_colors = list(
+    Group=group.color
+  )
+  annotation_legend_param=list(lenged_direction='horizontal',nrow=2)
+  sampleAnno=rowAnnotation(df=data.frame(Group=clinical$group,stringsAsFactors = F),
+                           col=ann_colors,show_legend=T,
+                           annotation_name_gp=gpar(fontsize=12,fontfamily='serif',fontface='bold'),
+                           annotation_legend_param = annotation_legend_param)
+  #colnames(exp)=geneinfo[colnames(exp),'external_gene_name']
+  png(imagepath,family = "serif",res = 100,width = 1000,height = 1000)
+  p=Heatmap(matrix = exp,
+             #top_annotation = colA,#left_annotation=rowA,
+             left_annotation = sampleAnno,#top_annotation = geneAnno,
+             #column_title = 'COR',
+             column_title_gp = gpar(fontsize=14,fontfamily='serif',fontface='bold'),
+             cluster_rows = F,cluster_columns = T,
+             show_column_dend = F,
+             show_column_names=T,show_row_names = F,
+             row_names_gp=gpar(fontsize=12,fontfamily='serif'),column_names_gp=gpar(fontsize=8,fontfamily='serif'),
+             col = colorRamp2(breaks = c(min(exp,na.rm = T),median(exp,na.rm=T),max(exp,na.rm = T)), c(usedcolors[3],'#000000',usedcolors[5])),
+             heatmap_legend_param=list(legend_direction='horizontal',nrow=1,title='',legend_width=unit(50, "mm")),na_col="#ffffff")
+  draw(p,heatmap_legend_side='bottom',annotation_legend_side='bottom',ht_gap=unit(0.05,'cm'), merge_legend = TRUE)
+  dev.off()
+  #p1=as.ggplot(as.grob(~draw(p1)))
+  #return(p1)
+}
+
+SingleExpress=function(exp,thresh,clinical)
+{
+  group=unique(clinical$group)
+  color=c(usedcolors[5],usedcolors[3])
+  names(color)=c("High Expressed","Low Expressed")
+  d=as.numeric(exp)
+  data=density(d,na.rm = T)
+  data=data.frame(x=data$x,y=data$y,group="High Expressed",stringsAsFactors = F)
+  data[which(data$x<thresh),'group']="Low Expressed"
+  text=data.frame(label=paste("Thresh=",round(thresh,digits = 2),sep=""),x=max(data$x)*0.8,y=max(data$y),stringsAsFactors = F)
+
+  p=ggplot(data = data)+geom_line(mapping = aes(x = x,y = y),size=1.5)+
+    geom_area(mapping = aes(x = x,y=y,fill=group),alpha=0.8)+
+    geom_vline(xintercept = thresh,size=1.2,colour=usedcolors[5],linetype="dashed")+
+    scale_fill_manual(values = color)+
+    geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
+    theme(legend.position = 'top',panel.background = element_rect(fill = NA))
+  return(p)
 }

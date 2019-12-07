@@ -72,11 +72,47 @@ cluster_mcode=function(graph,vwp,haircut,fluff,fdt)
 
 cluster_cograph=function(netpath,outpath)
 {
-  browser()
-  .jinit()
-  .jaddClassPath(path = "Program/Cograph.jar")
-  cograph=.jnew(class = 'com/xidian/Cograph/CographMining',normalizePath(netpath),normalizePath(outpath))
-  .jcall(obj = cograph,returnSig = 'V',method = 'run')
+  # .jinit()
+  # .jaddClassPath(path = "Program/Cograph.jar")
+  # cograph=.jnew(class = 'com/xidian/Cograph/CographMining',normalizePath(netpath),normalizePath(outpath))
+  # .jcall(obj = cograph,returnSig = 'V',method = 'run')
+  system(command = "ls",intern = T)
+  if(Sys.info()['sysname']=="Windows")
+  {
+    cmd=paste("cd www/Program & java -cp .;Cograph.jar RunCograph",normalizePath(netpath),normalizePath(outpath))
+    msg=shell(cmd = cmd,wait = T,intern = T)
+  }
+  else
+  {
+    cmd=paste("cd www/Program;java -cp .;Cograph.jar RunCograph",normalizePath(netpath),normalizePath(outpath))
+    msg=system(command = cmd,wait = T,intern = T)  
+  }
+  result=readLines(con = paste(normalizePath(outpath),"Cograph community.txt",sep=""))
+  singleNode=c()
+  id=1
+  for(line in result)
+  {
+    genes=unlist(strsplit(x = line,split = "\t"))
+    if(length(genes)==1)
+    {
+      after_slice_geneinfo[genes,'module']<<-"Module0"
+      singleNode=c(singleNode,genes)
+    }
+    else
+    {
+      after_slice_geneinfo[genes,'module']<<-paste("Module",id,sep="")
+      id=id+1
+      tmp=list(genes)
+      names(tmp)=paste("Module",id,sep="")
+      modules<<-c(modules,tmp)
+    }
+  }
+  if(length(singleNode)>0)
+  {
+    tmp=list(singleNode)
+    names(tmp)="Module0"
+    modules<<-c(tmp,modules)
+  }
 }
 
 create_module_info=function()

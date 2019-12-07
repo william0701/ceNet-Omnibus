@@ -1325,6 +1325,7 @@ shinyServer(function(input,output,session) {
       }    
     }
     draw_density(basepath,output,session,type,tasks)
+    condition[type,'core']<<-0
   })
   observeEvent(input$update_condition_thresh,{
     isolate({
@@ -1349,6 +1350,14 @@ shinyServer(function(input,output,session) {
       thresh<<-rbind(thresh,data.frame(type=type,task=name,direction=newthresh[[name]][['direction']],thresh=as.numeric(newthresh[[name]][['thresh']]),stringsAsFactors = F))
     }
     network_construnction(after_slice_geneinfo)
+    
+    removeUI(selector = "#network_summary>",multiple = T,immediate = T)
+    insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::degree(net_igraph)!=0),subtitle = "Nodes with edges",icon = icon("eye-open",lib = "glyphicon"),color = "green",width = 3),immediate = T)
+    insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::degree(net_igraph)==0),subtitle = "Nodes without edges",icon = icon("eye-close",lib = "glyphicon"),color = "red",width = 3),immediate = T)
+    insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = length(E(net_igraph)),subtitle = "Edges",icon = icon("link",lib = "font-awesome"),color = "orange",width = 3),immediate = T)
+    insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::components(net_igraph)$csize>1),subtitle = "Components",icon = icon("connectdevelop",lib = "font-awesome"),color = "maroon",width = 3),immediate = T)
+    
+    sendSweetAlert(session = session,title = "Success",text = "Apply Conditions Successfully!",type = 'success')
   })
 
   ##########Visualization Page Action#########
@@ -1585,6 +1594,7 @@ shinyServer(function(input,output,session) {
     removeUI(selector = "#module_info_box>",multiple = T,immediate = T)
     removeUI(selector = "#module_visualization>",multiple = T,immediate = T)
     insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = create_progress(paste0("Running ",algorithm,"...")),immediate = T)
+    modules<<-list()
     moduleinfo<<-""
     module.configure<<-list()
     gc()

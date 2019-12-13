@@ -18,13 +18,13 @@ construction_tab=tabItem(tabName = "construction",
                          fluidRow(
                            div(id="condition_preview")
                          ),
-                         h2("Step3: Network Evaluation",style='font-family:Georgia'),
-                         div(class='col-lg-12 callout callout-info',
-                             tags$p(style="font-size:14px;font-family:sans-serif",
-                                    HTML("If you are constructing Human ceRNA network, you can evaluate this network with Experimental Validated ceRNA pairs by integrating LncCeRBase, LncACTdb and miRSponge!")
-                             )
-                         ),
+                         h2("Network Summary",style='font-family:Georgia'),
+                         # div(class='col-lg-12 callout callout-info',
+                         #     tags$p(style="font-size:14px;font-family:sans-serif",
+                         #            HTML("If you are constructing Human ceRNA network, you can evaluate this network with Experimental Validated ceRNA pairs by integrating LncCeRBase, LncACTdb and miRSponge!")
+                         #     )
+                         # ),
                          fluidRow(
-                           div(id="condition_preview")
+                           div(id="network_summary")
                          )
 )

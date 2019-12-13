@@ -23,3 +23,4 @@ create_property_checkboxgroup=function(type,id,label,items,f)
   )
   return(ui)
 }
+

@@ -29,19 +29,8 @@ $(document).ready(function(){
 }*/
   
   
-  creat_logtrans_button("log2","log2transform","Log2 conversion of gene expression data");
-  creat_logtrans_button("log","logtransform","Log conversion of gene expression data");
-  creat_logtrans_button("log10","log10transform","Log10 conversion of gene expression data");
-  creat_normtrans_button("Min_Max_scaling","Min_Max_scaling","Do Min-max normalization By x* = (x - x_mean)/(x_max - x_min)");
-  creat_normtrans_button("Zero_Mean_normalization","Zero_Mean","The processed data conforms to the standard normal distribution By x*=(x - mean)/Standard deviation");
-  creat_normtrans_button("daiding","daiding","daiding");
+  
   creat_geneFilter("micro filter","microFilterPlot","micro");
-  $('#Cancel_All_Trans').on("click",function(e){
-    $(e.currentTarget).parent().parent().find("div:nth-child(2)").find("span.badge").remove();
-    obj={}
-    obj['stamp']=Math.random();
-    Shiny.setInputValue('Cancel_All_Trans',obj);
-  })
   $("a[href='#shiny-tab-process']").on("click",function(e){
     Shiny.setInputValue("interclick",Math.random());
     Shiny.addCustomMessageHandler('Valid-Num', function(Num1) {

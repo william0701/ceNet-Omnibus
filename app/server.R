@@ -250,23 +250,25 @@ shinyServer(function(input,output,session) {
       return();
     }
     else{
-      sect_gene=intersect(rownames(rna.exp),rownames(target));
-      sect_gene=intersect(sect_gene,rownames(geneinfo));
-      sect_micro=intersect(rownames(micro.exp),names(target));
-      sect_sample=intersect(names(rna.exp),names(micro.exp));
-      sect_output_rna.exp<<-rna.exp[sect_gene,sect_sample];
-      sect_output_micro.exp<<-micro.exp[sect_micro,sect_sample]
-      sect_output_target<<-target[sect_gene,sect_micro];
-      sect_output_geneinfo<<-geneinfo[sect_gene,]
-      #sect_output_geneinfo$.group<<-NA
-      after_slice_micro.exp<<-sect_output_micro.exp
-      after_slice_rna.exp<<-sect_output_rna.exp
-      after_slice_geneinfo<<-sect_output_geneinfo
-      validNum1 = length(sect_gene);
-      validNum2 = length(sect_micro);
-      validNum3 = length(sect_sample);
-      ValidNum = data.frame(rnaNum = validNum1,microNum = validNum2,sampleNum = validNum3,stringsAsFactors = F);
-      session$sendCustomMessage('Valid-Num',ValidNum);
+      if(after_slice_rna.exp==""){
+        sect_gene=intersect(rownames(rna.exp),rownames(target));
+        sect_gene=intersect(sect_gene,rownames(geneinfo));
+        sect_micro=intersect(rownames(micro.exp),names(target));
+        sect_sample=intersect(names(rna.exp),names(micro.exp));
+        sect_output_rna.exp<<-rna.exp[sect_gene,sect_sample];
+        sect_output_micro.exp<<-micro.exp[sect_micro,sect_sample]
+        sect_output_target<<-target[sect_gene,sect_micro];
+        sect_output_geneinfo<<-geneinfo[sect_gene,]
+        #sect_output_geneinfo$.group<<-NA
+        after_slice_micro.exp<<-sect_output_micro.exp
+        after_slice_rna.exp<<-sect_output_rna.exp
+        after_slice_geneinfo<<-sect_output_geneinfo
+        validNum1 = length(sect_gene);
+        validNum2 = length(sect_micro);
+        validNum3 = length(sect_sample);
+        ValidNum = data.frame(rnaNum = validNum1,microNum = validNum2,sampleNum = validNum3,stringsAsFactors = F);
+        session$sendCustomMessage('Valid-Num',ValidNum);
+      }
     }
   })
   observeEvent(input$process_showdetails,{
@@ -289,6 +291,7 @@ shinyServer(function(input,output,session) {
   })
   observeEvent(input$Update_Biotype_Map,{
     choice=colnames(sect_output_geneinfo)
+    choice=setdiff(choice,".group")
     choicenum=lapply(X = sect_output_geneinfo,FUN = unique)
     choicenum=lapply(X = choicenum,FUN = length)
     names(choicenum)=choice
@@ -306,10 +309,11 @@ shinyServer(function(input,output,session) {
   })
   observe({
     biotype_map<<-input$biotype_map
+    
     if(biotype_map!='None')
     {
      
-      choice=unique(geneinfo[,biotype_map])
+      choice=unique(sect_output_geneinfo[,biotype_map])
       if(length(choice)>100)
       {
         sendSweetAlert(session = session,title = 'Warning...',text = 'Too Many Biotypes, Choose Carefully!',type = 'warning')
@@ -877,7 +881,7 @@ shinyServer(function(input,output,session) {
     else{
       #append group gene to after_slice_rna.exp
       validGene=rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
-      validSample = rowSums(after_slice_rna.exp[validGene,]>=number)
+      validSample = rowSums(sect_output_rna.exp[validGene,]>=number)
       xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_rna.exp)),stringsAsFactors = F)
       intersect_name = rownames(xdata)[which(xdata$SampleRatio>line)]
       ratio = sum(xdata$SampleRatio==line)/length(validGene)
@@ -901,60 +905,100 @@ shinyServer(function(input,output,session) {
     session$sendCustomMessage('clear_construction_task',"")
   })
 
-  observeEvent(input$Value_Transform_Signal,{
+  observeEvent(input$ceRNA_Transform_Signal,{
     isolate({
-      msg = input$Value_Transform_Signal
-      opera = msg$opera
+      msg = input$ceRNA_Transform_Signal
+      log_trans=msg$log_trans
+      norm_trans=msg$norm_trans
     })
-    inter_sample = intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))
-    after_slice_micro.exp<<-after_slice_micro.exp[,inter_sample]
-    after_slice_rna.exp<<-after_slice_rna.exp[,inter_sample]
-    if(opera=="log2"){
-      after_slice_rna.exp = log2(after_slice_rna.exp)
-      after_slice_micro.exp = log2(after_slice_micro.exp)
-      sendSweetAlert(session = session,title = "Success..",text = "Successful Log2 Operation",type = 'success')
+    after_slice_rna.exp <<- sect_output_rna.exp[rownames(after_slice_rna.exp),colnames(after_slice_rna.exp)]
+    action_min=function(x){
+      (x-min(x))/(max(x)-min(x))
     }
-    else if(opera=="log"){
-      after_slice_rna.exp = log(after_slice_rna.exp)
-      after_slice_micro.exp = log(after_slice_micro.exp)
-      sendSweetAlert(session = session,title = "Success..",text = "Successful Loge Operation",type = 'success')
+    action_zero=function(x){
+      (x-mean(x))/sd(x)
     }
-    else if(opera=="log10"){
-      after_slice_rna.exp = log10(after_slice_rna.exp)
-      after_slice_micro.exp = log10(after_slice_micro.exp)
-      sendSweetAlert(session = session,title = "Success..",text = "Successful Log10 Operation",type = 'success')
+    if(log_trans=="log2"){
+      after_slice_rna.exp <<- log2(after_slice_rna.exp+1)
     }
+    else if(log_trans=="log"){
+      after_slice_rna.exp <<- log(after_slice_rna.exp+1)
+    }
+    else if(log_trans=="log10"){
+      after_slice_rna.exp <<- log10(after_slice_rna.exp+1)
+    }
+    if(norm_trans=="Min_Max_scaling"){
+      after_slice_rna.exp <<- t(apply(after_slice_rna.exp, 1, action_min))
+    }
+    else if(norm_trans=="Zero_Mean_normalization"){
+      after_slice_rna.exp <<- t(apply(after_slice_rna.exp, 1, action_zero))
+    }
+    removeUI(selector = "#ceRNA_handson_id>div",immediate = T)
+    insertUI(selector = "#ceRNA_handson_id",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "ceRNA_aftertrans_data_show"),immediate = T)
+    output$ceRNA_aftertrans_data_show=renderRHandsontable({
+      rownum=dim(after_slice_rna.exp)[1]
+      colnum=dim(after_slice_rna.exp)[2]
+      if(rownum>24){
+        rownum=24
+      }
+      if(colnum>12){
+        colnum=12
+      }
+      rhandsontable(after_slice_rna.exp[1:rownum,1:colnum]) %>%
+        hot_col(col = seq(1,colnum),halign = "htCenter")
+    })
   })
-  observeEvent(input$Normalized_Signal,{
+  observeEvent(input$Cancel_ceRNA_data_show,{
+    removeUI(selector = "#ceRNA_handson_id>div",immediate = T)
+    after_slice_rna.exp <<- sect_output_rna.exp[rownames(after_slice_rna.exp),colnames(after_slice_rna.exp)]
+    sendSweetAlert(session = session,title = "Success..",text = "Cancel Successfully",type = 'success')
+  })
+  observeEvent(input$microRNA_Transform_Signal,{
     isolate({
-      msg=input$Normalized_Signal
-      opera=msg$opera
+      msg = input$microRNA_Transform_Signal
+      log_trans=msg$log_trans
+      norm_trans=msg$norm_trans
     })
-    if(opera=="Min_Max_scaling"){
-      action=function(x){
-        (x-min(x))/(max(x)-min(x))
-      }
-      after_slice_rna.exp <<- t(apply(after_slice_rna.exp, 1, action))
-      after_slice_micro.exp <<- t(apply(after_slice_micro.exp, 1, action))
-      sendSweetAlert(session = session,title = "Success..",text = "Successful Min_Max_scaling Operation",type = 'success')
+    after_slice_micro.exp <<- sect_output_micro.exp[rownames(after_slice_micro.exp),colnames(after_slice_micro.exp)]
+    action_min=function(x){
+      (x-min(x))/(max(x)-min(x))
     }
-    else if(opera=="Zero_Mean_normalization"){
-      action=function(x){
-        (x-mean(x))/sd(x)
-      }
-      after_slice_rna.exp <<- t(apply(after_slice_rna.exp, 1, action))
-      after_slice_micro.exp <<- t(apply(after_slice_micro.exp, 1, action))
-      sendSweetAlert(session = session,title = "Success..",text = "Successful Zero_Mean Operation",type = 'success')
+    action_zero=function(x){
+      (x-mean(x))/sd(x)
     }
+    if(log_trans=="log2"){
+      after_slice_micro.exp <<- log2(after_slice_micro.exp+1)
+    }
+    else if(log_trans=="log"){
+      after_slice_micro.exp <<- log(after_slice_micro.exp+1)
+    }
+    else if(log_trans=="log10"){
+      after_slice_micro.exp <<- log10(after_slice_micro.exp+1)
+    }
+    if(norm_trans=="Min_Max_scaling"){
+      after_slice_micro.exp <<- t(apply(after_slice_micro.exp, 1, action_min))
+    }
+    else if(norm_trans=="Zero_Mean_normalization"){
+      after_slice_micro.exp <<- t(apply(after_slice_micro.exp, 1, action_zero))
+    }
+    removeUI(selector = "#microRNA_handson_id>div",immediate = T)
+    insertUI(selector = "#microRNA_handson_id",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "microRNA_aftertrans_data_show"),immediate = T)
+    output$microRNA_aftertrans_data_show=renderRHandsontable({
+      rownum=dim(after_slice_micro.exp)[1]
+      colnum=dim(after_slice_micro.exp)[2]
+      if(rownum>24){
+        rownum=24
+      }
+      if(colnum>12){
+        colnum=12
+      }
+      rhandsontable(after_slice_micro.exp[1:rownum,1:colnum])
+    })
   })
-  observeEvent(input$Cancel_All_Trans,{
-    colnamerna = colnames(after_slice_rna.exp)
-    rownamerna = rownames(after_slice_rna.exp)
-    colnamemicro = colnames(after_slice_micro.exp)
-    rownamemicro = rownames(after_slice_micro.exp)
-    after_slice_rna.exp<<-sect_output_rna.exp[rownamerna,colnamerna]
-    after_slice_micro.exp<<-sect_output_micro.exp[rownamemicro,colnamemicro]
-    sendSweetAlert(session = session,title = "Success..",text = "Successful Cancel Transform Opera",type = 'success')
+  observeEvent(input$Cancel_microRNA_data_show,{
+    removeUI(selector = "#microRNA_handson_id>div",immediate = T)
+    after_slice_micro.exp <<- sect_output_micro.exp[rownames(after_slice_micro.exp),colnames(after_slice_micro.exp)]
+    sendSweetAlert(session = session,title = "Success..",text = "Cancel Successfully",type = 'success')
   })
   
   #########Construction Page Action########
@@ -1396,18 +1440,15 @@ shinyServer(function(input,output,session) {
     })
     if(func=="color"){
       if(type=="group"){
-        vec = data.frame(type=after_slice_geneinfo[".group"])
-        vec = vec[[1]]
-        index = duplicated(vec)
-        vec = vec[!index]
-        session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+          type='.group'
       }
-      else{
-        vec = data.frame(type=after_slice_geneinfo[type])
-        vec = vec[[1]]
-        index = duplicated(vec)
-        vec = vec[!index]
-        session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+      vec = after_slice_geneinfo[,type]
+      #vec = vec[[1]]
+      vec = unique(vec)
+      if(length(vec)>100){
+          sendSweetAlert(session = session,title = "Error",text = "Too Many Candidates",type = 'error')
+      }else{
+          session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
       }
     }
     if(func=="shape"){

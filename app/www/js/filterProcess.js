@@ -1,4 +1,66 @@
-
+var rna_log_transform = ""
+var rna_norm_transform = ""
+var micro_log_transform = ""
+var micro_norm_transform = ""
+$(document).ready(function(){
+  creat_logtrans_button("log2","log2transform","Log2 conversion of gene expression data");
+  creat_logtrans_button("log","logtransform","Log conversion of gene expression data");
+  creat_logtrans_button("log10","log10transform","Log10 conversion of gene expression data");
+  creat_logtrans_button_micro("log2","log2transform","Log2 conversion of gene expression data");
+  creat_logtrans_button_micro("log","logtransform","Log conversion of gene expression data");
+  creat_logtrans_button_micro("log10","log10transform","Log10 conversion of gene expression data");
+  creat_normtrans_button("Min_Max_scaling","Min_Max_scaling","Do Min-max normalization By x* = (x - x_mean)/(x_max - x_min)");
+  creat_normtrans_button("Zero_Mean_normalization","Zero_Mean","The processed data conforms to the standard normal distribution By x*=(x - mean)/Standard deviation");
+  creat_normtrans_button("daiding","daiding","daiding");
+  creat_normtrans_button_micro("Min_Max_scaling","Min_Max_scaling","Do Min-max normalization By x* = (x - x_mean)/(x_max - x_min)");
+  creat_normtrans_button_micro("Zero_Mean_normalization","Zero_Mean","The processed data conforms to the standard normal distribution By x*=(x - mean)/Standard deviation");
+  creat_normtrans_button_micro("daiding","daiding","daiding");
+  var $button_ce_action =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>Action</a>')
+  var $button_ce_cancel =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>Cancel</a>')
+  $("#ceRNA_choose_transfunction").children(":nth-child(4)").append($button_ce_action).append($button_ce_cancel);
+  $button_ce_action.on('click',function(e){
+    var obj={}
+    obj['stamp']=Math.random();
+    obj['log_trans']=rna_log_transform;
+    obj['norm_trans']=rna_norm_transform;
+    Shiny.setInputValue('ceRNA_Transform_Signal',obj)
+  })
+  $button_ce_cancel.on('click',function(e){
+    rna_log_transform = ""
+    rna_norm_transform = ""
+    if($("#ceRNA_choose_transfunction").find("span.badge").length>0){
+      $("#ceRNA_choose_transfunction").find("span.badge").remove();
+      var obj={}
+      obj['stamp']=Math.random();
+      Shiny.setInputValue('Cancel_ceRNA_data_show',obj)
+    }else{
+      sweetAlert("warning","Warning","No Action Executed!")
+    }
+    
+  })
+  var $button_micro_action =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>Action</a>')
+  var $button_micro_cancel =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>Cancel</a>')
+  $("#microRNA_choose_transfunction").children(":nth-child(4)").append($button_micro_action).append($button_micro_cancel);
+  $button_micro_action.on('click',function(e){
+    var obj={}
+    obj['stamp']=Math.random();
+    obj['log_trans']=micro_log_transform;
+    obj['norm_trans']=micro_norm_transform;
+    Shiny.setInputValue('microRNA_Transform_Signal',obj)
+  })
+  $button_micro_cancel.on('click',function(e){
+    micro_log_transform = ""
+    micro_norm_transform = ""
+    if($("#microRNA_choose_transfunction").find("span.badge").length>0){
+      $("#microRNA_choose_transfunction").find("span.badge").remove();
+      var obj={}
+      obj['stamp']=Math.random();
+      Shiny.setInputValue('Cancel_microRNA_data_show',obj)
+    }else{
+      sweetAlert("warning","Warning","No Action Executed!")
+    }
+  })
+})
 //creat filter modal
 creat_geneFilter = function(title,inputId,type)
 { 
@@ -75,15 +137,41 @@ creat_geneFilter = function(title,inputId,type)
 }
 creat_logtrans_button = function(opera,input,tip){
   var $button =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>'+input+'</a>')
-  var $span =$('<span class="badge bg-green">ok</span>')
+  var $span =$('<span class="badge bg-green">step1</span>')
   var $spantip =$('<span style="visibility: hidden;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;left:10px;top:130px;z-index:1;">'+tip+'</span>')
-  $("#Value_Transform_all").find("div:first-child").append($button).append($spantip);
+  $("#ceRNA_choose_transfunction").children(":nth-child(2)").append($button).append($spantip);
   $button.on("click",function(e){
-    var obj={}
+    rna_log_transform = opera
+    $("#ceRNA_choose_transfunction").find("span.badge").remove();
+    rna_norm_transform = ""
+    $button.append($span)
+   /* var obj={}
     obj['stamp']=Math.random();
     obj['opera']=opera;
     $button.append($span);
-    Shiny.setInputValue('Value_Transform_Signal',obj);
+    Shiny.setInputValue('Value_Transform_Signal',obj);*/
+  })
+  $button.hover(function(){
+      $spantip.css("visibility","visible")},
+    function(){
+      $spantip.css("visibility","hidden")
+  })
+}
+creat_logtrans_button_micro = function(opera,input,tip){
+  var $button =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>'+input+'</a>')
+  var $span =$('<span class="badge bg-green">step1</span>')
+  var $spantip =$('<span style="visibility: hidden;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;left:10px;top:130px;z-index:1;">'+tip+'</span>')
+  $("#microRNA_choose_transfunction").children(":nth-child(2)").append($button).append($spantip);
+  $button.on("click",function(e){
+    micro_log_transform = opera
+    $("#microRNA_choose_transfunction").find("span.badge").remove();
+    micro_norm_transform = ""
+    $button.append($span)
+   /* var obj={}
+    obj['stamp']=Math.random();
+    obj['opera']=opera;
+    $button.append($span);
+    Shiny.setInputValue('Value_Transform_Signal',obj);*/
   })
   $button.hover(function(){
       $spantip.css("visibility","visible")},
@@ -93,15 +181,51 @@ creat_logtrans_button = function(opera,input,tip){
 }
 creat_normtrans_button = function(opera,input,tip){
   var $button =$('<a class="btn btn-app " style="margin:5px;"><i class="fa fa-play"></i>'+input+'</a>')
-  var $span =$('<span class="badge bg-green">ok</span>')
   var $spantip =$('<span style="visibility: hidden;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;left:10px;top:130px;z-index:1;">'+tip+'</span>')
-  $("#Value_Transform_all").find("div:nth-child(2)").append($button).append($spantip);
+  $("#ceRNA_choose_transfunction").children(":nth-child(3)").append($button).append($spantip);
+  var $span=""
   $button.on("click",function(e){
-    var obj={}
+    rna_norm_transform = opera
+    $("#ceRNA_choose_transfunction").children(":nth-child(3)").find("span.badge").remove();
+    if(rna_log_transform===""){
+      $span =$('<span class="badge bg-green">step1</span>')
+      $button.append($span)
+    }else{
+      $span =$('<span class="badge bg-green">step2</span>')
+      $button.append($span)
+    }
+   /* var obj={}
     obj['stamp']=Math.random();
     obj['opera']=opera;
     $button.append($span);
-    Shiny.setInputValue('Normalized_Signal',obj);
+    Shiny.setInputValue('Normalized_Signal',obj);*/
+  })
+  $button.hover(function(){
+      $spantip.css("visibility","visible")},
+    function(){
+      $spantip.css("visibility","hidden")
+  })
+}
+creat_normtrans_button_micro = function(opera,input,tip){
+  var $button =$('<a class="btn btn-app " style="margin:5px;"><i class="fa fa-play"></i>'+input+'</a>')
+  var $spantip =$('<span style="visibility: hidden;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;left:10px;top:130px;z-index:1;">'+tip+'</span>')
+  $("#microRNA_choose_transfunction").children(":nth-child(3)").append($button).append($spantip);
+  var $span=""
+  $button.on("click",function(e){
+    micro_norm_transform = opera
+    $("#microRNA_choose_transfunction").children(":nth-child(3)").find("span.badge").remove();
+    if(micro_log_transform===""){
+      $span =$('<span class="badge bg-green">step1</span>')
+      $button.append($span)
+    }else{
+      $span =$('<span class="badge bg-green">step2</span>')
+      $button.append($span)
+    }
+   /* var obj={}
+    obj['stamp']=Math.random();
+    obj['opera']=opera;
+    $button.append($span);
+    Shiny.setInputValue('Normalized_Signal',obj);*/
   })
   $button.hover(function(){
       $spantip.css("visibility","visible")},

@@ -1,5 +1,8 @@
 $(document).ready(function(){
-
+  $("a[href='#shiny-tab-analysis']").on("click",function(e){
+    Shiny.setInputValue("initialization_enrichment",Math.random());
+    
+  });
 })
 
 function showNodeCentrality(box)
@@ -65,6 +68,11 @@ function edgeDetails(btn)
 function run_community_detection(obj)
 {
   Shiny.setInputValue("community_detection",Math.random())
+}
+
+function run_enrichment_finish(obj)
+{
+  Shiny.setInputValue("enrichment_finish",Math.random())
 }
 
 function communityDetail(id)

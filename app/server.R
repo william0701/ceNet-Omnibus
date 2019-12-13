@@ -948,7 +948,7 @@ shinyServer(function(input,output,session) {
     }
   })
   observeEvent(input$Cancel_All_Trans,{
-    colnamerna = colnames(after_slice_rna.exp)
+    colnamerna = colnames(after_sl  ice_rna.exp)
     rownamerna = rownames(after_slice_rna.exp)
     colnamemicro = colnames(after_slice_micro.exp)
     rownamemicro = rownames(after_slice_micro.exp)
@@ -1795,6 +1795,10 @@ shinyServer(function(input,output,session) {
         hot_col(col = "Edges",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
         hot_col(col = "Visualization",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))
     })
+    ##update module choose,but no 
+    updatePickerInput(session = session,inputId = "enrichment_Module_analysis1",
+                      choices = moduleinfo$ModuleID)
+    
   })
   observeEvent(input$communityDetals,{
     isolate({
@@ -1973,6 +1977,31 @@ shinyServer(function(input,output,session) {
       removeUI(selector = "#icon")
     }
   })
+  
+  observeEvent(input$initialization_enrichment,{
+    updatePickerInput(session = session,inputId = "Organism_enrichment",choices = sub(pattern ="_gene_ensembl$",replacement = "",x = specials$dataset),selected = "hsapiens")
+    updatePickerInput(session = session,inputId = "enrichment_Numeric_IDs_treated_as",choices = colnames(after_slice_geneinfo))
+  })
+  
+  observeEvent(input$enrichment_finish,{
+    isolate({
+      Organism=input$Organism_enrichment
+      choose_analysis=input$enrichment_choose_module_or_customize_gene
+      Module_analysis=input$enrichment_Module_analysis1
+      Custom_input=input$enrichment_Custom_input1
+      Custom_input_function_gene=input$enrichment_Custom_input_function_gene
+      Significance_threshold=input$enrichment_Significance_threshold
+      User_threshold=input$enrichment_User_threshold
+      Numeric_IDs_treated_as=input$enrichment_Numeric_IDs_treated_as
+      Data_Sources=input$enrichment_Data_Sources
+      
+    })
+    browser()
+    # gprofiler(c("Klf4", "Pax5", "Sox2", "Nanog"), organism = "Organism")
+    gprofiler(modules[["Module_analysis"]], organism = Organism)
+  })  
+  
+  
 })
 
 

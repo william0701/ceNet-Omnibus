@@ -229,6 +229,7 @@ Shiny.addCustomMessageHandler("Gene_network_color_change",function(msg){
   window.jscolor();
 })
 Shiny.addCustomMessageHandler("Gene_network_shape_change",function(msg){
+  cy.style().selector('node').style('shape','ellipse').update()
   $("#change_network_shape").children('div.form-group').children('div.col-lg-6').children('div.table').empty();
   $table_head=$('<div class="table-tr"><div class="table-th">Item</div><div class="table-th">Shape</div></div>')
   $("#change_network_shape").children('div.form-group').children('div.col-lg-6').children('div.table').append($table_head)

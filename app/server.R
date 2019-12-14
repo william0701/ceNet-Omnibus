@@ -1004,6 +1004,7 @@ shinyServer(function(input,output,session) {
     after_slice_rna.exp<<-sect_output_rna.exp[rownamerna,colnamerna]
     after_slice_micro.exp<<-sect_output_micro.exp[rownamemicro,colnamemicro]
     sendSweetAlert(session = session,title = "Success..",text = "Successful Cancel Transform Opera",type = 'success')
+  })
 
   observeEvent(input$Cancel_microRNA_data_show,{
     removeUI(selector = "#microRNA_handson_id>div",immediate = T)

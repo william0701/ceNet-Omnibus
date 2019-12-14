@@ -75,6 +75,7 @@ Shiny.addCustomMessageHandler("ceRNA_Norm_signal_custom_insert",function(msg){
       var obj={}
       obj['stamp']=Math.random();
       Shiny.setInputValue('ceRNA_Norm_signal_custom_insert_ok',obj)
+
   })
 })
 Shiny.addCustomMessageHandler("microRNA_Norm_signal_custom_insert",function(msg){

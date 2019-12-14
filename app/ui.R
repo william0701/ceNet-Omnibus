@@ -69,51 +69,16 @@ process_tab=tabItem(tabName = "process",
                             
                             ),
                         box(title = "Value Transform",status = 'danger',solidHeader = F,width = 12,id="Value_Transform_all",
-                            tabsetPanel(
-                              tabPanel(title='CeRNA',
-                                  div(class="col-lg-12",id="ceRNA_choose_transfunction",
-                                      h2("1.Choose value transform operation"),
-                                       div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                           h3("Logtransform Module",style="text-align:center;")
-                                           
-                                           
-                                       ),
-                                       div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                           h3("Normalized Module",style="text-align:center;")
-                                           
-                                       ),
-                                      div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                           h3("Action Module",style="text-align:center;")
-                                      )
-                                  ),
-                                  div(class="col-lg-12",id="ceRNA_handson_id",
-                                      h2("2.Part data show")
-                              
-                                  )
-                                       
-                              ),
-                              tabPanel(title='MicroRNA',
-                                    div(class="col-lg-12",id="microRNA_choose_transfunction",
-                                       h2("1.Choose value transform operation"),
-                                       div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                           h3("Logtransform Module",style="text-align:center;")
-                                           
-                                           
-                                       ),
-                                       div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                           h3("Normalized Module",style="text-align:center;")
-                                           
-                                       ),
-                                       div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                           h3("Action Module",style="text-align:center;")
-                                       )
-                                    ),
-                                    div(class="col-lg-12",id="microRNA_handson_id",
-                                        h2("2.Part data show")
-                                        
-                                    )
-                              )
-                            )
+                            div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                h3("Logtransform Module",style="text-align:center;")
+                            
+
+                            ),
+                            div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                h3("Normalized Module",style="text-align:center;")
+
+                            ),
+                            footer = tags$button(id = 'Cancel_All_Trans', type = "button",class = "btn btn-success action-button pull-right",HTML('Cancel'),width='20')
                         )
                             
                     )

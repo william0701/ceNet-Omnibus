@@ -932,6 +932,9 @@ shinyServer(function(input,output,session) {
     }
     else if(norm_trans=="Zero_Mean_normalization"){
       after_slice_rna.exp <<- t(apply(after_slice_rna.exp, 1, action_zero))
+    }else if(norm_trans=="Custom_input"){
+      source(file = paste(basepath,"/code/cerna_f.txt",sep = ""),local = environment())
+      after_slice_rna.exp <<- ce_action_custom(after_slice_rna.exp)
     }
     removeUI(selector = "#ceRNA_handson_id>div",immediate = T)
     insertUI(selector = "#ceRNA_handson_id",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "ceRNA_aftertrans_data_show"),immediate = T)
@@ -952,6 +955,84 @@ shinyServer(function(input,output,session) {
     removeUI(selector = "#ceRNA_handson_id>div",immediate = T)
     after_slice_rna.exp <<- sect_output_rna.exp[rownames(after_slice_rna.exp),colnames(after_slice_rna.exp)]
     sendSweetAlert(session = session,title = "Success..",text = "Cancel Successfully",type = 'success')
+  })
+  observeEvent(input$ceRNA_Norm_signal_custom,{
+    removeUI(selector = '#modalbody>',multiple = T,immediate = T)
+    insertUI(selector = '#modalbody',where = 'beforeEnd',immediate = T,
+             ui=div(class='row',
+                  div(class="col-lg-12",
+                    div(class="alert alert-info alert-dismissible",
+                        h4(tags$i(class="icon fa fa-check",HTML("Alert!"))
+                        ),
+                        h4(HTML("Please provide a function, whose input is a <i>gene*sample</i> data frame and output is the transformed input."),style="font-size:16px")
+                    )
+                  ),
+                  div(class='col-lg-6',
+                      textAreaInput(inputId = 'ceRna_norm_funcion_input',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='130%',resize='both')
+                  ),
+                  div(class='col-lg-6',
+                      textAreaInput(inputId = 'ceRna_norm_funcion_input_example',label = 'Example',rows = 20,value = 'function(exp){
+   action_min = function(x){
+      (x-min(x))/(max(x)-min(x))
+    }
+   exp_trans = t(apply(exp, 1, action_min))
+   return (exp_trans)
+}',width='130%',resize='both')
+                  )
+            )
+    )
+    session$sendCustomMessage('ceRNA_Norm_signal_custom_insert',"success")
+  })
+  observeEvent(input$microRNA_Norm_signal_custom,{
+    removeUI(selector = '#modalbody>',multiple = T,immediate = T)
+    insertUI(selector = '#modalbody',where = 'beforeEnd',immediate = T,
+             ui=div(class='row',
+                    div(class="col-lg-12",
+                        div(class="alert alert-info alert-dismissible",
+                            h4(tags$i(class="icon fa fa-check",HTML("Alert!"))
+                            ),
+                            h4(HTML("Please provide a function, whose input is a <i>gene*sample</i> data frame and output is the transformed input."),style="font-size:16px")
+                        )
+                    ),
+                    div(class='col-lg-6',
+                        textAreaInput(inputId = 'ceRna_norm_funcion_input',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='130%',resize='both')
+                    ),
+                    div(class='col-lg-6',
+                        textAreaInput(inputId = 'ceRna_norm_funcion_input_example',label = 'Example',rows = 20,value = 'function(exp){
+   action_min = function(x){
+      (x-min(x))/(max(x)-min(x))
+    }
+   exp_trans = t(apply(exp, 1, action_min))
+   return (exp_trans)
+}',width='130%',resize='both')
+                    )
+             )
+    )
+    session$sendCustomMessage('microRNA_Norm_signal_custom_insert',"success")
+  })
+  observeEvent(input$ceRNA_Norm_signal_custom_insert_ok,{
+    isolate({
+      custom_func = input$ceRna_norm_funcion_input
+    })
+    if(custom_func ==""){
+      session$sendCustomMessage('ceRNA_Norm_signal_custom_sig',"fail")
+    }else{
+      custom_func = paste("ce_action_custom = ",custom_func,sep = "")
+      write(x = custom_func,file =paste(basepath,"/code/cerna_f.txt",sep = ""))
+      session$sendCustomMessage('ceRNA_Norm_signal_custom_sig',"success")
+    }
+  })
+  observeEvent(input$microRNA_Norm_signal_custom_insert_ok,{
+    isolate({
+      custom_func = input$ceRna_norm_funcion_input
+    })
+    if(custom_func ==""){
+      session$sendCustomMessage('microRNA_Norm_signal_custom_sig',"fail")
+    }else{
+      custom_func = paste("micro_action_custom = ",custom_func,sep = "")
+      write(x = custom_func,file =paste(basepath,"/code/micro_f.txt",sep = ""))
+      session$sendCustomMessage('microRNA_Norm_signal_custom_sig',"success")
+    }
   })
   observeEvent(input$microRNA_Transform_Signal,{
     isolate({
@@ -980,6 +1061,9 @@ shinyServer(function(input,output,session) {
     }
     else if(norm_trans=="Zero_Mean_normalization"){
       after_slice_micro.exp <<- t(apply(after_slice_micro.exp, 1, action_zero))
+    }else if(norm_trans=="Custom_input"){
+      source(file = paste(basepath,"/code/micro_f.txt",sep = ""),local = environment())
+      after_slice_micro.exp <<- micro_action_custom(after_slice_micro.exp)
     }
     removeUI(selector = "#microRNA_handson_id>div",immediate = T)
     insertUI(selector = "#microRNA_handson_id",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "microRNA_aftertrans_data_show"),immediate = T)
@@ -1001,13 +1085,18 @@ shinyServer(function(input,output,session) {
     sendSweetAlert(session = session,title = "Success..",text = "Cancel Successfully",type = 'success')
   })
   
+  
   #########Construction Page Action########
   observeEvent(input$construction_data_confirm,{
-    samples=intersect(colnames(after_slice_rna.exp),colnames(after_slice_micro.exp))
-    gene=intersect(rownames(after_slice_rna.exp),rownames(after_slice_geneinfo))
-    after_slice_geneinfo<<-after_slice_geneinfo[gene,]
-    after_slice_rna.exp<<-after_slice_rna.exp[gene,samples]
-    after_slice_micro.exp<<-after_slice_micro.exp[,samples]
+    if(after_slice_rna.exp==""){
+      sendSweetAlert(session = session,title = "Error...",text = "Please do this step after the step2",type = 'error')
+    }else{
+      samples=intersect(colnames(after_slice_rna.exp),colnames(after_slice_micro.exp))
+      gene=intersect(rownames(after_slice_rna.exp),rownames(after_slice_geneinfo))
+      after_slice_geneinfo<<-after_slice_geneinfo[gene,]
+      after_slice_rna.exp<<-after_slice_rna.exp[gene,samples]
+      after_slice_micro.exp<<-after_slice_micro.exp[,samples]
+    }
   })
 
   observeEvent(input$add_new_condition,{
@@ -1410,21 +1499,25 @@ shinyServer(function(input,output,session) {
       msg=input$network
       do_what =msg$do_what
     })
-    if(do_what=="layout"){
-      type=msg$type
-      visual_layout<<-type
-      edge=as.data.frame(which(network==1,arr.ind = T))
-      edge[,1]=rownames(network)[edge[,1]]
-      edge[,2]=colnames(network)[edge[,2]]
-      nodes=unique(c(edge[,1],edge[,2]))
-      colnames(edge)=c('source','target')
-      num=which(colnames(after_slice_geneinfo)==".group")
-      new_after_geneinfo = after_slice_geneinfo
-      colnames(new_after_geneinfo)[num]="group"
-      nodes=data.frame(id=nodes,new_after_geneinfo[nodes,],stringsAsFactors = F)
-      node=tibble(group="nodes",data=apply(X = nodes,MARGIN = 1,as.list))
-      edge=tibble(group="edges",data=apply(X = edge,MARGIN = 1,FUN = as.list))
-      session$sendCustomMessage('network',toJSON(list(nodes=node,edge=edge,type=type,do_what=do_what),auto_unbox = T))
+    if(after_slice_rna.exp=="" || network==""){
+      sendSweetAlert(session = session,title = "Error",text = "Please do this step after the step2 and step3",type = 'error')
+    }else{
+      if(do_what=="layout"){
+        type=msg$type
+        visual_layout<<-type
+        edge=as.data.frame(which(network==1,arr.ind = T))
+        edge[,1]=rownames(network)[edge[,1]]
+        edge[,2]=colnames(network)[edge[,2]]
+        nodes=unique(c(edge[,1],edge[,2]))
+        colnames(edge)=c('source','target')
+        num=which(colnames(after_slice_geneinfo)==".group")
+        new_after_geneinfo = after_slice_geneinfo
+        colnames(new_after_geneinfo)[num]="group"
+        nodes=data.frame(id=nodes,new_after_geneinfo[nodes,],stringsAsFactors = F)
+        node=tibble(group="nodes",data=apply(X = nodes,MARGIN = 1,as.list))
+        edge=tibble(group="edges",data=apply(X = edge,MARGIN = 1,FUN = as.list))
+        session$sendCustomMessage('network',toJSON(list(nodes=node,edge=edge,type=type,do_what=do_what),auto_unbox = T))
+      }
     }
   })
   observeEvent(input$change_network_name,{
@@ -1453,17 +1546,13 @@ shinyServer(function(input,output,session) {
     }
     if(func=="shape"){
       if(type=="group"){
-        vec = data.frame(type=after_slice_geneinfo[".group"])
-        vec = vec[[1]]
-        index = duplicated(vec)
-        vec = vec[!index]
-        session$sendCustomMessage('Gene_network_shape_change',data.frame(type=vec,stringsAsFactors = F))
+        type = ".group"
       }
-      else{
-        vec = data.frame(type=after_slice_geneinfo[type])
-        vec = vec[[1]]
-        index = duplicated(vec)
-        vec = vec[!index]
+      vec = after_slice_geneinfo[,type]
+      vec = unique(vec)
+      if(length(vec)>100){
+        sendSweetAlert(session = session,title = "Error",text = "Too Many Candidates",type = 'error')
+      }else{
         session$sendCustomMessage('Gene_network_shape_change',data.frame(type=vec,stringsAsFactors = F))
       }
     }

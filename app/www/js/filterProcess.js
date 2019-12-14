@@ -11,10 +11,10 @@ $(document).ready(function(){
   creat_logtrans_button_micro("log10","log10transform","Log10 conversion of gene expression data");
   creat_normtrans_button("Min_Max_scaling","Min_Max_scaling","Do Min-max normalization By x* = (x - x_mean)/(x_max - x_min)");
   creat_normtrans_button("Zero_Mean_normalization","Zero_Mean","The processed data conforms to the standard normal distribution By x*=(x - mean)/Standard deviation");
-  creat_normtrans_button("daiding","daiding","daiding");
+  creat_normtrans_button_custom("Custom_input","Custom","custom input a function");
   creat_normtrans_button_micro("Min_Max_scaling","Min_Max_scaling","Do Min-max normalization By x* = (x - x_mean)/(x_max - x_min)");
   creat_normtrans_button_micro("Zero_Mean_normalization","Zero_Mean","The processed data conforms to the standard normal distribution By x*=(x - mean)/Standard deviation");
-  creat_normtrans_button_micro("daiding","daiding","daiding");
+  creat_normtrans_button_micro_custom("Custom_input","Custom","custom input a function");
   var $button_ce_action =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>Action</a>')
   var $button_ce_cancel =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>Cancel</a>')
   $("#ceRNA_choose_transfunction").children(":nth-child(4)").append($button_ce_action).append($button_ce_cancel);
@@ -60,6 +60,72 @@ $(document).ready(function(){
       sweetAlert("warning","Warning","No Action Executed!")
     }
   })
+})
+Shiny.addCustomMessageHandler("ceRNA_Norm_signal_custom_insert",function(msg){
+   if(!$('#infolist').hasClass('in'))
+        {
+          $('#infolist').modal({backdrop: 'static', keyboard: false});
+        }
+        else
+        {
+          $('#infolist').modal('hide');
+          $('#infolist').modal({backdrop: 'static', keyboard: false});
+  }
+  $('#modalSubmit').off('click').on('click',function(e){
+      var obj={}
+      obj['stamp']=Math.random();
+      Shiny.setInputValue('RNA_Norm_signal_custom_insert_ok',obj)
+  })
+})
+Shiny.addCustomMessageHandler("microRNA_Norm_signal_custom_insert",function(msg){
+   if(!$('#infolist').hasClass('in'))
+        {
+          $('#infolist').modal({backdrop: 'static', keyboard: false});
+        }
+        else
+        {
+          $('#infolist').modal('hide');
+          $('#infolist').modal({backdrop: 'static', keyboard: false});
+  }
+  $('#modalSubmit').off('click').on('click',function(e){
+      var obj={}
+      obj['stamp']=Math.random();
+      Shiny.setInputValue('microRNA_Norm_signal_custom_insert_ok',obj)
+  })
+})
+Shiny.addCustomMessageHandler("ceRNA_Norm_signal_custom_sig",function(msg){
+  if(msg == "success"){
+    rna_norm_transform = "Custom_input"
+    $('#infolist').modal('hide');
+    $("#ceRNA_choose_transfunction").children(":nth-child(3)").find("span.badge").remove();
+    if(rna_log_transform===""){
+      $span =$('<span class="badge bg-green">step1</span>')
+      $('#ce_custom_norm_button').append($span)
+    }else{
+      $span =$('<span class="badge bg-green">step2</span>')
+      $('#ce_custom_norm_button').append($span)
+    }
+    sweetAlert("success","Success...","Self-defind Function Saved...")
+  }else{
+    sweetAlert("error","Error...","Empty Input Function...")
+  }
+})
+Shiny.addCustomMessageHandler("microRNA_Norm_signal_custom_sig",function(msg){
+  if(msg == "success"){
+    micro_norm_transform = "Custom_input"
+    $('#infolist').modal('hide');
+    $("#microRNA_choose_transfunction").children(":nth-child(3)").find("span.badge").remove();
+    if(micro_log_transform===""){
+      $span =$('<span class="badge bg-green">step1</span>')
+      $('#micro_custom_norm_button').append($span)
+    }else{
+      $span =$('<span class="badge bg-green">step2</span>')
+      $('#micro_custom_norm_button').append($span)
+    }
+    sweetAlert("success","Success...","Self-defind Function Saved...")
+  }else{
+    sweetAlert("error","Error...","Empty Input Function...")
+  }
 })
 //creat filter modal
 creat_geneFilter = function(title,inputId,type)
@@ -206,6 +272,26 @@ creat_normtrans_button = function(opera,input,tip){
       $spantip.css("visibility","hidden")
   })
 }
+creat_normtrans_button_custom = function(opera,input,tip){
+  var $button =$('<a id="ce_custom_norm_button" class="btn btn-app " style="margin:5px;"><i class="fa fa-play"></i>'+input+'</a>')
+  var $spantip =$('<span style="visibility: hidden;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;left:10px;top:130px;z-index:1;">'+tip+'</span>')
+  $("#ceRNA_choose_transfunction").children(":nth-child(3)").append($button).append($spantip);
+  $button.on("click",function(e){
+    var obj={}
+    obj['stamp']=Math.random();
+    Shiny.setInputValue('ceRNA_Norm_signal_custom',obj)
+   /* var obj={}
+    obj['stamp']=Math.random();
+    obj['opera']=opera;
+    $button.append($span);
+    Shiny.setInputValue('Normalized_Signal',obj);*/
+  })
+  $button.hover(function(){
+      $spantip.css("visibility","visible")},
+    function(){
+      $spantip.css("visibility","hidden")
+  })
+}
 creat_normtrans_button_micro = function(opera,input,tip){
   var $button =$('<a class="btn btn-app " style="margin:5px;"><i class="fa fa-play"></i>'+input+'</a>')
   var $spantip =$('<span style="visibility: hidden;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;left:10px;top:130px;z-index:1;">'+tip+'</span>')
@@ -221,6 +307,27 @@ creat_normtrans_button_micro = function(opera,input,tip){
       $span =$('<span class="badge bg-green">step2</span>')
       $button.append($span)
     }
+   /* var obj={}
+    obj['stamp']=Math.random();
+    obj['opera']=opera;
+    $button.append($span);
+    Shiny.setInputValue('Normalized_Signal',obj);*/
+  })
+  $button.hover(function(){
+      $spantip.css("visibility","visible")},
+    function(){
+      $spantip.css("visibility","hidden")
+  })
+}
+creat_normtrans_button_micro_custom = function(opera,input,tip){
+  var $button =$('<a id="micro_custom_norm_button" class="btn btn-app " style="margin:5px;"><i class="fa fa-play"></i>'+input+'</a>')
+  var $spantip =$('<span style="visibility: hidden;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;left:10px;top:130px;z-index:1;">'+tip+'</span>')
+  $("#microRNA_choose_transfunction").children(":nth-child(3)").append($button).append($spantip);
+  var $span=""
+  $button.on("click",function(e){
+    var obj={}
+    obj['stamp']=Math.random();
+    Shiny.setInputValue('microRNA_Norm_signal_custom',obj)
    /* var obj={}
     obj['stamp']=Math.random();
     obj['opera']=opera;

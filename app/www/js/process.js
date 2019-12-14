@@ -57,6 +57,9 @@ $(document).ready(function(){
     Shiny.addCustomMessageHandler('outdetails', function(msg) {
       $('#modaltitle').text(msg.title);
       $('#modalbody').empty();
+      $('#modalSubmit').off('click').on('click',function(e){
+         $('#infolist').modal('hide');
+      })
       if(msg.details.length==0)
       {
         var obj={}
@@ -91,11 +94,12 @@ $(document).ready(function(){
         }
         else
         {
+          $('#infolist').modal('hide');
           $('#infolist').modal({backdrop: 'static', keyboard: false});
         }
       }
-
-      });
+      
+    });
   });
   $("#add_group").on('click',function(e){
     var value=$("#new_group_name").val();

@@ -673,7 +673,7 @@ shinyServer(function(input,output,session) {
     }
   })
   observeEvent(input$creatFilter_request,{
-  
+    removeUI(selector = "#Gene_Filter_all>:not(:first-child)",immediate = T,multiple = T)
     level=unique(sect_output_geneinfo$.group)
     level=level[!is.na(level)]
     session$sendCustomMessage('gene_type_infomation',data.frame(group=level))
@@ -690,10 +690,9 @@ shinyServer(function(input,output,session) {
       exist=msg$exist
       line=msg$line
     })
-    after_slice_micro.exp<<- sect_output_micro.exp[,colnames(after_slice_micro.exp)]
-    after_slice_rna.exp<<- sect_output_rna.exp[,colnames(after_slice_rna.exp)]
     #paint picture
     if(type=="micro"){  
+      after_slice_micro.exp<<- sect_output_micro.exp[,colnames(after_slice_micro.exp)]
       validGene=rownames(after_slice_micro.exp)
       validSample = rowSums(after_slice_micro.exp>=number)
       ratio=as.numeric(line)
@@ -772,8 +771,9 @@ shinyServer(function(input,output,session) {
       
     }
     else{
+      
       validGene=rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
-      validSample = rowSums(after_slice_rna.exp[validGene,]>=number)
+      validSample = rowSums(sect_output_rna.exp[validGene,]>=number)
       ratio=as.numeric(line)
       xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_rna.exp)),stringsAsFactors = F)
       ypoint=length(which(xdata$SampleRatio<=ratio))/length(validGene)
@@ -880,17 +880,18 @@ shinyServer(function(input,output,session) {
     }
     else{
       #append group gene to after_slice_rna.exp
-      validGene=rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
-      validSample = rowSums(sect_output_rna.exp[validGene,]>=number)
-      xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_rna.exp)),stringsAsFactors = F)
+      validGene = rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
+      output_rna.exp = sect_output_rna.exp[validGene,colnames(after_slice_rna.exp)]
+      validSample = rowSums(output_rna.exp>=number)
+      xdata = data.frame(SampleRatio=validSample/length(colnames(output_rna.exp)),stringsAsFactors = F)
       intersect_name = rownames(xdata)[which(xdata$SampleRatio>line)]
       ratio = sum(xdata$SampleRatio==line)/length(validGene)
       if(ratio<0.05){
         delete = setdiff(rownames(after_slice_rna.exp),validGene)
-        remain = after_slice_rna.exp[intersect_name,]
+        remain = output_rna.exp[intersect_name,]
         after_slice_rna.exp<<-after_slice_rna.exp[delete,]
         after_slice_rna.exp<<-rbind(after_slice_rna.exp,remain)
-        after_slice_geneinfo<<-after_slice_geneinfo[rownames(after_slice_rna.exp),]
+        after_slice_geneinfo<<-sect_output_geneinfo[rownames(after_slice_rna.exp),]
         num1 = length(rownames(after_slice_rna.exp))
         ValidNum = data.frame(rnaNum = length(rownames(after_slice_rna.exp)),stringsAsFactors = F);
         sendSweetAlert(session = session,title = "Success..",text = paste("Filter Success! Valid ceRNA Remain:",num1),type = 'success')
@@ -1104,6 +1105,10 @@ shinyServer(function(input,output,session) {
       msg=input$add_new_condition
       core=input$use_core
     })
+    if(after_slice_geneinfo==""){
+      sendSweetAlert(session = session,title = "Error...",text = "Please do this step after the step2",type = 'error')
+      return()
+    }
     choice=c(condition[which(!condition$used),'abbr'],'custom')
     if(length(choice)>1)
       names(choice)=c(paste(condition[which(!condition$used),'description'],'(',condition[which(!condition$used),'abbr'],')',sep=""),'Custom')
@@ -1499,7 +1504,7 @@ shinyServer(function(input,output,session) {
       msg=input$network
       do_what =msg$do_what
     })
-    if(after_slice_rna.exp=="" || network==""){
+    if(is.null(nrow(after_slice_rna.exp)) | is.null(nrow(network))){
       sendSweetAlert(session = session,title = "Error",text = "Please do this step after the step2 and step3",type = 'error')
     }else{
       if(do_what=="layout"){

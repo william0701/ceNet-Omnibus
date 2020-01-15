@@ -5,15 +5,18 @@
 print(options('shiny.maxRequestSize'))
 
 shinyServer(function(input,output,session) {
-  source('www/R/input_tabServer.R')
-  source('www/R/construct_tabServer.R')
-  source('www/R/analysis_tabServer.R')
-  source('www/R/process_tabServer.R')
-  ##创建临时文件???
+
   
-  tmpdir=tempdir()
-  basepath = paste(tmpdir,'/session_tmp_file',session$token,sep="");
-  dir.create(path = basepath)
+  source('www/R/input_tabServer.R',local = T)
+  source('www/R/construct_tabServer.R',local = T)
+  source('www/R/analysis_tabServer.R',local = T)
+  source('www/R/process_tabServer.R',local = T)
+ 
+  if(is.null(projName)){
+    projName <<- session$token
+  }
+  basepath = paste(tmpdir,'/Project_',projName,sep="");
+  dir.create(path = basepath,recursive = T)
   print(paste("Session:",session$token,'is started!'))
   dir.create(paste(basepath,'Plot',sep="/"))
   dir.create(paste(basepath,'code',sep="/"))
@@ -21,8 +24,8 @@ shinyServer(function(input,output,session) {
   dir.create(paste(basepath,'log',sep="/"))
 
   visual_layout=""
-  
-  load('testdata/ph1.RData',envir = globalenv())
+
+  load('testdata/ph1.RData',envir = environment())
   # rna.exp<<-rna.exp
   # geneinfo<<-geneinfo
   # micro.exp<<-micro.exp
@@ -296,7 +299,7 @@ shinyServer(function(input,output,session) {
     choicenum=lapply(X = choicenum,FUN = length)
     names(choicenum)=choice
     choicenum=unlist(choicenum)
-    invalidchoice=names(choicenum)[which(choicenum>100)]
+    invalidchoice=names(choicenum)[which(choicenum>typeLimit)]
     if(biotype_map=="None")
     {
       updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Which Column is Gene Biotype?',choices = choice,selected = names(sort(choicenum))[1],inline=T,prettyOptions=list(shape='round',status='success'))
@@ -314,7 +317,7 @@ shinyServer(function(input,output,session) {
     {
      
       choice=unique(sect_output_geneinfo[,biotype_map])
-      if(length(choice)>100)
+      if(length(choice)>typeLimit)
       {
         sendSweetAlert(session = session,title = 'Warning...',text = 'Too Many Biotypes, Choose Carefully!',type = 'warning')
         #return()
@@ -472,8 +475,8 @@ shinyServer(function(input,output,session) {
     #         geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
     # )
     dev.off()
-    file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),
-              to = paste('www/templePlot/microSampleFilter',session$token,'.svg',sep = ""))
+    # file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),
+    #           to = paste('www/templePlot/microSampleFilter',session$token,'.svg',sep = ""))
     if(exist=="F"){
       print(paste("#","sample_Group_",group,'_panel',sep=""))
       insertUI(
@@ -494,8 +497,8 @@ shinyServer(function(input,output,session) {
        )
     }
     output[[paste(group,'_plot',sep="")]]=renderImage({
-      list(src=paste('www/templePlot/microSampleFilter',session$token,'.svg',sep = ""),width="100%",height="100%")
-    })
+      list(src=paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),width="100%",height="100%")
+    },deleteFile = F)
     }
     
     else if(group=="ce_invalid_name"){
@@ -601,7 +604,7 @@ shinyServer(function(input,output,session) {
       )
       
       dev.off()
-      file.copy(from = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),to = paste('www/templePlot/RNASampleFilter',session$token,'.svg',sep = ""))
+      #file.copy(from = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),to = paste('www/templePlot/RNASampleFilter',session$token,'.svg',sep = ""))
       if(exist=="F"){
         print(paste("#","sample_Group_",group,'_panel',sep=""))
         insertUI(
@@ -622,8 +625,8 @@ shinyServer(function(input,output,session) {
         )
       }
       output[[paste(group,'_plot',sep="")]]=renderImage({
-        list(src=paste('www/templePlot/RNASampleFilter',session$token,'.svg',sep = ""),width="100%",height="100%")
-      })
+        list(src=paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),width="100%",height="100%")
+      },deleteFile = F)
     }
   
   })
@@ -746,7 +749,7 @@ shinyServer(function(input,output,session) {
               geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
       
       dev.off()
-      file.copy(from = paste(basepath,"Plot","microStatistic.svg",sep = "/"),to = paste('www/templePlot/microStatistic',session$token,'.svg',sep = ""))
+      #file.copy(from = paste(basepath,"Plot","microStatistic.svg",sep = "/"),to = paste('www/templePlot/microStatistic',session$token,'.svg',sep = ""))
 
       if(exist=="F"){
         print(paste("#","gene_Group_",group,'_panel',sep=""))
@@ -765,8 +768,8 @@ shinyServer(function(input,output,session) {
       )
       }
       output[[paste(group,'_plot',sep="")]]=renderImage({
-        list(src=paste('www/templePlot/microStatistic',session$token,'.svg',sep = ""),width="100%",height="100%")
-      })
+        list(src=paste(basepath,"Plot","microStatistic.svg",sep = "/"),width="100%",height="100%")
+      },deleteFile = F)
       #qiefen
       
     }
@@ -825,7 +828,7 @@ shinyServer(function(input,output,session) {
       
       
       dev.off()
-      file.copy(from = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),to = paste('www/templePlot/',group,'Statistic',session$token,'.svg',sep = ""))
+      #file.copy(from = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),to = paste('www/templePlot/',group,'Statistic',session$token,'.svg',sep = ""))
       
       if(exist=="F"){
         print(paste("#","gene_Group_",group,'_panel',sep=""))
@@ -844,8 +847,8 @@ shinyServer(function(input,output,session) {
         )
       }
       output[[paste(group,'_plot',sep="")]]=renderImage({
-        list(src= paste('www/templePlot/',group,'Statistic',session$token,'.svg',sep = ""),width="100%",height="100%")
-      })
+        list(src= paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),width="100%",height="100%")
+      },deleteFile = F)
     }
   })
   observeEvent(input$Gene_Slice_Signal,{
@@ -1543,7 +1546,7 @@ shinyServer(function(input,output,session) {
       vec = after_slice_geneinfo[,type]
       #vec = vec[[1]]
       vec = unique(vec)
-      if(length(vec)>100){
+      if(length(vec)>typeLimit){
           sendSweetAlert(session = session,title = "Error",text = "Too Many Candidates",type = 'error')
       }else{
           session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
@@ -1555,7 +1558,7 @@ shinyServer(function(input,output,session) {
       }
       vec = after_slice_geneinfo[,type]
       vec = unique(vec)
-      if(length(vec)>100){
+      if(length(vec)>typeLimit){
         sendSweetAlert(session = session,title = "Error",text = "Too Many Candidates",type = 'error')
       }else{
         session$sendCustomMessage('Gene_network_shape_change',data.frame(type=vec,stringsAsFactors = F))
@@ -1569,22 +1572,29 @@ shinyServer(function(input,output,session) {
       msg=input$nodeCentrality
       centrality=unlist(msg$value)
     })
-    print(centrality)
-    deleted=setdiff(node_property,centrality)
-    deleted=sub(pattern = " ",replacement = "_",deleted)
-    removeUI(selector = paste("#node_",deleted,sep=""),multiple = T,immediate = T)
-    newadd=setdiff(centrality,node_property)
-    node_property<<-centrality
-    if(nodeNewInfo=="")
-    {
-      nodeNewInfo<<-data.frame(.id=rownames(after_slice_geneinfo),stringsAsFactors = F,row.names = rownames(after_slice_geneinfo))
-    }
+   
+   
+    if(net_igraph==""){
+      sendSweetAlert(session = session,title = "Error",text = "Please complete step 3 first",type = 'error')
+    }else{
+      print(centrality)
+      deleted=setdiff(node_property,centrality)
+      deleted=sub(pattern = " ",replacement = "_",deleted)
+      removeUI(selector = paste("#node_",deleted,sep=""),multiple = T,immediate = T)
+      newadd=setdiff(centrality,node_property)
+      node_property<<-centrality
+      if(nodeNewInfo=="")
+      {
+        nodeNewInfo<<-data.frame(.id=rownames(after_slice_geneinfo),stringsAsFactors = F,row.names = rownames(after_slice_geneinfo))
+      }
       
-    for(id in newadd)
-    {
+      for(id in newadd)
+      {
+       
         ui=create_property_box('node',id)
         insertUI(selector = "#network_property",where = 'beforeEnd',ui = ui,
                  immediate = T)
+        
         if(id=="Degree")
         {
           degree=as.data.frame(igraph::degree(net_igraph))
@@ -1594,8 +1604,8 @@ shinyServer(function(input,output,session) {
           data$Var1=as.numeric(data$Var1)
           data=data[which(data$Var1!=0),]
           p=ggplot(data = data,aes(x = Var1,ymax=Freq,ymin=0,y=Freq))+
-          geom_linerange(linetype='dashed')+
-          geom_point(size=3)+scale_x_log10()+scale_y_log10()+geom_smooth(method = lm)
+            geom_linerange(linetype='dashed')+
+            geom_point(size=3)+scale_x_log10()+scale_y_log10()+geom_smooth(method = lm)
           svg(filename = paste(basepath,"Plot",'node_degree.svg',sep="/"),family = 'serif')
           print(p)
           dev.off()
@@ -1648,42 +1658,52 @@ shinyServer(function(input,output,session) {
             list(src=normalizePath(paste(basepath,"Plot",'node_clustering_coefficient.svg',sep="/")),height="100%",width="100%")
           },deleteFile=F)
         }
+        
+      }
     }
+    
   })
   observeEvent(input$edgeCentrality,{
     isolate({
       msg=input$edgeCentrality
       centrality=msg$value
     })
-    print(centrality)
-    deleted=setdiff(edge_property,centrality)
-    removeUI(selector = paste("#edge_",deleted,sep=""),multiple = T,immediate = T)
-    newadd=setdiff(centrality,edge_property)
-    edge_property<<-centrality
-    for(id in newadd)
-    {
-      ui=create_property_box('edge',id)
-      insertUI(selector = "#network_property",where = 'beforeEnd',ui = ui,
-               immediate = T)
-      if(id=="Betweenness")
+  
+    if(net_igraph==""){
+      sendSweetAlert(session = session,title = "Error",text = "Please complete step 3 first",type = 'error')
+    }else{
+      print(centrality)
+      deleted=setdiff(edge_property,centrality)
+      removeUI(selector = paste("#edge_",deleted,sep=""),multiple = T,immediate = T)
+      newadd=setdiff(centrality,edge_property)
+      edge_property<<-centrality
+      for(id in newadd)
       {
-        betweenness=edge_betweenness(net_igraph,directed = F)
+        ui=create_property_box('edge',id)
+        insertUI(selector = "#network_property",where = 'beforeEnd',ui = ui,
+                 immediate = T)
         
-        edgelist=t(apply(X = as_edgelist(net_igraph),MARGIN = 1,FUN = sort))
-        edgename=t(apply(X = edgeinfo[,c('N1','N2')],MARGIN = 1,FUN = sort))
-        rownames(edgeinfo)<<-paste(edgename[,1],edgename[,2],sep="|")
-        edgeinfo[paste(edgename[,1],edgename[,2],sep="|"),'Betweenness']<<-betweenness
-        rownames(edgeinfo)<<-NULL
+        if(id=="Betweenness")
+        {
+          betweenness=edge_betweenness(net_igraph,directed = F)
+          
+          edgelist=t(apply(X = as_edgelist(net_igraph),MARGIN = 1,FUN = sort))
+          edgename=t(apply(X = edgeinfo[,c('N1','N2')],MARGIN = 1,FUN = sort))
+          rownames(edgeinfo)<<-paste(edgename[,1],edgename[,2],sep="|")
+          edgeinfo[paste(edgename[,1],edgename[,2],sep="|"),'Betweenness']<<-betweenness
+          rownames(edgeinfo)<<-NULL
+          
+          density=density(x = betweenness,from = min(betweenness,na.rm = T),to = max(betweenness,na.rm = T),na.rm = T)
+          density=data.frame(x=density$x,y=density$y)
+          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+          svg(filename = paste(basepath,"Plot",'edge_betweenness.svg',sep="/"),family = 'serif')
+          print(p)
+          dev.off()
+          output$edge_Betweenness_plot=renderImage({
+            list(src=normalizePath(paste(basepath,"Plot",'edge_betweenness.svg',sep="/")),height="100%",width="100%")
+          },deleteFile=F)
+        }
         
-        density=density(x = betweenness,from = min(betweenness,na.rm = T),to = max(betweenness,na.rm = T),na.rm = T)
-        density=data.frame(x=density$x,y=density$y)
-        p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
-        svg(filename = paste(basepath,"Plot",'edge_betweenness.svg',sep="/"),family = 'serif')
-        print(p)
-        dev.off()
-        output$edge_Betweenness_plot=renderImage({
-          list(src=normalizePath(paste(basepath,"Plot",'edge_betweenness.svg',sep="/")),height="100%",width="100%")
-        },deleteFile=F)
       }
     }
   })
@@ -1726,233 +1746,239 @@ shinyServer(function(input,output,session) {
     isolate({
       algorithm=input$community_algorithm
     })
-    removeUI(selector = "#module_info_box>",multiple = T,immediate = T)
-    removeUI(selector = "#module_visualization>",multiple = T,immediate = T)
-    insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = create_progress(paste0("Running ",algorithm,"...")),immediate = T)
-    modules<<-list()
-    moduleinfo<<-""
-    module.configure<<-list()
-    gc()
     
-    if(algorithm=='cluster_edge_betweenness')
-    {
-      community=get(algorithm)(net_igraph)
-      communitySize=sizes(community)
-      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
-      membership=membership(community)
-      membership[which(membership%in%singleNodeCommunity)]=0
-      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+    if(net_igraph==""){
+      sendSweetAlert(session = session,title = "Error",text = "Please complete step 3 first",type = 'error')
+    }else{
+      removeUI(selector = "#module_info_box>",multiple = T,immediate = T)
+      removeUI(selector = "#module_visualization>",multiple = T,immediate = T)
+      insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = create_progress(paste0("Running ",algorithm,"...")),immediate = T)
+      modules<<-list()
+      moduleinfo<<-""
+      module.configure<<-list()
+      gc()
       
-      community_list=list()
-      for(id in unique(membership))
+      if(algorithm=='cluster_edge_betweenness')
       {
-        module_gene=names(membership)[which(membership==id)]
-        community_list=c(community_list,list(module_gene))
+        community=get(algorithm)(net_igraph)
+        communitySize=sizes(community)
+        singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+        membership=membership(community)
+        membership[which(membership%in%singleNodeCommunity)]=0
+        after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+        
+        community_list=list()
+        for(id in unique(membership))
+        {
+          module_gene=names(membership)[which(membership==id)]
+          community_list=c(community_list,list(module_gene))
+        }
+        names(community_list)=paste("Module",unique(membership),sep="")
+        modules<<-community_list
       }
-      names(community_list)=paste("Module",unique(membership),sep="")
-      modules<<-community_list
-    }
-    else if(algorithm=='cluster_fast_greedy')
-    {
-      community=get(algorithm)(net_igraph)
-      communitySize=sizes(community)
-      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
-      membership=membership(community)
-      membership[which(membership%in%singleNodeCommunity)]=0
-      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
-      
-      community_list=list()
-      for(id in unique(membership))
+      else if(algorithm=='cluster_fast_greedy')
       {
-        module_gene=names(membership)[which(membership==id)]
-        community_list=c(community_list,list(module_gene))
+        community=get(algorithm)(net_igraph)
+        communitySize=sizes(community)
+        singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+        membership=membership(community)
+        membership[which(membership%in%singleNodeCommunity)]=0
+        after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+        
+        community_list=list()
+        for(id in unique(membership))
+        {
+          module_gene=names(membership)[which(membership==id)]
+          community_list=c(community_list,list(module_gene))
+        }
+        names(community_list)=paste("Module",unique(membership),sep="")
+        modules<<-community_list
+        
       }
-      names(community_list)=paste("Module",unique(membership),sep="")
-      modules<<-community_list
-      
-    }
-    else if(algorithm=='cluster_label_prop')
-    {
-      community=get(algorithm)(net_igraph)
-      communitySize=sizes(community)
-      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
-      membership=membership(community)
-      membership[which(membership%in%singleNodeCommunity)]=0
-      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
-      
-      community_list=list()
-      for(id in unique(membership))
+      else if(algorithm=='cluster_label_prop')
       {
-        module_gene=names(membership)[which(membership==id)]
-        community_list=c(community_list,list(module_gene))
+        community=get(algorithm)(net_igraph)
+        communitySize=sizes(community)
+        singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+        membership=membership(community)
+        membership[which(membership%in%singleNodeCommunity)]=0
+        after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+        
+        community_list=list()
+        for(id in unique(membership))
+        {
+          module_gene=names(membership)[which(membership==id)]
+          community_list=c(community_list,list(module_gene))
+        }
+        names(community_list)=paste("Module",unique(membership),sep="")
+        modules<<-community_list
       }
-      names(community_list)=paste("Module",unique(membership),sep="")
-      modules<<-community_list
-    }
-    else if(algorithm=='cluster_leading_eigen')
-    {
-      
-    }
-    else if(algorithm=='cluster_louvain')
-    {
-      community=get(algorithm)(net_igraph)
-      communitySize=sizes(community)
-      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
-      membership=membership(community)
-      membership[which(membership%in%singleNodeCommunity)]=0
-      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
-      
-      community_list=list()
-      for(id in unique(membership))
+      else if(algorithm=='cluster_leading_eigen')
       {
-        module_gene=names(membership)[which(membership==id)]
-        community_list=c(community_list,list(module_gene))
+        
       }
-      names(community_list)=paste("Module",unique(membership),sep="")
-      modules<<-community_list
-    }
-    else if(algorithm=='cluster_optimal')
-    {
-      community=get(algorithm)(net_igraph)
-      communitySize=sizes(community)
-      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
-      membership=membership(community)
-      membership[which(membership%in%singleNodeCommunity)]=0
-      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
-      
-      community_list=list()
-      for(id in unique(membership))
+      else if(algorithm=='cluster_louvain')
       {
-        module_gene=names(membership)[which(membership==id)]
-        community_list=c(community_list,list(module_gene))
+        community=get(algorithm)(net_igraph)
+        communitySize=sizes(community)
+        singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+        membership=membership(community)
+        membership[which(membership%in%singleNodeCommunity)]=0
+        after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+        
+        community_list=list()
+        for(id in unique(membership))
+        {
+          module_gene=names(membership)[which(membership==id)]
+          community_list=c(community_list,list(module_gene))
+        }
+        names(community_list)=paste("Module",unique(membership),sep="")
+        modules<<-community_list
       }
-      names(community_list)=paste("Module",unique(membership),sep="")
-      modules<<-community_list
-    }
-    else if(algorithm=='cluster_walktrap')
-    {
-      isolate({
-        step=floor(input$walktrap_step)
+      else if(algorithm=='cluster_optimal')
+      {
+        community=get(algorithm)(net_igraph)
+        communitySize=sizes(community)
+        singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+        membership=membership(community)
+        membership[which(membership%in%singleNodeCommunity)]=0
+        after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+        
+        community_list=list()
+        for(id in unique(membership))
+        {
+          module_gene=names(membership)[which(membership==id)]
+          community_list=c(community_list,list(module_gene))
+        }
+        names(community_list)=paste("Module",unique(membership),sep="")
+        modules<<-community_list
+      }
+      else if(algorithm=='cluster_walktrap')
+      {
+        isolate({
+          step=floor(input$walktrap_step)
+        })
+        community=get(algorithm)(net_igraph,step=step)
+        communitySize=sizes(community)
+        singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+        membership=membership(community)
+        membership[which(membership%in%singleNodeCommunity)]=0
+        after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+        
+        community_list=list()
+        for(id in unique(membership))
+        {
+          module_gene=names(membership)[which(membership==id)]
+          community_list=c(community_list,list(module_gene))
+        }
+        names(community_list)=paste("Module",unique(membership),sep="")
+        modules<<-community_list
+      }
+      else if(algorithm=='cluster_infomap')
+      {
+        isolate({
+          nb.trials=floor(input$infomap_nb_trails)
+        })
+        community=get(algorithm)(net_igraph,nb.trials=nb.trials)
+        communitySize=sizes(community)
+        singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
+        membership=membership(community)
+        membership[which(membership%in%singleNodeCommunity)]=0
+        after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
+        
+        community_list=list()
+        for(id in unique(membership))
+        {
+          module_gene=names(membership)[which(membership==id)]
+          community_list=c(community_list,list(module_gene))
+        }
+        names(community_list)=paste("Module",unique(membership),sep="")
+        modules<<-community_list
+      }
+      else if(algorithm=='cluster_cograph')
+      {
+        netpath=paste(basepath,"/data/net_edge.txt",sep="")
+        write.table(x = edgeinfo[,c("N1","N2")],file = netpath,quote = F,sep = "\t",row.names = F,col.names = F)
+        outpath=paste(basepath,"/data/",sep="")
+        cluster_cograph(netpath = netpath,outpath = outpath)
+      }
+      else if(algorithm=='cluster_mcl')
+      {
+        isolate({
+          expansion=input$mcl_expansion
+          inflation=input$mcl_inflation
+          max.iter=floor(input$mcl_max_iter)
+        })
+        community=get(algorithm)(net_igraph,expansion=expansion,inflation=inflation,max.iter=max.iter)
+        after_slice_geneinfo[names(community),'module']<<-community
+        community_list=list()
+        for(id in unique(community))
+        {
+          module_gene=names(community)[which(community==id)]
+          community_list=c(community_list,list(module_gene))
+        }
+        names(community_list)=paste("Module",unique(community),sep="")
+        modules<<-community_list
+      }
+      else if(algorithm=='cluster_linkcomm')
+      {
+        isolate({
+          hcmethod=input$linkcomm_hcmethod
+        })
+        community=get(algorithm)(edgeinfo,hcmethod=hcmethod)
+        after_slice_geneinfo[,'module']<<-''
+        community_list=list()
+        for(id in unique(community$cluster))
+        {
+          module_gene=community$node[which(community$cluster==id)]
+          community_list=c(community_list,list(module_gene))
+          after_slice_geneinfo[module_gene,'module']<<-paste(after_slice_geneinfo[module_gene,'module'],',Module',id,sep="")
+        }
+        after_slice_geneinfo$module[which(after_slice_geneinfo$module=="")]<<-"Module0"
+        after_slice_geneinfo$module<<-sub(pattern = "^,",replacement = "",x = after_slice_geneinfo$module)
+        names(community_list)=paste("Module",unique(community$cluster),sep="")
+        modules<<-community_list
+      }
+      else if(algorithm=='cluster_mcode')
+      {
+        isolate({
+          vwp=input$mcode_vwp
+          haircut=input$mcode_haircut
+          fluff=input$mcode_fluff
+          fdt=input$mcode_fdt
+        })
+        community=get(algorithm)(net_igraph,vwp=vwp,haircut=haircut,fluff=fluff,fdt=fdt)
+        
+        after_slice_geneinfo[,'module']<<-''
+        community_list=list()
+        for(id in unique(community$cluster))
+        {
+          module_gene=community$node[which(community$cluster==id)]
+          community_list=c(community_list,list(module_gene))
+          after_slice_geneinfo[module_gene,'module']<<-paste(after_slice_geneinfo[module_gene,'module'],',Module',id,sep="")
+        }
+        after_slice_geneinfo$module[which(after_slice_geneinfo$module=="")]<<-"Module0"
+        after_slice_geneinfo$module<<-sub(pattern = "^,",replacement = "",x = after_slice_geneinfo$module)
+        names(community_list)=paste("Module",unique(community$cluster),sep="")
+        modules<<-community_list
+      }
+      #Show Communities
+      create_module_info()
+      removeUI(selector = "#module_info_box>",immediate = T,multiple = T)
+      insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = create_alert_box(header="Tips",msg="The <i>Module0</i> is consisted of all isolated nodes",class="col-lg-4"),immediate = T)
+      insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "moduleInfoTable"),immediate = T)
+      output$moduleInfoTable=renderRHandsontable({
+        rhandsontable(moduleinfo)%>%
+          hot_cols(columnSorting = T)%>%
+          hot_table(contextMenu = F)%>%
+          hot_col(col = seq(1:dim(moduleinfo)[2]),halign='htCenter',readOnly = T,copyable=T)%>%
+          hot_col(col = "Nodes",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
+          hot_col(col = "Edges",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
+          hot_col(col = "Visualization",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))
       })
-      community=get(algorithm)(net_igraph,step=step)
-      communitySize=sizes(community)
-      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
-      membership=membership(community)
-      membership[which(membership%in%singleNodeCommunity)]=0
-      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
-      
-      community_list=list()
-      for(id in unique(membership))
-      {
-        module_gene=names(membership)[which(membership==id)]
-        community_list=c(community_list,list(module_gene))
-      }
-      names(community_list)=paste("Module",unique(membership),sep="")
-      modules<<-community_list
+      updatePickerInput(session = session,inputId = "clinical_module",choices = names(modules))
     }
-    else if(algorithm=='cluster_infomap')
-    {
-      isolate({
-        nb.trials=floor(input$infomap_nb_trails)
-      })
-      community=get(algorithm)(net_igraph,nb.trials=nb.trials)
-      communitySize=sizes(community)
-      singleNodeCommunity=as.numeric(names(communitySize[which(communitySize==1)]))
-      membership=membership(community)
-      membership[which(membership%in%singleNodeCommunity)]=0
-      after_slice_geneinfo[names(membership),'module']<<-paste("Module",membership,sep="")
-      
-      community_list=list()
-      for(id in unique(membership))
-      {
-        module_gene=names(membership)[which(membership==id)]
-        community_list=c(community_list,list(module_gene))
-      }
-      names(community_list)=paste("Module",unique(membership),sep="")
-      modules<<-community_list
-    }
-    else if(algorithm=='cluster_cograph')
-    {
-      netpath=paste(basepath,"/data/net_edge.txt",sep="")
-      write.table(x = edgeinfo[,c("N1","N2")],file = netpath,quote = F,sep = "\t",row.names = F,col.names = F)
-      outpath=paste(basepath,"/data/",sep="")
-      cluster_cograph(netpath = netpath,outpath = outpath)
-    }
-    else if(algorithm=='cluster_mcl')
-    {
-      isolate({
-        expansion=input$mcl_expansion
-        inflation=input$mcl_inflation
-        max.iter=floor(input$mcl_max_iter)
-      })
-      community=get(algorithm)(net_igraph,expansion=expansion,inflation=inflation,max.iter=max.iter)
-      after_slice_geneinfo[names(community),'module']<<-community
-      community_list=list()
-      for(id in unique(community))
-      {
-        module_gene=names(community)[which(community==id)]
-        community_list=c(community_list,list(module_gene))
-      }
-      names(community_list)=paste("Module",unique(community),sep="")
-      modules<<-community_list
-    }
-    else if(algorithm=='cluster_linkcomm')
-    {
-      isolate({
-        hcmethod=input$linkcomm_hcmethod
-      })
-      community=get(algorithm)(edgeinfo,hcmethod=hcmethod)
-      after_slice_geneinfo[,'module']<<-''
-      community_list=list()
-      for(id in unique(community$cluster))
-      {
-        module_gene=community$node[which(community$cluster==id)]
-        community_list=c(community_list,list(module_gene))
-        after_slice_geneinfo[module_gene,'module']<<-paste(after_slice_geneinfo[module_gene,'module'],',Module',id,sep="")
-      }
-      after_slice_geneinfo$module[which(after_slice_geneinfo$module=="")]<<-"Module0"
-      after_slice_geneinfo$module<<-sub(pattern = "^,",replacement = "",x = after_slice_geneinfo$module)
-      names(community_list)=paste("Module",unique(community$cluster),sep="")
-      modules<<-community_list
-    }
-    else if(algorithm=='cluster_mcode')
-    {
-     isolate({
-       vwp=input$mcode_vwp
-       haircut=input$mcode_haircut
-       fluff=input$mcode_fluff
-       fdt=input$mcode_fdt
-     })
-     community=get(algorithm)(net_igraph,vwp=vwp,haircut=haircut,fluff=fluff,fdt=fdt)
-     
-     after_slice_geneinfo[,'module']<<-''
-     community_list=list()
-     for(id in unique(community$cluster))
-     {
-       module_gene=community$node[which(community$cluster==id)]
-       community_list=c(community_list,list(module_gene))
-       after_slice_geneinfo[module_gene,'module']<<-paste(after_slice_geneinfo[module_gene,'module'],',Module',id,sep="")
-     }
-     after_slice_geneinfo$module[which(after_slice_geneinfo$module=="")]<<-"Module0"
-     after_slice_geneinfo$module<<-sub(pattern = "^,",replacement = "",x = after_slice_geneinfo$module)
-     names(community_list)=paste("Module",unique(community$cluster),sep="")
-     modules<<-community_list
-    }
-    #Show Communities
-    create_module_info()
-    removeUI(selector = "#module_info_box>",immediate = T,multiple = T)
-    insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = create_alert_box(header="Tips",msg="The <i>Module0</i> is consisted of all isolated nodes",class="col-lg-4"),immediate = T)
-    insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "moduleInfoTable"),immediate = T)
-    output$moduleInfoTable=renderRHandsontable({
-      rhandsontable(moduleinfo)%>%
-        hot_cols(columnSorting = T)%>%
-        hot_table(contextMenu = F)%>%
-        hot_col(col = seq(1:dim(moduleinfo)[2]),halign='htCenter',readOnly = T,copyable=T)%>%
-        hot_col(col = "Nodes",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
-        hot_col(col = "Edges",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
-        hot_col(col = "Visualization",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))
-    })
-    updatePickerInput(session = session,inputId = "clinical_module",choices = names(modules))
+    
   })
   observeEvent(input$communityDetals,{
     isolate({

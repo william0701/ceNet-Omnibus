@@ -1,11 +1,11 @@
 ###############################
 ### Google Analytics - ui.R ###
 ###############################
-source('www/R/input_tabUI.R')
-source('www/R/construct_tabUI.R')
-source('www/R/analysis_tabUI.R')
+source("www/R/customerUI.R",local = T)
+source('www/R/input_tabUI.R',local = T)
+source('www/R/construct_tabUI.R',local = T)
+source('www/R/analysis_tabUI.R',local = T)
 includeScript('www/js/all.js')
-options(shiny.maxRequestSize = 1000*1024^2)
 header=dashboardHeader(
   title='CeNet Omnibus',
   titleWidth=280

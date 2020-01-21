@@ -1084,8 +1084,6 @@ shinyServer(function(input,output,session) {
     after_slice_micro.exp <<- sect_output_micro.exp[rownames(after_slice_micro.exp),colnames(after_slice_micro.exp)]
     sendSweetAlert(session = session,title = "Success..",text = "Cancel Successfully",type = 'success')
   })
-  
-  
   #########Construction Page Action########
   observeEvent(input$construction_data_confirm,{
     if(after_slice_rna.exp==""){
@@ -1098,7 +1096,6 @@ shinyServer(function(input,output,session) {
       after_slice_micro.exp<<-after_slice_micro.exp[,samples]
     }
   })
-
   observeEvent(input$add_new_condition,{
     isolate({
       msg=input$add_new_condition
@@ -1149,6 +1146,19 @@ shinyServer(function(input,output,session) {
                    div(class='col-lg-6',
                        selectInput(inputId = 'use_core',label = 'Choose Parallel Cores',choices = cores ,multiple = F,selected = as.character(core))
                    )
+               ),
+               conditionalPanel(condition = "input.condition_type=='MI'||input.condition_type=='CMI'",
+                                div(class="row",
+                                    div(class="col-lg-4",
+                                        pickerInput(inputId = "mi_disc_method",label = "Discretization Method",choices = c("Equal Frequencie"="equalfreq","Equal Width Binning"="equalwidth","Global Equal Width Binning"="globalequalwidth"))
+                                    ),
+                                    div(class="col-lg-4",
+                                        numericInput(inputId = "mi_nbins",label = "Number Of Bins (Default: #sample^(1/3))",value =floor(ncol(after_slice_rna.exp)^(1/3)),min = 2,max = ncol(after_slice_rna.exp),width = "100%")
+                                    ),
+                                    div(class="col-lg-4",
+                                        pickerInput(inputId = "mi_est_method",label = "Entropy Estimator",choices = c("Empirical Probability Distribution"="emp","Miller-Madow Asymptotic Bias Corrected Empirical Estimator"="mm","Shrinkage Estimate of a Dirichlet Probability Distribution"="shrink","Schurmann-Grassberger Estimate"="sg"))
+                                    )
+                                )
                ),
                div(class='row',
                    div(class="col-lg-12",
@@ -1205,11 +1215,21 @@ shinyServer(function(input,output,session) {
       write(x = code,file = paste(basepath,"/code/",abbr,'.R',sep=""))
       #thresh<<-rbind(thresh,data.frame(type=condition$abbr,task=tasks,direction="<",thresh=0,stringsAsFactors = F))
     }
+   
     else
     {
       condition[type,'used']<<-T
       condition[type,'core']<<-core
       condition[type,'task']<<-tasks
+      if(type=="CMI"||type=="MI")
+      {
+        isolate({
+          disc_method=input$mi_disc_method
+          nbin=input$mi_nbins
+          est=input$mi_est_method
+        })
+        condition[type,'others']<<-gsub(pattern = "\"",replacement = "\\\\\"",x = toJSON(x = list(disc=disc_method,nbin=nbin,est=est),auto_unbox = T))
+      }
       #thresh<<-rbind(thresh,data.frame(type=condition$abbr,task=tasks,direction="<",thresh=0,stringsAsFactors = F))
     }
   })
@@ -1219,6 +1239,7 @@ shinyServer(function(input,output,session) {
     })
     condition[msg$type,'used']<<-F
     condition[msg$type,'core']<<-0
+    condition[msg$type,'others']<<-""
     thresh<<-thresh[thresh$type!=msg$type,]
     removeUI(selector = paste("div.col-lg-12 > #density_plot_",msg$type,sep=""),immediate = T)
   })
@@ -1277,8 +1298,16 @@ shinyServer(function(input,output,session) {
       target=sect_output_target[rownames(rna.exp),rownames(micro.exp)]
       geneinfo=after_slice_geneinfo
       save(rna.exp,micro.exp,target,geneinfo,file = datapath)
-      print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
-      system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
+      if(condition[type,'others']=="")
+      {
+        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
+        system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
+      }
+      else
+      {
+        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,condition[type,'others']))
+        system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath,condition[type,'others']),wait = F)
+      }
     }
   })
   observeEvent(input$compute_status,{
@@ -1499,7 +1528,7 @@ shinyServer(function(input,output,session) {
       msg=input$network
       do_what =msg$do_what
     })
-    if(after_slice_rna.exp=="" || network==""){
+    if(R.oo::equals(after_slice_rna.exp,"")|R.oo::equals(network,"")){
       sendSweetAlert(session = session,title = "Error",text = "Please do this step after the step2 and step3",type = 'error')
     }else{
       if(do_what=="layout"){

@@ -1,8 +1,9 @@
-condition=data.frame(abbr=c('PCC','LA','MS'),
+condition=data.frame(abbr=c('PCC','LA','MS','MI','CMI'),
                      used=F,
-                     description=c('Pearson Correlation Coefficient','Liquid Association','MicroRNA Significance'),
+                     description=c('Pearson Correlation Coefficient','Liquid Association','MicroRNA Significance','Mutual Information',"Conditional Mutual Information"),
                      core=0,
                      task="",
+                     others="",
                      stringsAsFactors = F
 )
 rownames(condition)=condition$abbr

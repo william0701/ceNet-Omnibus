@@ -1,0 +1,40 @@
+#projName = NULL
+#tmpdir=NULL
+#typeLimit = 10
+Super <- function(run = TRUE,maxRequestSize=5*1024^2,workpath=tempdir(),projectName=NULL,typeLimit=10,...) {
+  library(parallel)
+  library(biomaRt)
+  library(shiny)
+  library(plyr)
+  library(ggplot2)
+  library(jsonlite)
+  library(shinydashboard)
+  library(shinyWidgets)
+  library(DT)
+  library(ggthemr)
+  library(R.matlab)
+  library(tibble)
+  library(igraph)
+  library(scales)
+  library(rhandsontable)
+  library(PerformanceAnalytics)
+  #library(rJava)
+  library(linkcomm)
+  library(MCL)
+  library(visNetwork)
+  library(colourpicker)
+  #library(ProNet)
+  library(ggplotify)
+  library(survival)
+  library(survminer)
+  library(ComplexHeatmap)
+  library(circlize) 
+  tmpdir<<-normalizePath(workpath)
+  projName <<- projectName
+  typeLimit <<- typeLimit
+  ggthemr('flat')
+  usedcolors=swatch()
+  options(shiny.maxRequestSize = maxRequestSize)
+  if(run) suppressMessages(shiny::runApp(system.file("app", package = "shinyAppDemo"),launch.browser=TRUE,...))
+}
+Super()

@@ -356,7 +356,7 @@ slice_gene=function(e){
   }
 Shiny.addCustomMessageHandler('gene_type_infomation',function(msg){
   var len=msg.group.length;
-  $('#gene_Group_microFilterPlot_panel').nextAll().remove();
+  //$('#gene_Group_microFilterPlot_panel').nextAll().remove();
   for(var i=0;i<len;i++){
      creat_geneFilter("RNA Filter For Group:"+msg.group[i],msg.group[i],"Rna");
   }

@@ -1522,8 +1522,8 @@ shinyServer(function(input,output,session) {
     network_construnction(after_slice_geneinfo)
     
     removeUI(selector = "#network_summary>",multiple = T,immediate = T)
-    insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::degree(net_igraph)!=0),subtitle = "Nodes with edges",icon = icon("eye-open",lib = "glyphicon"),color = "green",width = 3),immediate = T)
-    insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::degree(net_igraph)==0),subtitle = "Nodes without edges",icon = icon("eye-close",lib = "glyphicon"),color = "red",width = 3),immediate = T)
+    insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::degree(net_igraph)!=0),subtitle = "Connected Nodes",icon = icon("eye-open",lib = "glyphicon"),color = "green",width = 3),immediate = T)
+    insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::degree(net_igraph)==0),subtitle = "Isolated Nodes",icon = icon("eye-close",lib = "glyphicon"),color = "red",width = 3),immediate = T)
     insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = length(E(net_igraph)),subtitle = "Edges",icon = icon("link",lib = "font-awesome"),color = "orange",width = 3),immediate = T)
     insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::components(net_igraph)$csize>1),subtitle = "Components",icon = icon("connectdevelop",lib = "font-awesome"),color = "maroon",width = 3),immediate = T)
     
@@ -1537,7 +1537,7 @@ shinyServer(function(input,output,session) {
       do_what =msg$do_what
     })
     if(is.null(nrow(after_slice_rna.exp)) | is.null(nrow(network))){
-      sendSweetAlert(session = session,title = "Error",text = "Please do this step after the step2 and step3",type = 'error')
+      sendSweetAlert(session = session,t.itle = "Error",text = "Please do this step after the step2 and step3",type = 'error')
     }else{
       if(do_what=="layout"){
         type=msg$type

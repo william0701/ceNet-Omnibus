@@ -3,15 +3,15 @@
 ####################################
 
 print(options('shiny.maxRequestSize'))
+load
 
 shinyServer(function(input,output,session) {
 
-  
   source('www/R/input_tabServer.R',local = T)
   source('www/R/construct_tabServer.R',local = T)
   source('www/R/analysis_tabServer.R',local = T)
   source('www/R/process_tabServer.R',local = T)
- 
+  connectEnsembl(session)
   if(is.null(projName)){
     projName <<- session$token
   }
@@ -226,14 +226,32 @@ shinyServer(function(input,output,session) {
     attr=unique(c(filter,attr))
     session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='ongoing'))
     feature=getBM(attributes = attr,filters = filter,values = select.gene,mart = ensembl)
-    rownames(feature)=feature[,filter]
+    newfeature=data.frame()
+    for(g in unique(feature[,1]))
+    {
+      index=which(feature[,1]==g)
+      tmpFeature=t(as.data.frame(apply(X = feature[index,],MARGIN = 2,FUN = mergeEnsembl),stringsAsFactors = F))
+      newfeature=rbind(newfeature,tmpFeature[1,],stringsAsFactors=F)
+    }
+    colnames(newfeature)=colnames(tmpFeature)
+    rownames(newfeature)=newfeature[,filter]
     session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='finish'))
-    geneinfo<<-feature
+    geneinfo<<-newfeature
     output$geneinfo_preview_panel=renderTable({
-      return(geneinfo)
+      return(head(geneinfo,n = 20))
     },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
     # session$sendCustomMessage('geneinfo',toJSON(geneinfo))
   })
+  
+  output$geneinfo_export <- downloadHandler(
+    filename = function() {
+      return("geneinfo.txt")
+    },
+    content = function(file) {
+      write.table(x=geneinfo,file = file, quote = F,sep = "\t",row.names = T,col.names = T)
+    }
+  )
+  
   #########Process Page Action########
   observeEvent(input$interclick,{
     if(is.character(rna.exp)){

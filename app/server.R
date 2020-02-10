@@ -346,7 +346,12 @@ shinyServer(function(input,output,session) {
       #          legend = list(orientation = "h",font=list(family='Georgia')),
       #          autosize=T)
       svg(filename = paste(basepath,"Plot",'ph1.svg',sep="/"),family = 'serif')
-      print(p)
+      # print(p)
+      print(p+theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12),
+                    axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
+                    plot.title = element_text(hjust = 0.5,size=20),
+                    legend.position = "bottom", legend.direction = "horizontal")
+            )
       dev.off()
       print(normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))
       list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")),height="100%",width="100%")    
@@ -467,7 +472,12 @@ shinyServer(function(input,output,session) {
     #   geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
     # p_test2=ggplot_build(p_test1)
     print(p+xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)+
-          geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
+          geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
+            labs(x="Effective sample ratio",y="Number",title = "Screening sample plot",fill = "Remain")+
+            theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
+                  axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
+                  plot.title = element_text(hjust = 0.5,size=20),
+                  legend.position = "bottom", legend.direction = "horizontal")
             )
 
     
@@ -600,7 +610,12 @@ shinyServer(function(input,output,session) {
       # )
       
       print(p+xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)+
-              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
+              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
+              labs(x="Effective sample ratio",y="Number",title = "Screening sample plot",fill = "Remain")+
+              theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
+                    axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
+                    plot.title = element_text(hjust = 0.5,size=20),
+                    legend.position = "bottom", legend.direction = "horizontal")
       )
       
       dev.off()
@@ -746,7 +761,13 @@ shinyServer(function(input,output,session) {
       }
       
       print(p+xlim(draw_x[1]-x_pianyi*5/150, draw_x[2]+x_pianyi*5/150)+
-              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
+              labs(x="Effective sample ratio",y="Number",title = "Screening sample plot",fill = "Remain")+
+              theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
+                    axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
+                    plot.title = element_text(hjust = 0.5,size=20),
+                    legend.position = "bottom", legend.direction = "horizontal")
+              )
       
       dev.off()
       #file.copy(from = paste(basepath,"Plot","microStatistic.svg",sep = "/"),to = paste('www/templePlot/microStatistic',session$token,'.svg',sep = ""))
@@ -824,7 +845,13 @@ shinyServer(function(input,output,session) {
       }
       
       print(p+xlim(draw_x[1]-x_pianyi*5/150, draw_x[2]+x_pianyi*5/150)+
-              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
+              labs(x="Effective sample ratio",y="Number",title = "Screening sample plot",fill = "Remain")+
+              theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
+                    axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
+                    plot.title = element_text(hjust = 0.5,size=20),
+                    legend.position = "bottom", legend.direction = "horizontal")
+              )
       
       
       dev.off()
@@ -1636,7 +1663,12 @@ shinyServer(function(input,output,session) {
             geom_linerange(linetype='dashed')+
             geom_point(size=3)+scale_x_log10()+scale_y_log10()+geom_smooth(method = lm)
           svg(filename = paste(basepath,"Plot",'node_degree.svg',sep="/"),family = 'serif')
-          print(p)
+          # print(p)
+          print(p+theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
+                        axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
+                        plot.title = element_text(hjust = 0.5,size=20),
+                        legend.position = "bottom", legend.direction = "horizontal")
+                )
           dev.off()
           output$node_Degree_plot=renderImage({
             list(src=normalizePath(paste(basepath,"Plot",'node_degree.svg',sep="/")),height="100%",width="100%")
@@ -1651,7 +1683,12 @@ shinyServer(function(input,output,session) {
           density=data.frame(x=density$x,y=density$y)
           p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
           svg(filename = paste(basepath,"Plot",'node_betweenness.svg',sep="/"),family = 'serif')
-          print(p)
+          # print(p)
+          print(p+theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
+                        axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
+                        plot.title = element_text(hjust = 0.5,size=20),
+                        legend.position = "bottom", legend.direction = "horizontal")
+                )
           dev.off()
           output$node_Betweenness_plot=renderImage({
             list(src=normalizePath(paste(basepath,"Plot",'node_betweenness.svg',sep="/")),height="100%",width="100%")
@@ -1666,7 +1703,12 @@ shinyServer(function(input,output,session) {
           density=data.frame(x=density$x,y=density$y)
           p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
           svg(filename = paste(basepath,"Plot",'node_closeness.svg',sep="/"),family = 'serif')
-          print(p)
+          # print(p)
+          print(p+theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
+                        axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
+                        plot.title = element_text(hjust = 0.5,size=20),
+                        legend.position = "bottom", legend.direction = "horizontal")
+                )
           dev.off()
           output$node_Closeness_plot=renderImage({
             list(src=normalizePath(paste(basepath,"Plot",'node_closeness.svg',sep="/")),height="100%",width="100%")
@@ -1681,7 +1723,11 @@ shinyServer(function(input,output,session) {
           density=data.frame(x=density$x,y=density$y)
           p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
           svg(filename = paste(basepath,"Plot",'node_clustering_coefficient.svg',sep="/"),family = 'serif')
-          print(p)
+          # print(p)
+          print(p+theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
+                        axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
+                        plot.title = element_text(hjust = 0.5,size=20),
+                        legend.position = "bottom", legend.direction = "horizontal"))
           dev.off()
           output$node_Clustering_Coefficient_plot=renderImage({
             list(src=normalizePath(paste(basepath,"Plot",'node_clustering_coefficient.svg',sep="/")),height="100%",width="100%")
@@ -1726,7 +1772,11 @@ shinyServer(function(input,output,session) {
           density=data.frame(x=density$x,y=density$y)
           p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
           svg(filename = paste(basepath,"Plot",'edge_betweenness.svg',sep="/"),family = 'serif')
-          print(p)
+          # print(p)
+          print(p+theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
+                        axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
+                        plot.title = element_text(hjust = 0.5,size=20),
+                        legend.position = "bottom", legend.direction = "horizontal"))
           dev.off()
           output$edge_Betweenness_plot=renderImage({
             list(src=normalizePath(paste(basepath,"Plot",'edge_betweenness.svg',sep="/")),height="100%",width="100%")
@@ -2691,6 +2741,123 @@ shinyServer(function(input,output,session) {
     
     
   })
+  
+  observeEvent(input$initialization_enrichment,{
+    updatePickerInput(session = session,inputId = "Organism_enrichment",choices = sub(pattern ="_gene_ensembl$",replacement = "",x = specials$dataset),selected = "hsapiens")
+    updatePickerInput(session = session,inputId = "enrichment_Numeric_IDs_treated_as",choices = colnames(after_slice_geneinfo))
+  })
+  
+  observeEvent(input$enrichment_finish,{
+    isolate({
+      Organism=input$Organism_enrichment
+      choose_analysis=input$enrichment_choose_module_or_customize_gene
+      Module_analysis=input$enrichment_Module_analysis1
+      Custom_input=input$enrichment_Custom_input1
+      Custom_input_function_gene=input$enrichment_Custom_input_function_gene
+      Significance_threshold=input$enrichment_Significance_threshold
+      User_threshold=input$enrichment_User_threshold
+      Numeric_IDs_treated_as=input$enrichment_Numeric_IDs_treated_as
+      Data_Sources=input$enrichment_Data_Sources
+      choose_show=input$enrichment_choose_show
+      
+    })
+    browser()
+    removeUI(selector = '#all_enrichment_show>',immediate = T)
+    
+    for(i in Module_analysis){
+      enrichment_result=gost(modules[[i]], organism = Organism,domain_scope='custom',
+                             custom_bg=rownames(after_slice_geneinfo))$result
+      
+      if(length(enrichment_result) ==0){
+        
+        print("tishi no picture!")
+        insertUI(
+          selector ='#all_enrichment_show',
+          where='beforeEnd',
+          ui=div(class='box box-solid box-primary',id=paste('enrichment_show_',i,sep = ""),
+                 div(class='box-header',
+                     h3(class="box-title",HTML(paste('enrichment_show_',i,sep = ""))),
+                     div(class="box-tools pull-right",
+                         tags$button(class='btn btn-box-tool',"data-widget"="collapse",
+                                     tags$i(class='fa fa-minus')
+                         )
+                     )
+                 ),
+                 div(class='box-body',
+                     div(class='row',
+                         div(
+                           h3(class="box-title",HTML(paste('No solve! So no picture...')))
+                         )
+                     )      
+                 )
+                 
+          ),
+          immediate = T
+        )
+      }else{
+        
+        insertUI(
+          selector ='#all_enrichment_show',
+          where='beforeEnd',
+          ui=div(class='box box-solid box-primary',id=paste('enrichment_show_',i,sep = ""),
+                 div(class='box-header',
+                     h3(class="box-title",HTML(paste('enrichment_show_',i,sep = ""))),
+                     div(class="box-tools pull-right",
+                         tags$button(class='btn btn-box-tool',"data-widget"="collapse",
+                                     tags$i(class='fa fa-minus')
+                         )
+                     )
+                 ),
+                 div(class='box-body',
+                     div(class='row')      
+                 )
+          ),
+          immediate = T
+        )
+        
+        # enrichment_result=gost(c("X:1000:1000000", "rs17396340", "GO:0005005", "ENSG00000156103", "NLRP1"))$result
+        a=1  
+        # removeUI(selector = paste('enrichment_show_',i,' .row',sep = ""),immediate = T)
+        for(j in Data_Sources){
+          svg(filename = paste(basepath,"Plot",paste("enrichment_plot",a,".svg",sep = ""),sep = "/"),family = 'serif')
+          if(choose_show=="bar_plot"){
+            print(
+              ggplot(enrichment_result[which(enrichment_result$source==j),],aes(x=term_name,y=p_value))+
+                geom_bar(stat = "identity")+labs(y="p_value",x="term_name",title = "Screening sample plot")+
+                theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
+                      panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))+coord_flip()
+            )
+          }else{
+            print(
+              ggplot(enrichment_result[which(enrichment_result$source==j),],aes(y= term_name,x=recall,colour=p_value,size=intersection_size))+
+                geom_point()+labs(x="Recall",y="term_name",title = "Screening sample plot")+
+                theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
+                      panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))
+            )
+            
+          }
+          dev.off()
+          insertUI(
+            selector =paste('#enrichment_show_',i,' .row',sep = ""),
+            where='beforeEnd',
+            ui=div(class='col-lg-6',
+                   imageOutput(outputId = paste('enrichment_out_pic',a,sep = ""),height = "100%")),
+            immediate = T
+          )
+          local({
+            temp_a=a
+            output[[paste('enrichment_out_pic',temp_a,sep = "")]]=renderImage({
+              list(src=paste(basepath,"Plot",paste("enrichment_plot",temp_a,".svg",sep = ""),sep = "/"),width="100%",height="100%")
+            },deleteFile = F)
+          })
+          a=a+1
+        }
+        
+      }
+    }
+    
+  })
+  
 })
 
 

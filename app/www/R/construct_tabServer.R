@@ -91,7 +91,14 @@ condition_density_plot=function(basepath,data,type,task,value,direction="<")
   valid=which(direction(data,value))
   text1=paste("Thresh:",value)
   text2=paste("Remain: ",round(length(valid)/length(data)*100,digits = 2),"%",sep="")
-  density=density(x = data,from = min(data,na.rm = T),to = max(data,na.rm = T),na.rm = T)
+  if(length(data)>1)
+  {
+    density=density(x = data,from = min(data,na.rm = T),to = max(data,na.rm = T),na.rm = T)
+  }
+  else
+  {
+    density=data.frame(x=data,y=1)
+  }
   density=data.frame(x=density$x,y=density$y)
   density$area="false"
   density$area[which(direction(density$x,value))]='true'
@@ -105,23 +112,33 @@ condition_density_plot=function(basepath,data,type,task,value,direction="<")
     geom_area(mapping = aes(x = x,y=y,fill=area),alpha=0.8)+
     geom_vline(xintercept = value,size=1.2,colour=usedcolors[5],linetype="dashed")+
     scale_fill_manual(values = c("true"=usedcolors[6],"false"="#FFFFFF"))+
-    labs(title = paste(type,task))+
+    labs(title = paste("Condition:",type),subtitle = paste("Task:",sub(pattern = "---",replacement = " vs ",x = task)))+xlab(type)+ylab("Density")+
     geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
-    theme(legend.position = 'none',panel.background = element_rect(fill = NA))
+    theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
+          axis.text.x = element_text(family = "serif",colour = "black"), 
+          axis.text.y = element_text(family = "serif",colour = "black"), 
+          plot.title = element_text(family = "serif", hjust = 0.5,size=14),
+          panel.background = element_rect(fill = NA),legend.position = 'none',
+          plot.subtitle = element_text(family = "serif",size = 12, colour = "black", hjust = 0.5,vjust = 1))
   print(p)
   dev.off()
 }
 draw_density=function(basepath,output,session,type,tasks)
 {
   # Read data
+  for(task in tasks)
+  {
+    removeUI(selector = paste("#density_plot_",type,"_",task,">",sep=""),immediate = T,multiple = T)
+    insertUI(selector = paste("#density_plot",type,task,sep="_"),where = 'beforeEnd',
+             ui = create_progress(msg="Creating Plot...",id=paste("density_plot",type,task,"progress",sep="_")),immediate = T,session = session)
+  }
   datalist=readData(type,tasks)
+
   for(task in tasks)
   {
     condition_density_plot(basepath = basepath,data=datalist[[type]][[task]],type = type,task = task,value=0)
-    removeUI(selector = paste("#density_plot",type,task,"image",sep="_"),immediate = T)
-    removeUI(selector = paste(paste("#density_plot",type,task,sep="_"),"div.row"),immediate = T)
-    insertUI(selector = paste("#density_plot",type,task,sep="_"),where = 'beforeEnd',
-             ui = create_progress(msg="Creating Plot...",id=paste("density_plot",type,task,"progress",sep="_")),immediate = T,session = session)
+    #removeUI(selector = paste("#density_plot",type,task,"image",sep="_"),immediate = T)
+    #removeUI(selector = paste(paste("#density_plot",type,task,sep="_"),"div.row"),immediate = T)
     insertUI(selector = paste("#density_plot",type,task,sep="_"),where = "beforeEnd",
              ui = filter_bar(type,task),immediate = T)
     insertUI(selector = paste("#density_plot",type,task,sep="_"),

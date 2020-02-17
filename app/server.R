@@ -27,6 +27,7 @@ shinyServer(function(input,output,session) {
   visual_layout=""
   
   load('testdata/ph1.RData',envir = environment())
+  #load('C:\\Users\\DELL\\Desktop\\single-cell test\\tmp.RData',envir=environment())
   # rna.exp<<-rna.exp
   # geneinfo<<-geneinfo
   # micro.exp<<-micro.exp
@@ -360,13 +361,19 @@ shinyServer(function(input,output,session) {
       sect_output_geneinfo[sect_output_geneinfo[,biotype] %in% subset,'.group']<<-group
     }
     output$biotype_group_statics_graph=renderImage({
-      p=ggplot(data =sect_output_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill=biotype))+
-        labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
-        theme(legend.position = 'bottom')
-      # ggplotly(p) %>%
-      #   layout(title = list(text="Gene Counts Statistics in Groups",font=list(family='serif')),
-      #          legend = list(orientation = "h",font=list(family='Georgia')),
-      #          autosize=T)
+      if(length(unique(sect_output_geneinfo[,biotype]))>8)
+      {
+        p=ggplot(data =sect_output_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill=biotype))+
+          labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
+          scale_fill_manual(values = colorRampPalette(usedcolors)(length(unique(sect_output_geneinfo[,biotype]))))+
+          theme(legend.position = 'bottom',panel.background = element_rect(fill = NA))
+      }
+      else
+      {
+        p=ggplot(data =sect_output_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill=biotype))+
+          labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
+          theme(legend.position = 'bottom',panel.background = element_rect(fill = NA))
+      }
       svg(filename = paste(basepath,"Plot",'ph1.svg',sep="/"),family = 'serif')
       print(p)
       dev.off()
@@ -726,7 +733,7 @@ shinyServer(function(input,output,session) {
       temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
       draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2
       number_ori=length(validGene)
-      number_after=(1-ypoint)*number_ori
+      number_after=sum(xdata$SampleRatio>ratio)
       x1 = min(xdata$SampleRatio)+0.2*max(xdata$SampleRatio)+min(xdata$SampleRatio)
       text_to_plot=data.frame(x=c(x1,x1),y=c(0.95,0.90),col=c("blue","blue"),text=c(paste("Original genes:",number_ori),paste("After seg:",number_after)))
       ypoint =round(ypoint,2)
@@ -805,7 +812,7 @@ shinyServer(function(input,output,session) {
       temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
       draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2
       number_ori=length(validGene)
-      number_after=(1-ypoint)*number_ori
+      number_after=sum(xdata$SampleRatio>ratio)
       ypoint =round(ypoint,2)
       svg(filename = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),family = 'serif')
       x1 = min(xdata$SampleRatio)+0.2*max(xdata$SampleRatio)+min(xdata$SampleRatio)
@@ -1283,22 +1290,21 @@ shinyServer(function(input,output,session) {
       type=input$compute_condition$type
     })
     core=condition[type,'core']
-    
     tasks=condition[type,'task']
-    logpath=paste(basepath,'/log/',type,'.txt',sep="")
+    logpath=normalizePath(paste(basepath,'/log/',type,'.txt',sep=""))
     if(file.exists(logpath))
     {
       file.remove(logpath)
     }
     if(type=="PCC")
     {
-      if(dir.exists(paths = paste(basepath,'/log/')))
+      if(dir.exists(paths = normalizePath(paste(basepath,'/log/',sep=""))))
       {
-        dir.create(paths = paste(basepath,'/log/'),recursive = T)
+        dir.create(path = normalizePath(paste(basepath,'/log/',sep="")),recursive = T)
       }
       print('start')
       session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
-      filepath=paste(basepath,"/data/rna.exp.mat",sep="")
+      filepath=paste(basepath,"/data/rna.exp.RData",sep="")
       saveRDS(file=filepath,object=after_slice_rna.exp)
       #system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
       scriptpath="www/Program/PCC.R"
@@ -1412,6 +1418,7 @@ shinyServer(function(input,output,session) {
           eta=(endtime-info$time)/complete*(info$total-complete)#预计时间
           finish.task=length(which(grepl(pattern = "^Finish",x = content)))#总完成任务数
           status="run"
+          print(eta)
           msg=paste("Running:",info$task,"&nbsp;&nbsp;&nbsp;&nbsp;ETA:",time(eta))
           progress=format(x = complete/info$total*100,nsmall=2)
           if(length(which(grepl(pattern = "^All Finish.$",x = content)))>0)

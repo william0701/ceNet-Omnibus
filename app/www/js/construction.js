@@ -341,6 +341,7 @@ Shiny.addCustomMessageHandler('distribution_plot',function(msg){
     $('#'+msg.id).css("visibility",'visible');
     $('#'+msg.id).find('span').html(msg.value)
   }
+  console.log(msg.status+' '+msg.id)
 })
 
 Shiny.addCustomMessageHandler('network_construction',function(msg){

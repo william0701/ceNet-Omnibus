@@ -1,9 +1,9 @@
 library(R.matlab)
 
 args=commandArgs(T)
-datapath=args[1]
-logpath=args[2]
-resultpath=args[3]
+datapath=normalizePath(args[1],winslash = '/')
+logpath=normalizePath(args[2],winslash = '/')
+resultpath=normalizePath(args[3],winslash = '/')
 if(file.exists(logpath)){
   file.remove(logpath)
 }else{

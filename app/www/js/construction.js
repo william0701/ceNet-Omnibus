@@ -331,6 +331,34 @@ Shiny.addCustomMessageHandler('calculation_eta',function(msg){
   }
 })
 
+Shiny.addCustomMessageHandler('distribution_plot',function(msg){
+  if(msg.status=='finish')
+  {
+    $('#'+msg.id).css("visibility",'hidden');
+  }
+  else if(msg.status=='update')
+  {
+    $('#'+msg.id).css("visibility",'visible');
+    $('#'+msg.id).find('span').html(msg.value)
+  }
+})
+
+Shiny.addCustomMessageHandler('network_construction',function(msg){
+  if(msg.status=='update')
+  {
+    if(!$('#infolist').hasClass('in'))
+    {
+      showModal()
+      $('.modal-footer').css('visibility','hidden')
+    }
+    $('#'+msg.id).find('span').html(msg.value)
+  }
+  else if(msg.status=='finish')
+  {
+    hiddenModal()
+    $('.modal-footer').css('visibility','visible')
+  }
+})
 comfirm_thresh=function(e)
 {
   var $thresh_panel=$(e).parent().prev()

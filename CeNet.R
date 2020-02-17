@@ -35,6 +35,7 @@ Super <- function(run = TRUE,maxRequestSize=5*1024^2,workpath=tempdir(),projectN
   ggthemr('flat')
   usedcolors=swatch()
   options(shiny.maxRequestSize = maxRequestSize)
-  if(run) suppressMessages(shiny::runApp(system.file("app", package = "shinyAppDemo"),launch.browser=TRUE,...))
+  #if(run) suppressMessages(shiny::runApp(system.file("app", package = "shinyAppDemo"),launch.browser=TRUE,...))
+  runApp(appDir = "app")
 }
 Super()

@@ -37,10 +37,10 @@ ggthemr('flat')
 usedcolors=swatch()
 source('www/R/customerUI.R')
 options(shiny.maxRequestSize = 1000*1024^2)
-if(!dir.exists(paste(getwd(),'www/templePlot',sep="/")))
-{
-  dir.create(paste(getwd(),'www/templePlot',sep="/"))
-}
+# if(!dir.exists(paste(getwd(),'www/templePlot',sep="/")))
+# {
+#   dir.create(paste(getwd(),'www/templePlot',sep="/"))
+# }
 # basicObj=reactiveValues()
 # ensemblObj=reactiveValues()
 # ## basicObj:保存运算需要的变量

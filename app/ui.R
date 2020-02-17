@@ -352,70 +352,117 @@ analysis_tab=tabItem(tabName = "analysis",
                                                  )
                                              ),
                                              
-                                             
-                                             
                                              div(class='box-body',
                                                  div(class='row',
                                                      div(class='col-lg-3',
-                                                         pickerInput(inputId = 'community_algorithm',label = 'Community Detection Algorithm',
-                                                                     choices = c("gProfile(Online)"="...",
-                                                                                 "Cluster Profiler(Offline)"="..."
+                                                         pickerInput(inputId = 'choose_analysis',label = 'choose analysis',
+                                                                     choices = c("gProfile(Online)"="gProfile",
+                                                                                 "custom input"="custom_input"
                                                                      ),
+                                                                     width = "100%"
+                                                         ),
+                                                         # conditionalPanel( "input.choose_analysis=='gProfile'",
+                                                         #                   fileInput(inputId="enrichment_Custom_input_function_gene",label = "Custom input function gene",width ="400px")
+                                                         # ),
+                                                         conditionalPanel( "input.choose_analysis=='custom_input'",
+                                                                           fileInput(inputId="enrichment_Custom_input_function_gene",label = "Custom input function gene",width ="400px")
+                                                         )
+                                                     )
+                                                 ),
+                                                 
+                                                 div(class='row',
+                                                     div(class='col-lg-3',
+                                                         pickerInput(inputId = 'Organism_enrichment',label = 'Organism:',
+                                                                     choices = c(),
+                                                                     options = list(size = 8,`live-search` = TRUE),
                                                                      width = "100%"
                                                          )
                                                      )
                                                  ),
+                                                 
                                                  div(class='row',
                                                      div(class='col-lg-3',
-                                                         prettyRadioButtons(
-                                                           inputId = "Id036",
-                                                           label = "Choose:", 
-                                                           choices = c("Module analysis"="Module_analysis", "Custom input"="Custom_input"),
-                                                           inline = TRUE
-                                                         ),
-                                                         conditionalPanel("input.Id036=='Module_analysis'",
-                                                                          pickerInput(inputId = 'Module_analysis1',label = 'Module analysis',
-                                                                                      choices = c("NG Algorithm"="cluster_edge_betweenness",
-                                                                                                  "Modularity Optimization"="cluster_fast_greedy"
-                                                                                      ),
-                                                                                      multiple = TRUE,
-                                                                                      width = "100%"
-                                                                          )
-                                                         ),
-                                                         conditionalPanel( "input.Id036=='Custom_input'",
-                                                                           textAreaInput("Custom_input1", "Custom input", "gene", width = "500px",height = "200px")
+                                                         pickerInput(inputId = 'enrichment_Module_analysis1',label = 'Module analysis',
+                                                                     choices = c("finish Part2: Network Modules first"),
+                                                                     selected="finish Part2: Network Modules first",
+                                                                     multiple = TRUE,
+                                                                     options = list(size = 8,`live-search` = TRUE,"actions-box"=T),
+                                                                     width = "100%"
                                                          )
+                                                         # prettyRadioButtons(
+                                                         #   inputId = "enrichment_choose_module_or_customize_gene",
+                                                         #   label = "Choose:", 
+                                                         #   choices = c("Module analysis"="Module_analysis", "Custom input"="Custom_input"),
+                                                         #   inline = TRUE
+                                                         # ),
+                                                         # conditionalPanel("input.enrichment_choose_module_or_customize_gene=='Module_analysis'",
+                                                         #                  pickerInput(inputId = 'enrichment_Module_analysis1',label = 'Module analysis',
+                                                         #                              choices = c("finish Part2: Network Modules first"),
+                                                         #                              selected="finish Part2: Network Modules first",
+                                                         #                              multiple = TRUE,
+                                                         #                              options = list(size = 8,`live-search` = TRUE,"actions-box"=T),
+                                                         #                              width = "100%"
+                                                         #                  )
+                                                         #                  
+                                                         #                  
+                                                         # ),
+                                                         # conditionalPanel( "input.enrichment_choose_module_or_customize_gene=='Custom_input'",
+                                                         #                   fileInput(inputId="enrichment_Custom_input_function_gene",label = "Custom input function gene",width ="400px")
+                                                         # )
                                                      )
                                                  ),
                                                  
-                                                 pickerInput(inputId = 'Significance_threshold',label = 'Significance threshold',
+                                                 
+                                                 # fileInput(inputId="enrichment_Custom_input_function_gene",label = "Custom input function gene",width ="400px"),
+                                                 pickerInput(inputId = 'enrichment_Significance_threshold',label = 'Significance threshold',
                                                              choices = c("g:SCS threshold"="g:SCS_threshold",
                                                                          "Bonferroni correction"="Bonferroni_correction",
                                                                          "Benjamini-Hochberg FDR"="Benjamini-Hochberg_FDR"
                                                              ),
-                                                             
+                                                             width = "50%"
+                                                 ),
+                                                 textInput("enrichment_User_threshold", "User threshold", "0.05",width="400px"),
+                                                 
+                                                 
+                                                 
+                                                 pickerInput(inputId = 'enrichment_Numeric_IDs_treated_as',label = 'Numeric IDs treated as',
+                                                             choices =c("onclick page2 first!"),
+                                                             options = list(size = 8,`live-search` = TRUE),
                                                              width = "50%"
                                                  ),
                                                  
-                                                 textInput("User_threshold", "User threshold", "0.05",width="400px"),
-                                                 
-                                                 pickerInput(inputId = 'Numeric_IDs_treated_as',label = 'Numeric IDs treated as',
-                                                             
-                                                             choices =c(),
-                                                             width = "50%"
-                                                 ),
-                                                 
-                                                 pickerInput(inputId = 'Data_Sources',label = 'Data Sources',
-                                                             choices = c("NG Algorithm"="cluster_edge_betweenness",
-                                                                         "Modularity Optimization"="cluster_fast_greedy"
-                                                                         
+                                                 pickerInput(inputId = 'enrichment_Data_Sources',label = 'Data Sources',
+                                                             choices = c("GO Molecular Function(MF)"="GO:MF",
+                                                                         "GO Cellular Component(CC)"="GO:CC",
+                                                                         "GO Biological Process(BP)"="GO:BP",
+                                                                         "KEGG"="KEGG",
+                                                                         "Reactome"="REAC",
+                                                                         "WikiPathways"="WP"
                                                              ),
                                                              multiple = TRUE,
-                                                             width = "50%"
+                                                             width = "50%",
+                                                             options = list("actions-box"=T)
+                                                 ),
+                                                 
+                                                 prettyRadioButtons(
+                                                   inputId = "enrichment_choose_show",
+                                                   label = "Choose which plot:", 
+                                                   choices = c("bar plot"="bar_plot", "point plot"="point_plot"),
+                                                   inline = TRUE
+                                                 ),
+                                                 
+                                                 div(class="col-lg-2",style="padding:0;margin:0",
+                                                     div(class="form-group shiny-input-container",
+                                                         tags$label(class="control-label"),tags$br(),
+                                                         tags$button(id="enrichment_finish",class="btn btn-primary btn-flat action-button shiny-bound-input",
+                                                                     HTML("Perform"),onclick="run_enrichment_finish(this)")
+                                                     )
                                                  )
                                                  
                                              )
-                                         )
+                                         ),
+                                         
+                                         div(id="all_enrichment_show")
                                 ),
                                 tabPanel(title="Survival Analysis",
                                          h2("Part4: Survival Analysis",style='font-family:Georgia'),

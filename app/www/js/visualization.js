@@ -78,7 +78,15 @@ $(document).ready(function(){
   var $table_shape = $('<div class="col-lg-6" style="padding:0px"><div class="table" style="margin-top:5px"></div></div>')
   $("#change_network_color").children('div.form-group').append($table_color)
   $("#change_network_shape").children('div.form-group').append($table_shape)
-  
+  //network export as png
+  var $network_png = $('<span class="input-group-btn"><button type="button" class="btn btn-info btn-flat">Download network</button></span>')
+  $("#export_network_png").append($network_png)
+  $network_png.on('click',function(e){
+    var b64key = 'base64';
+    var b64 =  cy.png().substring( 22 );
+    var imgBlob = base64ToBlob( b64, 'image/png' );
+    saveAs( imgBlob, 'graph.png' );
+  })
 })
 create_net_layout = function(name){
     var $li =$('<li></li>')

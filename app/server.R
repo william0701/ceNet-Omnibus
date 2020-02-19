@@ -3,31 +3,29 @@
 ####################################
 
 print(options('shiny.maxRequestSize'))
-load
 
 shinyServer(function(input,output,session) {
-  FLAGS=list(reintersect=T)
+
+  
   source('www/R/input_tabServer.R',local = T)
   source('www/R/construct_tabServer.R',local = T)
   source('www/R/analysis_tabServer.R',local = T)
   source('www/R/process_tabServer.R',local = T)
-  #connectEnsembl(session)
+ 
   if(is.null(projName)){
     projName <<- session$token
   }
   basepath = paste(tmpdir,'/Project_',projName,sep="");
   dir.create(path = basepath,recursive = T)
   print(paste("Session:",session$token,'is started!'))
-  print(paste("Templete File Dictionary:",basepath))
   dir.create(paste(basepath,'Plot',sep="/"))
   dir.create(paste(basepath,'code',sep="/"))
   dir.create(paste(basepath,'data',sep="/"))
   dir.create(paste(basepath,'log',sep="/"))
-  
+
   visual_layout=""
-  
+
   load('testdata/ph1.RData',envir = environment())
-  #load('C:\\Users\\DELL\\Desktop\\single-cell test\\tmp.RData',envir=environment())
   # rna.exp<<-rna.exp
   # geneinfo<<-geneinfo
   # micro.exp<<-micro.exp
@@ -58,7 +56,7 @@ shinyServer(function(input,output,session) {
         rna.exp<<-'No Data'
       }else
       {
-        rna.exp<<-read.table(file = filepath,header = header,sep = sep,quote = quote,nrow=-1,stringsAsFactors = F,check.names = F)
+        rna.exp<<-read.table(file = filepath,header = header,sep = sep,quote = quote,nrow=-1,stringsAsFactors = F)
       }
       if(!row)
       {
@@ -131,7 +129,7 @@ shinyServer(function(input,output,session) {
         target<<-'No Data'
       }else
       {
-        target<<-read.table(file = filepath,header = header,sep = sep,quote = quote,stringsAsFactors = F,check.names = F)
+        target<<-read.table(file = filepath,header = header,sep = sep,quote = quote,stringsAsFactors = F)
       }
       Sys.sleep(2)
       session$sendCustomMessage('reading',list(div='target_preview_panel',status='finish'))
@@ -158,7 +156,7 @@ shinyServer(function(input,output,session) {
         geneinfo<<-'No Data'
       }else
       {
-        geneinfo<<-read.table(file = filepath,header = header,sep = sep,quote = quote,nrow=-1,stringsAsFactors = F,check.names = F)
+        geneinfo<<-read.table(file = filepath,header = header,sep = sep,quote = quote,nrow=-1,stringsAsFactors = F)
       }
       Sys.sleep(2);
       session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='finish'))
@@ -166,8 +164,6 @@ shinyServer(function(input,output,session) {
         return(head(geneinfo,n = 20))
       },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
     }
-    
-    FLAGS[['reintersect']]=T
   })
   observeEvent(input$ensembl_info,{
     isolate({
@@ -230,32 +226,14 @@ shinyServer(function(input,output,session) {
     attr=unique(c(filter,attr))
     session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='ongoing'))
     feature=getBM(attributes = attr,filters = filter,values = select.gene,mart = ensembl)
-    newfeature=data.frame()
-    for(g in unique(feature[,1]))
-    {
-      index=which(feature[,1]==g)
-      tmpFeature=t(as.data.frame(apply(X = feature[index,],MARGIN = 2,FUN = mergeEnsembl),stringsAsFactors = F))
-      newfeature=rbind(newfeature,tmpFeature[1,],stringsAsFactors=F)
-    }
-    colnames(newfeature)=colnames(tmpFeature)
-    rownames(newfeature)=newfeature[,filter]
+    rownames(feature)=feature[,filter]
     session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='finish'))
-    geneinfo<<-newfeature
+    geneinfo<<-feature
     output$geneinfo_preview_panel=renderTable({
-      return(head(geneinfo,n = 20))
+      return(geneinfo)
     },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
     # session$sendCustomMessage('geneinfo',toJSON(geneinfo))
   })
-  
-  output$geneinfo_export <- downloadHandler(
-    filename = function() {
-      return("geneinfo.txt")
-    },
-    content = function(file) {
-      write.table(x=geneinfo,file = file, quote = F,sep = "\t",row.names = T,col.names = T)
-    }
-  )
-  
   #########Process Page Action########
   observeEvent(input$interclick,{
     if(is.character(rna.exp)){
@@ -275,8 +253,8 @@ shinyServer(function(input,output,session) {
       return();
     }
     else{
-      if(FLAGS[['reintersect']]){
-        FLAGS[['reintersect']]=F
+    
+      if(R.oo::equals(after_slice_rna.exp,"")){
         sect_gene=intersect(rownames(rna.exp),rownames(target));
         sect_gene=intersect(sect_gene,rownames(geneinfo));
         sect_micro=intersect(rownames(micro.exp),names(target));
@@ -302,17 +280,17 @@ shinyServer(function(input,output,session) {
       msg=input$process_showdetails;
     })
     if(msg$id=='Rnaoutput'){
-      obj=list(title='Valid ceRNA',details=toJSON(data.frame(detail= rownames(after_slice_rna.exp),stringsAsFactors =F)));
-      session$sendCustomMessage('outdetails',obj);
+        obj=list(title='Valid ceRNA',details=toJSON(data.frame(detail= rownames(after_slice_rna.exp),stringsAsFactors =F)));
+        session$sendCustomMessage('outdetails',obj);
     }
     if(msg$id=='MicroRnaoutput'){
-      obj=list(title='Valid microRNA',details=toJSON(data.frame(detail= rownames(after_slice_micro.exp),stringsAsFactors =F)));
-      session$sendCustomMessage('outdetails',obj);
+       obj=list(title='Valid microRNA',details=toJSON(data.frame(detail= rownames(after_slice_micro.exp),stringsAsFactors =F)));
+       session$sendCustomMessage('outdetails',obj);
     }
     if(msg$id=='Sampleoutput'){
-      
-      obj=list(title='Valid Sample',details=toJSON(data.frame(detail= intersect(names(after_slice_micro.exp),names(after_slice_rna.exp)),stringsAsFactors =F)));
-      session$sendCustomMessage('outdetails',obj);
+    
+       obj=list(title='Valid Sample',details=toJSON(data.frame(detail= intersect(names(after_slice_micro.exp),names(after_slice_rna.exp)),stringsAsFactors =F)));
+       session$sendCustomMessage('outdetails',obj);
     }
   })
   observeEvent(input$Update_Biotype_Map,{
@@ -338,7 +316,7 @@ shinyServer(function(input,output,session) {
     
     if(biotype_map!='None')
     {
-      
+     
       choice=unique(sect_output_geneinfo[,biotype_map])
       if(length(choice)>typeLimit)
       {
@@ -361,26 +339,15 @@ shinyServer(function(input,output,session) {
       sect_output_geneinfo[sect_output_geneinfo[,biotype] %in% subset,'.group']<<-group
     }
     output$biotype_group_statics_graph=renderImage({
-      if(length(unique(sect_output_geneinfo[,biotype]))>8)
-      {
-        p=ggplot(data =sect_output_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill=biotype))+
-          labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
-          scale_fill_manual(values = colorRampPalette(usedcolors)(length(unique(sect_output_geneinfo[,biotype]))))+
-          theme(legend.position = 'bottom',panel.background = element_rect(fill = NA))
-      }
-      else
-      {
-        p=ggplot(data =sect_output_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill=biotype))+
-          labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
-          theme(legend.position = 'bottom',panel.background = element_rect(fill = NA))
-      }
+      p=ggplot(data =sect_output_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill=biotype))+
+        labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
+        theme(legend.position = 'bottom')
+      # ggplotly(p) %>%
+      #   layout(title = list(text="Gene Counts Statistics in Groups",font=list(family='serif')),
+      #          legend = list(orientation = "h",font=list(family='Georgia')),
+      #          autosize=T)
       svg(filename = paste(basepath,"Plot",'ph1.svg',sep="/"),family = 'serif')
-      # print(p)
-      print(p+theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12),
-                    axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
-                    plot.title = element_text(hjust = 0.5,size=20),
-                    legend.position = "bottom", legend.direction = "horizontal")
-            )
+      print(p)
       dev.off()
       print(normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))
       list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")),height="100%",width="100%")    
@@ -392,7 +359,15 @@ shinyServer(function(input,output,session) {
     session$sendCustomMessage('clear_construction_task',"")
     
   })
-  
+  # download picture
+  output$downloadData_group <- downloadHandler(
+    filename = function() {
+       return("Group_statistic.svg");
+    },
+    content = function(file) {
+      file.copy(from = paste(basepath,"Plot",'ph1.svg',sep="/"),to = file);
+    }
+  )
   observeEvent(input$Sample_Filter,{
     isolate({
       msg=input$Sample_Filter
@@ -404,135 +379,144 @@ shinyServer(function(input,output,session) {
     })
     
     if(group=="micro_invalid_name"){
-      len_sep<-length(sep)
-      
-      if(len_sep==1){
-        myfunc<-function(x){
-          if(is.character(x)){
-            x<-toupper(x)
-          }
-          # x<-as.character(x)
-          sum(x!=sep[[1]])
+    len_sep<-length(sep)
+
+    if(len_sep==1){
+      myfunc<-function(x){
+        if(is.character(x)){
+          x<-toupper(x)
         }
-        expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
-        # expressgene_num<<-colSums(sect_output_micro.exp!=0) 
+        # x<-as.character(x)
+        sum(x!=sep[[1]])
       }
-      else if(len_sep==2){
-        myfunc<-function(x){
-          if(is.character(x)){
-            x<-toupper(x)
-          }
-          # x<-as.character(x)
-          sum(x!=sep[[1]]&x!=sep[[2]])
-        }  
-        expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
-        
-      }
-      else if(len_sep==3){
-        myfunc<-function(x){
-          if(is.character(x)){
-            x<-toupper(x)
-          }
-          # x<-as.character(x)
-          sum(x!=sep[[1]]&x!=sep[[2]]&x!=sep[[3]])
+      expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
+      # expressgene_num<<-colSums(sect_output_micro.exp!=0) 
+    }
+    else if(len_sep==2){
+      myfunc<-function(x){
+        if(is.character(x)){
+          x<-toupper(x)
         }
-        expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
-      }
-      
-      else if(len_sep==4){
-        myfunc<-function(x){
-          if(is.character(x)){
-            x<-toupper(x)
-          }
-          # x<-as.character(x)
-          sum(x!=sep[[1]]&x!=sep[[2]]&x!=sep[[3]]&x!=sep[[4]])
+        # x<-as.character(x)
+        sum(x!=sep[[1]]&x!=sep[[2]])
+      }  
+      expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
+     
+    }
+    else if(len_sep==3){
+      myfunc<-function(x){
+        if(is.character(x)){
+          x<-toupper(x)
         }
-        expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
+        # x<-as.character(x)
+        sum(x!=sep[[1]]&x!=sep[[2]]&x!=sep[[3]])
       }
-      else{
-        sendSweetAlert(session = session,title = "Warning..",text = 'Please choose valid value',type = 'warning')
-        expressgene_num<<-rep(dim(sect_output_micro.exp)[1],time=dim(sect_output_micro.exp)[2])
-      }
-      
-      expressgene_num<<-expressgene_num/(dim(sect_output_micro.exp)[1])
-      process_sample<-data.frame(
-        x=expressgene_num
-      )
-      
-      value=as.numeric(value)
-      draw_x<-(max(expressgene_num)+min(expressgene_num))/2  
-      
-      x2<-quantile(expressgene_num,value,type=3) 
-      draw_x2<-round(x2,3)
-      process_sample<-data.frame(
-        x=expressgene_num,
-        color=as.character(c(expressgene_num>x2)),stringsAsFactors = F
-      )
-      svg(filename = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),family = 'serif')
-      
-      liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num>x2)]))
-      
-      text1=paste("Thresh:",draw_x2)
-      text2=paste("Remain:",liuxiasum)
-      
-      p=ggplot(process_sample,aes(x=x,fill=..x..>x2))+
-        geom_histogram(color="black",bins = 100) +
-        scale_fill_manual(values=c('FALSE'="white",'TRUE'= "#9b59b6"))+
-        geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")
-      pp=ggplot_build(p)
-      axis_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
-      axis_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
-      x_pianyi=(axis_x[2]-axis_x[1])*0.2
-      
-      if(var(process_sample$x)!=0){
-        if(skewness(process_sample$x)<0){
-          text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+      expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
+    }
+    
+    else if(len_sep==4){
+      myfunc<-function(x){
+        if(is.character(x)){
+          x<-toupper(x)
         }
-        else{
-          text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
-        }
+        # x<-as.character(x)
+        sum(x!=sep[[1]]&x!=sep[[2]]&x!=sep[[3]]&x!=sep[[4]])
       }
-      else{
+      expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
+    }
+    else{
+      sendSweetAlert(session = session,title = "Warning..",text = 'Please choose valid value',type = 'warning')
+      expressgene_num<<-rep(dim(sect_output_micro.exp)[1],time=dim(sect_output_micro.exp)[2])
+    }
+    
+    expressgene_num<<-expressgene_num/(dim(sect_output_micro.exp)[1])
+    process_sample<-data.frame(
+      x=expressgene_num
+    )
+    
+    value=as.numeric(value)
+    draw_x<-(max(expressgene_num)+min(expressgene_num))/2  
+
+    x2<-quantile(expressgene_num,value,type=3) 
+    draw_x2<-round(x2,3)
+    process_sample<-data.frame(
+      x=expressgene_num,
+      color=as.character(c(expressgene_num>x2)),stringsAsFactors = F
+    )
+    svg(filename = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),family = 'serif')
+
+    liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num>x2)]))
+    
+    text1=paste("Thresh:",draw_x2)
+    text2=paste("Remain:",liuxiasum)
+    
+    p=ggplot(process_sample,aes(x=x,fill=..x..>x2))+
+      geom_histogram(color="black",bins = 100) +
+      scale_fill_manual(values=c('FALSE'="white",'TRUE'= "#9b59b6"))+
+      geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")
+    pp=ggplot_build(p)
+    axis_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
+    axis_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
+    x_pianyi=(axis_x[2]-axis_x[1])*0.2
+    
+    if(var(process_sample$x)!=0){
+      if(skewness(process_sample$x)<0){
         text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
       }
-      
-      
-      # p_test1=p+xlim(axis_x[1], axis_x[2])+
-      #   geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
-      # p_test2=ggplot_build(p_test1)
-      print(p+xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)+
-              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
+      else{
+        text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+      }
+    }
+    else{
+      text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+    }
+    
+
+    # p_test1=p+xlim(axis_x[1], axis_x[2])+
+    #   geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
+    # p_test2=ggplot_build(p_test1)
+    print(p+xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)+
+          geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
+            )
+
+    
+    # print(p+
+    #         geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
+    # )
+    dev.off()
+    # file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),
+    #           to = paste('www/templePlot/microSampleFilter',session$token,'.svg',sep = ""))
+    if(exist=="F"){
+      print(paste("#","sample_Group_",group,'_panel',sep=""))
+      insertUI(
+        selector = paste("#","sample_Group_",group,'_panel',sep=""),
+        where='beforeEnd',
+        ui=imageOutput(outputId = paste(group,'_plot',sep=""),height = "100%"),
+        immediate = T
       )
       
-      
-      # print(p+
-      #         geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
-      # )
-      dev.off()
-      # file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),
-      #           to = paste('www/templePlot/microSampleFilter',session$token,'.svg',sep = ""))
-      if(exist=="F"){
-        print(paste("#","sample_Group_",group,'_panel',sep=""))
-        insertUI(
-          selector = paste("#","sample_Group_",group,'_panel',sep=""),
-          where='beforeEnd',
-          ui=imageOutput(outputId = paste(group,'_plot',sep=""),height = "100%"),
-          immediate = T
-        )
-        
-        insertUI(
-          selector = paste("#","sample_Group_",group,'_panel',sep=""),
-          where='beforeEnd',
-          ui=div(class="box-footer",
-                 tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",
-                             onclick=paste("slice('#","sample_Group_",group,"_panel')",sep=""),
-                             style="margin:5px",height = "100%",HTML("Filter"))),
-          immediate = T
-        )
+       insertUI(
+         selector = paste("#","sample_Group_",group,'_panel',sep=""),
+         where='beforeEnd',
+         ui=div(class="box-footer",
+                downloadButton("downloadData_micro_sample", "Download"),
+                tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",
+                            onclick=paste("slice('#","sample_Group_",group,"_panel')",sep=""),
+                            style="margin:5px",height = "100%",HTML("Filter"))),
+         immediate = T
+       )
+    }
+    output$downloadData_micro_sample <- downloadHandler(
+      filename = function() {
+        return("Micro_sample_filter.svg");
+      },
+      content = function(file) {
+        file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),to = file);
       }
-      output[[paste(group,'_plot',sep="")]]=renderImage({
-        list(src=paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),width="100%",height="100%")
-      },deleteFile = F)
+    )
+    output[[paste(group,'_plot',sep="")]]=renderImage({
+      list(src=paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),width="100%",height="100%")
+    },deleteFile = F)
     }
     
     else if(group=="ce_invalid_name"){
@@ -550,7 +534,7 @@ shinyServer(function(input,output,session) {
         }
         expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
         # expressgene_num2<<-colSums(sect_output_rna.exp!=0)
-        
+
       }
       else if(len_sep==2){
         myfunc<-function(x){
@@ -561,7 +545,7 @@ shinyServer(function(input,output,session) {
           sum(x!=sep[[1]]&x!=sep[[2]])
         }
         expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
-        
+
       }
       else if(len_sep==3){
         myfunc<-function(x){
@@ -573,7 +557,7 @@ shinyServer(function(input,output,session) {
         }
         expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
       }
-      
+
       else if(len_sep==4){
         myfunc<-function(x){
           if(is.character(x)){
@@ -592,7 +576,7 @@ shinyServer(function(input,output,session) {
           x=expressgene_num2,stringsAsFactors = F
         )
       }
-      
+  
       expressgene_num2<<-expressgene_num2/(dim(sect_output_rna.exp)[1])
       value=as.numeric(value)
       draw_x<-(max(expressgene_num2)+min(expressgene_num2))/2  
@@ -652,17 +636,26 @@ shinyServer(function(input,output,session) {
           selector = paste("#","sample_Group_",group,'_panel',sep=""),
           where='beforeEnd',
           ui=div(class="box-footer",
+                 downloadButton("downloadData_rna_sample", "Download"),
                  tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",
                              onclick=paste("slice('#","sample_Group_",group,"_panel')",sep=""),
                              style="margin:5px",height = "100%",HTML("Filter"))),
           immediate = T
         )
       }
+      output$downloadData_rna_sample <- downloadHandler(
+        filename = function() {
+          return("Rna_sample_filter.svg");
+        },
+        content = function(file) {
+          file.copy(from = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),to = file);
+        }
+      )
       output[[paste(group,'_plot',sep="")]]=renderImage({
         list(src=paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),width="100%",height="100%")
       },deleteFile = F)
     }
-    
+  
   })
   
   observeEvent(input$Sample_Slice_Signal,{
@@ -690,7 +683,7 @@ shinyServer(function(input,output,session) {
         sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value! Please choose again.',type = 'warning')
         # after_slice_micro.exp<<-sect_output_micro.exp
       }
-      
+
     }
     else{
       x2<-quantile(expressgene_num2,line,type=3) 
@@ -714,7 +707,7 @@ shinyServer(function(input,output,session) {
     level=unique(sect_output_geneinfo$.group)
     level=level[!is.na(level)]
     session$sendCustomMessage('gene_type_infomation',data.frame(group=level))
-    
+  
   })
   
   observeEvent(input$Gene_Filter_Signal,{
@@ -738,7 +731,7 @@ shinyServer(function(input,output,session) {
       temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
       draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2
       number_ori=length(validGene)
-      number_after=sum(xdata$SampleRatio>ratio)
+      number_after=(1-ypoint)*number_ori
       x1 = min(xdata$SampleRatio)+0.2*max(xdata$SampleRatio)+min(xdata$SampleRatio)
       text_to_plot=data.frame(x=c(x1,x1),y=c(0.95,0.90),col=c("blue","blue"),text=c(paste("Original genes:",number_ori),paste("After seg:",number_after)))
       ypoint =round(ypoint,2)
@@ -746,8 +739,7 @@ shinyServer(function(input,output,session) {
       xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_micro.exp)),
                          color=as.character(c(xdata$SampleRatio>ratio)),
                          stringsAsFactors = F
-      )
-      
+                         )
       svg(filename = paste(basepath,"Plot","microStatistic.svg",sep = "/"),family = 'serif')
       # print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
       #         geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
@@ -755,14 +747,14 @@ shinyServer(function(input,output,session) {
       #         geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
       #         geom_text(data = text_to_plot,aes(x = text_to_plot$x,y = text_to_plot$y,label =text_to_plot$text),size =8,colour="blue")
       #       )
-      
+
       text1=paste("Thresh:",ratio)
       text2=paste("Remain:",number_after)
-      
+  
       p=ggplot(xdata,aes(x=SampleRatio,fill=..x..>ratio))+
-        geom_histogram(color="black",bins = 100) +
-        scale_fill_manual(values=c('FALSE'="white",'TRUE'= "#9b59b6"))+
-        geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")
+              geom_histogram(color="black",bins = 100) +
+              scale_fill_manual(values=c('FALSE'="white",'TRUE'= "#9b59b6"))+
+              geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")
       pp=ggplot_build(p)
       draw_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
       draw_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
@@ -780,33 +772,37 @@ shinyServer(function(input,output,session) {
       }
       
       print(p+xlim(draw_x[1]-x_pianyi*5/150, draw_x[2]+x_pianyi*5/150)+
-              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
-              labs(x="Effective sample ratio",y="Number",title = "Screening sample plot",fill = "Remain")+
-              theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
-                    axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
-                    plot.title = element_text(hjust = 0.5,size=20),
-                    legend.position = "bottom", legend.direction = "horizontal")
-              )
+              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
       
       dev.off()
       #file.copy(from = paste(basepath,"Plot","microStatistic.svg",sep = "/"),to = paste('www/templePlot/microStatistic',session$token,'.svg',sep = ""))
-      
+
       if(exist=="F"){
         print(paste("#","gene_Group_",group,'_panel',sep=""))
         insertUI(
-          selector = paste("#","gene_Group_",group,'_panel',sep=""),
-          where='beforeEnd',
-          ui=imageOutput(outputId = paste(group,'_plot',sep=""),height = "100%"),
-          immediate = T
+        selector = paste("#","gene_Group_",group,'_panel',sep=""),
+        where='beforeEnd',
+        ui=imageOutput(outputId = paste(group,'_plot',sep=""),height = "100%"),
+        immediate = T
         )
         insertUI(
           selector = paste("#","gene_Group_",group,'_panel',sep=""),
           where='beforeEnd',
           ui=div(class="box-footer",
-                 tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",onclick=paste("slice_gene('#","gene_Group_",group,"_panel')",sep=""),style="margin:5px",height = "100%",HTML("Filter"))),
+               downloadButton("downloadData_micro", "Download"),
+               tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",onclick=paste("slice_gene('#","gene_Group_",group,"_panel')",sep=""),style="margin:5px",height = "100%",HTML("Filter"))
+               ),
           immediate = T
         )
       }
+      output$downloadData_micro <- downloadHandler(
+        filename = function() {
+          return("Micro_gene_filter.svg");
+        },
+        content = function(file) {
+          file.copy(from = paste(basepath,"Plot","microStatistic.svg",sep = "/"),to = file);
+        }
+      )
       output[[paste(group,'_plot',sep="")]]=renderImage({
         list(src=paste(basepath,"Plot","microStatistic.svg",sep = "/"),width="100%",height="100%")
       },deleteFile = F)
@@ -823,7 +819,7 @@ shinyServer(function(input,output,session) {
       temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
       draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2
       number_ori=length(validGene)
-      number_after=sum(xdata$SampleRatio>ratio)
+      number_after=(1-ypoint)*number_ori
       ypoint =round(ypoint,2)
       svg(filename = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),family = 'serif')
       x1 = min(xdata$SampleRatio)+0.2*max(xdata$SampleRatio)+min(xdata$SampleRatio)
@@ -864,13 +860,7 @@ shinyServer(function(input,output,session) {
       }
       
       print(p+xlim(draw_x[1]-x_pianyi*5/150, draw_x[2]+x_pianyi*5/150)+
-              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
-              labs(x="Effective sample ratio",y="Number",title = "Screening sample plot",fill = "Remain")+
-              theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
-                    axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
-                    plot.title = element_text(hjust = 0.5,size=20),
-                    legend.position = "bottom", legend.direction = "horizontal")
-              )
+              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
       
       
       dev.off()
@@ -888,10 +878,19 @@ shinyServer(function(input,output,session) {
           selector = paste("#","gene_Group_",group,'_panel',sep=""),
           where='beforeEnd',
           ui=div(class="box-footer",
+                 downloadButton(paste(group,'_download',sep=""), "Download"),
                  tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",onclick=paste("slice_gene('#","gene_Group_",group,"_panel')",sep=""),style="margin:5px",height = "100%",HTML("Filter"))),
           immediate = T
         )
       }
+      output[[paste(group,'_download',sep="")]] <- downloadHandler(
+        filename = function() {
+          return(paste(group,'_gene_filter','.svg',sep=""));
+        },
+        content = function(file) {
+          file.copy(from = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),to = file);
+        }
+      )
       output[[paste(group,'_plot',sep="")]]=renderImage({
         list(src= paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),width="100%",height="100%")
       },deleteFile = F)
@@ -909,7 +908,7 @@ shinyServer(function(input,output,session) {
       line = as.numeric(line)
       first = msg$first
     })
-    
+
     if(type=="micro"){
       validGene=rownames(after_slice_micro.exp)
       validSample = rowSums(after_slice_micro.exp>=number)
@@ -954,7 +953,7 @@ shinyServer(function(input,output,session) {
     # },deleteFile=F)
     session$sendCustomMessage('clear_construction_task',"")
   })
-  
+
   observeEvent(input$ceRNA_Transform_Signal,{
     isolate({
       msg = input$ceRNA_Transform_Signal
@@ -1010,29 +1009,32 @@ shinyServer(function(input,output,session) {
     removeUI(selector = '#modalbody>',multiple = T,immediate = T)
     insertUI(selector = '#modalbody',where = 'beforeEnd',immediate = T,
              ui=div(class='row',
-                    div(class="col-lg-12",
-                        div(class="alert alert-info alert-dismissible",
-                            h4(tags$i(class="icon fa fa-check",HTML("Alert!"))
-                            ),
-                            h4(HTML("Please provide a function, whose input is a <i>gene*sample</i> data frame and output is the transformed input."),style="font-size:16px")
-                        )
-                    ),
-                    div(class='col-lg-6',
-                        textAreaInput(inputId = 'ceRna_norm_funcion_input',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='130%',resize='both')
-                    ),
-                    div(class='col-lg-6',
-                        textAreaInput(inputId = 'ceRna_norm_funcion_input_example',label = 'Example',rows = 20,value = 'function(exp){
-                                      action_min = function(x){
-                                      (x-min(x))/(max(x)-min(x))
-                                      }
-                                      exp_trans = t(apply(exp, 1, action_min))
-                                      return (exp_trans)
-  }',width='130%',resize='both')
+                  div(class="col-lg-12",
+                    div(class="alert alert-info alert-dismissible",
+                        h4(tags$i(class="icon fa fa-check",HTML("Alert!"))
+                        ),
+                        h4(HTML("Please provide a function, whose input is a <i>gene*sample</i> data frame and output is the transformed input."),style="font-size:16px")
+                    )
+                  ),
+                  div(class='col-lg-6',
+                      textAreaInput(inputId = 'ceRna_norm_funcion_input',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='130%',resize='both')
+                  ),
+                  div(class='col-lg-6',
+                      tags$label(class="control-label",HTML("Example")),
+                      verbatimTextOutput("placeholder", placeholder = TRUE)
                   )
-                        )
-                        )
+            )
+    )
+    example_input = 'function(exp){
+    action_min = function(x){
+      (x-min(x))/(max(x)-min(x))
+    }
+    exp_trans = t(apply(exp, 1, action_min))
+    return (exp_trans)
+}'
+    output$placeholder <- renderText({ example_input })
     session$sendCustomMessage('ceRNA_Norm_signal_custom_insert',"success")
-})
+  })
   observeEvent(input$microRNA_Norm_signal_custom,{
     removeUI(selector = '#modalbody>',multiple = T,immediate = T)
     insertUI(selector = '#modalbody',where = 'beforeEnd',immediate = T,
@@ -1048,23 +1050,26 @@ shinyServer(function(input,output,session) {
                         textAreaInput(inputId = 'ceRna_norm_funcion_input',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='130%',resize='both')
                     ),
                     div(class='col-lg-6',
-                        textAreaInput(inputId = 'ceRna_norm_funcion_input_example',label = 'Example',rows = 20,value = 'function(exp){
-                                      action_min = function(x){
-                                      (x-min(x))/(max(x)-min(x))
-                                      }
-                                      exp_trans = t(apply(exp, 1, action_min))
-                                      return (exp_trans)
-  }',width='130%',resize='both')
+                        tags$label(class="control-label",HTML("Example")),
+                        verbatimTextOutput("placeholder_micro", placeholder = TRUE)
                     )
-                        )
-                        )
+             )
+    )
+    example_input = 'function(exp){
+    action_min = function(x){
+      (x-min(x))/(max(x)-min(x))
+    }
+    exp_trans = t(apply(exp, 1, action_min))
+    return (exp_trans)
+}'
+    output$placeholder_micro <- renderText({ example_input })
     session$sendCustomMessage('microRNA_Norm_signal_custom_insert',"success")
-    })
+  })
   observeEvent(input$ceRNA_Norm_signal_custom_insert_ok,{
     isolate({
       custom_func = input$ceRna_norm_funcion_input
     })
-    if(custom_func ==""){
+    if(R.oo::equals(custom_func,"")){
       session$sendCustomMessage('ceRNA_Norm_signal_custom_sig',"fail")
     }else{
       custom_func = paste("ce_action_custom = ",custom_func,sep = "")
@@ -1076,7 +1081,7 @@ shinyServer(function(input,output,session) {
     isolate({
       custom_func = input$ceRna_norm_funcion_input
     })
-    if(custom_func ==""){
+    if(R.oo::equals(custom_func,"")){
       session$sendCustomMessage('microRNA_Norm_signal_custom_sig',"fail")
     }else{
       custom_func = paste("micro_action_custom = ",custom_func,sep = "")
@@ -1134,9 +1139,11 @@ shinyServer(function(input,output,session) {
     after_slice_micro.exp <<- sect_output_micro.exp[rownames(after_slice_micro.exp),colnames(after_slice_micro.exp)]
     sendSweetAlert(session = session,title = "Success..",text = "Cancel Successfully",type = 'success')
   })
+  
+  
   #########Construction Page Action########
   observeEvent(input$construction_data_confirm,{
-    if(after_slice_rna.exp==""){
+    if(R.oo::equals(after_slice_rna.exp,"")){
       sendSweetAlert(session = session,title = "Error...",text = "Please do this step after the step2",type = 'error')
     }else{
       samples=intersect(colnames(after_slice_rna.exp),colnames(after_slice_micro.exp))
@@ -1146,12 +1153,13 @@ shinyServer(function(input,output,session) {
       after_slice_micro.exp<<-after_slice_micro.exp[,samples]
     }
   })
+
   observeEvent(input$add_new_condition,{
     isolate({
       msg=input$add_new_condition
       core=input$use_core
     })
-    if(after_slice_geneinfo==""){
+    if(R.oo::equals(after_slice_geneinfo,"")){
       sendSweetAlert(session = session,title = "Error...",text = "Please do this step after the step2",type = 'error')
       return()
     }
@@ -1166,15 +1174,10 @@ shinyServer(function(input,output,session) {
       after_slice_geneinfo$.group<<-'Default'
       sendSweetAlert(session = session,title = "Warning",text = 'Group All Genes in Defaut',type = 'warning')
     }
-    
-    groupstaistic=as.data.frame(table(after_slice_geneinfo$.group),stringsAsFactors = F)
+    groupstaistic=as.data.frame(table(after_slice_geneinfo$.group))
     rownames(groupstaistic)=groupstaistic$Var1
-    .group=sort(groupstaistic$Var1)
-    groupstaistic=groupstaistic[.group,]
-    pairs=data.frame(v1=rep(.group,each=length(.group)),v2=rep(.group,times=length(.group)),stringsAsFactors = F)
-    pairs=pairs[which(pairs$v1<=pairs$v2),]
-    #pairs=data.frame(v1=rep(groupstaistic$Var1,times=dim(groupstaistic)[1]),v2=rep(groupstaistic$Var1,each=dim(groupstaistic)[1]),stringsAsFactors = F)
-    #pairs=unique(t(apply(X = pairs,MARGIN = 1,FUN = sort)))
+    pairs=data.frame(v1=rep(groupstaistic$Var1,times=dim(groupstaistic)[1]),v2=rep(groupstaistic$Var1,each=dim(groupstaistic)[1]),stringsAsFactors = F)
+    pairs=unique(t(apply(X = pairs,MARGIN = 1,FUN = sort)))
     show=paste(pairs[,1],'(',groupstaistic[pairs[,1],'Freq'],') vs ',pairs[,2],'(',groupstaistic[pairs[,2],'Freq'],')',sep="")
     values=paste(pairs[,1],"---",pairs[,2],sep="")
     show=c('All',show)
@@ -1206,19 +1209,6 @@ shinyServer(function(input,output,session) {
                        selectInput(inputId = 'use_core',label = 'Choose Parallel Cores',choices = cores ,multiple = F,selected = as.character(core))
                    )
                ),
-               conditionalPanel(condition = "input.condition_type=='MI'||input.condition_type=='CMI'",
-                                div(class="row",
-                                    div(class="col-lg-4",
-                                        pickerInput(inputId = "mi_disc_method",label = "Discretization Method",choices = c("Equal Frequencie"="equalfreq","Equal Width Binning"="equalwidth","Global Equal Width Binning"="globalequalwidth"))
-                                    ),
-                                    div(class="col-lg-4",
-                                        numericInput(inputId = "mi_nbins",label = "Number Of Bins (Default: #sample^(1/3))",value =floor(ncol(after_slice_rna.exp)^(1/3)),min = 2,max = ncol(after_slice_rna.exp),width = "100%")
-                                    ),
-                                    div(class="col-lg-4",
-                                        pickerInput(inputId = "mi_est_method",label = "Entropy Estimator",choices = c("Empirical Probability Distribution"="emp","Miller-Madow Asymptotic Bias Corrected Empirical Estimator"="mm","Shrinkage Estimate of a Dirichlet Probability Distribution"="shrink","Schurmann-Grassberger Estimate"="sg"))
-                                    )
-                                )
-               ),
                div(class='row',
                    div(class="col-lg-12",
                        multiInput(inputId = 'group_pairs',label = 'Group Pairs',choiceNames = show,choiceValues = values,selected = tasks,width = "100%")
@@ -1248,12 +1238,32 @@ shinyServer(function(input,output,session) {
                                 ),
                                 div(class='row',
                                     div(class='col-lg-12',
-                                        textAreaInput(inputId = 'custom_condition_code',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='100%',resize='both')
+                                        div(class='col-lg-6',
+                                            textAreaInput(inputId = 'custom_condition_code',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='130%',resize='both')
+                                        ),
+                                        div(class='col-lg-6',
+                                            tags$label(class="control-label",HTML("Example")),
+                                            verbatimTextOutput("placeholder_third", placeholder = TRUE)
+                                            )
+                                        
                                     )
                                 )
                )
              )
     )
+    example_input = 'MS=function(g1,g2)
+{
+  allset=colnames(target)
+  set1=allset[target[g1,]==1];
+  set2=allset[target[g2,]==1];
+  x=length(intersect(set1,set2));
+  m=length(set2);
+  n=length(setdiff(allset,set2));
+  k=length(set1);
+  pvalue=1-phyper(x-1,m,n,k);
+  return(pvalue)
+}'
+    output$placeholder_third <- renderText({ example_input })
     session$sendCustomMessage('conditions',condition)
   })
   observeEvent(input$choose_new_condition,{
@@ -1274,21 +1284,11 @@ shinyServer(function(input,output,session) {
       write(x = code,file = paste(basepath,"/code/",abbr,'.R',sep=""))
       #thresh<<-rbind(thresh,data.frame(type=condition$abbr,task=tasks,direction="<",thresh=0,stringsAsFactors = F))
     }
-    
     else
     {
       condition[type,'used']<<-T
       condition[type,'core']<<-core
       condition[type,'task']<<-tasks
-      if(type=="CMI"||type=="MI")
-      {
-        isolate({
-          disc_method=input$mi_disc_method
-          nbin=input$mi_nbins
-          est=input$mi_est_method
-        })
-        condition[type,'others']<<-gsub(pattern = "\"",replacement = "\\\\\"",x = toJSON(x = list(disc=disc_method,nbin=nbin,est=est),auto_unbox = T))
-      }
       #thresh<<-rbind(thresh,data.frame(type=condition$abbr,task=tasks,direction="<",thresh=0,stringsAsFactors = F))
     }
   })
@@ -1298,7 +1298,6 @@ shinyServer(function(input,output,session) {
     })
     condition[msg$type,'used']<<-F
     condition[msg$type,'core']<<-0
-    condition[msg$type,'others']<<-""
     thresh<<-thresh[thresh$type!=msg$type,]
     removeUI(selector = paste("div.col-lg-12 > #density_plot_",msg$type,sep=""),immediate = T)
   })
@@ -1307,27 +1306,24 @@ shinyServer(function(input,output,session) {
       type=input$compute_condition$type
     })
     core=condition[type,'core']
+    
     tasks=condition[type,'task']
-    logpath=normalizePath(paste(basepath,'/log/',type,'.txt',sep=""))
+    logpath=paste(basepath,'/log/',type,'.txt',sep="")
     if(file.exists(logpath))
     {
       file.remove(logpath)
     }
     if(type=="PCC")
     {
-      if(dir.exists(paths = normalizePath(paste(basepath,'/log/',sep=""))))
+      if(dir.exists(paths = paste(basepath,'/log/')))
       {
-        dir.create(path = normalizePath(paste(basepath,'/log/',sep="")),recursive = T)
+        dir.create(paths = paste(basepath,'/log/'),recursive = T)
       }
       print('start')
       session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
-      filepath=paste(basepath,"/data/rna.exp.RData",sep="")
-      saveRDS(file=filepath,object=after_slice_rna.exp)
-      #system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
-      scriptpath="www/Program/PCC.R"
-      resultpath=paste(basepath,'/all.cor.RData',sep="")
-      system(paste("Rscript",scriptpath,filepath,logpath,resultpath),wait = F)
-      
+      filepath=paste(basepath,"/data/rna.exp.mat",sep="")
+      writeMat(con=filepath,x=as.matrix(after_slice_rna.exp))
+      system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
     }
     else
     {
@@ -1360,16 +1356,8 @@ shinyServer(function(input,output,session) {
       target=sect_output_target[rownames(rna.exp),rownames(micro.exp)]
       geneinfo=after_slice_geneinfo
       save(rna.exp,micro.exp,target,geneinfo,file = datapath)
-      if(condition[type,'others']=="")
-      {
-        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
-        system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
-      }
-      else
-      {
-        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,condition[type,'others']))
-        system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath,condition[type,'others']),wait = F)
-      }
+      print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
+      system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
     }
   })
   observeEvent(input$compute_status,{
@@ -1435,7 +1423,6 @@ shinyServer(function(input,output,session) {
           eta=(endtime-info$time)/complete*(info$total-complete)#预计时间
           finish.task=length(which(grepl(pattern = "^Finish",x = content)))#总完成任务数
           status="run"
-          print(eta)
           msg=paste("Running:",info$task,"&nbsp;&nbsp;&nbsp;&nbsp;ETA:",time(eta))
           progress=format(x = complete/info$total*100,nsmall=2)
           if(length(which(grepl(pattern = "^All Finish.$",x = content)))>0)
@@ -1470,6 +1457,85 @@ shinyServer(function(input,output,session) {
     })
     tasks=condition[type,'task']
     tasks=unlist(strsplit(x = tasks,split = ";"))
+    if(type=="PCC")
+    {
+      result=readMat(paste(basepath,'/all.cor.mat',sep=""))
+      cor=result$cor
+      pvalue=result$pvalue
+      print(dim(after_slice_geneinfo))
+      gene=rownames(after_slice_rna.exp)
+      print(dim(cor))
+      rownames(cor)=gene
+      colnames(cor)=gene
+      rownames(pvalue)=gene
+      colnames(pvalue)=gene
+      if(length(which(tasks=='all'))==1)
+      {
+        cor=list(cor)
+        names(cor)='all'
+        corlist=list(cor)
+        names(corlist)='PCC'
+        
+        pvalue=list(pvalue)
+        names(pvalue)="all"
+        pvaluelist=list(pvalue)
+        names(pvaluelist)='PCC.pvalue'
+      }
+      else
+      {
+        corlist=list()
+        pvaluelist=list()
+        for(task in tasks)
+        {
+          groups=unlist(strsplit(x = task,split = "---"))
+          group1=rownames(after_slice_geneinfo)[which(after_slice_geneinfo$.group==groups[1])]
+          group2=rownames(after_slice_geneinfo)[which(after_slice_geneinfo$.group==groups[2])]
+          
+          tmp=list(cor[group1,group2])
+          names(tmp)=task
+          corlist=c(corlist,tmp)
+          tmp=list(pvalue[group1,group2])
+          names(tmp)=task
+          pvaluelist=c(pvaluelist,tmp)
+        }
+        corlist=list(corlist)
+        names(corlist)="PCC"
+        
+        pvaluelist=list(pvaluelist)
+        names(pvaluelist)="PCC.pvalue"
+        #condition.values<<-c(condition.values,corlist,pvaluelist)
+      }
+      if(is.null(condition.values[['PCC']]))
+      {
+        condition.values<<-c(condition.values,corlist)
+      }
+      else
+      {
+        condition.values['PCC']<<-corlist
+      }
+      if(is.null(condition.values[['PCC.pvalue']]))
+      {
+        condition.values<<-c(condition.values,pvaluelist)
+      }
+      else
+      {
+        condition.values['PCC.pvalue']<<-pvaluelist
+      }
+    }
+    else
+    {
+      result=readRDS(paste(basepath,'/',type,'.RData',sep=""))
+      result=list(result)
+      names(result)=type
+      if(is.null(condition.values[[type]]))
+      {
+        condition.values<<-c(condition.values,result)
+      }
+      else
+      {
+        condition.values[type]<<-result
+      }    
+    }
     draw_density(basepath,output,session,type,tasks)
     condition[type,'core']<<-0
   })
@@ -1477,20 +1543,12 @@ shinyServer(function(input,output,session) {
     isolate({
       msg=input$update_condition_thresh
       direction=input[[paste("direction",msg$type,msg$task,sep="_")]]
-      type=msg$type
-      task=msg$task
-      value=msg$value
     })
-    session$sendCustomMessage('distribution_plot',list(status='update',value="Updating Plot...",id=paste("density_plot",type,task,"progress",sep="_")))
-    data=readData(type,task)
-    data=data[[type]][[task]]
-    condition_density_plot(basepath = basepath,data=data,type = type,task = task,value = value,direction = direction)
+    condition_density_plot(basepath = basepath,type = msg$type,task = msg$task,value = msg$value,direction = direction)
     output[[paste("density_plot",msg$type,msg$task,"image",sep="_")]]=renderImage({
       figurepath=paste(basepath,'/Plot/density_plot_',msg$type,"_",msg$task,".svg",sep="")
       list(src=figurepath,width="100%",height="100%")
     },deleteFile = F)
-    session$sendCustomMessage('distribution_plot',list(status='finish',value="",id=paste("density_plot",type,task,"progress",sep="_")))
-    
   })
   observeEvent(input$construct_network,{
     isolate({
@@ -1498,42 +1556,22 @@ shinyServer(function(input,output,session) {
       newthresh=msg$thresh
       type=msg$type
     })
-    removeUI(selector = "#modalbody>",immediate = T)
-    insertUI(selector = "#modalbody",where = 'beforeEnd',ui = create_progress("",id="network_construction"),immediate = T)
-    session$sendCustomMessage('network_construction',list(status='update',value="Initializing Network...",id="network_construction"))
-    
-    
     thresh<<-thresh[thresh$type!=type,]
     for(name in names(newthresh))
     {
       thresh<<-rbind(thresh,data.frame(type=type,task=name,direction=newthresh[[name]][['direction']],thresh=as.numeric(newthresh[[name]][['thresh']]),stringsAsFactors = F))
     }
     network_construnction(after_slice_geneinfo)
-    session$sendCustomMessage('network_construction',list(status='update',value="Network Summarizing...",id="network_construction"))
+    
     removeUI(selector = "#network_summary>",multiple = T,immediate = T)
-    insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::degree(net_igraph)!=0),subtitle = "Connected Nodes",icon = icon("eye-open",lib = "glyphicon"),color = "green",width = 3),immediate = T)
-    insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::degree(net_igraph)==0),subtitle = "Isolated Nodes",icon = icon("eye-close",lib = "glyphicon"),color = "red",width = 3),immediate = T)
+    insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::degree(net_igraph)!=0),subtitle = "Nodes with edges",icon = icon("eye-open",lib = "glyphicon"),color = "green",width = 3),immediate = T)
+    insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::degree(net_igraph)==0),subtitle = "Nodes without edges",icon = icon("eye-close",lib = "glyphicon"),color = "red",width = 3),immediate = T)
     insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = length(E(net_igraph)),subtitle = "Edges",icon = icon("link",lib = "font-awesome"),color = "orange",width = 3),immediate = T)
     insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::components(net_igraph)$csize>1),subtitle = "Components",icon = icon("connectdevelop",lib = "font-awesome"),color = "maroon",width = 3),immediate = T)
-    session$sendCustomMessage('network_construction',list(status='finish',value="",id="network_construction"))
+    
     sendSweetAlert(session = session,title = "Success",text = "Apply Conditions Successfully!",type = 'success')
   })
-  output$network_export <- downloadHandler(
-    filename = function() {
-      return("network.txt")
-    },
-    content = function(file) {
-      if(nrow(edgeinfo)==0)
-      {
-        write(x = "No Network Exist",file = file)
-        sendSweetAlert(session = session,title = "Error",text = "No network exists!",type = 'error')
-      }
-      else
-      {
-        write.table(x=edgeinfo,file = file, quote = F,sep = "\t",row.names = F,col.names = T)
-      }
-    }
-  )
+
   ##########Visualization Page Action#########
   observeEvent(input$network,{
     isolate({
@@ -1541,7 +1579,7 @@ shinyServer(function(input,output,session) {
       do_what =msg$do_what
     })
     if(is.null(nrow(after_slice_rna.exp)) | is.null(nrow(network))){
-      sendSweetAlert(session = session,t.itle = "Error",text = "Please do this step after the step2 and step3",type = 'error')
+      sendSweetAlert(session = session,title = "Error",text = "Please do this step after the step2 and step3",type = 'error')
     }else{
       if(do_what=="layout"){
         type=msg$type
@@ -1564,7 +1602,7 @@ shinyServer(function(input,output,session) {
   observeEvent(input$change_network_name,{
     
     session$sendCustomMessage('Gene_info_name_change',colnames(after_slice_geneinfo))
-    
+  
   })
   observeEvent(input$net_color_shape,{
     isolate({
@@ -1574,15 +1612,15 @@ shinyServer(function(input,output,session) {
     })
     if(func=="color"){
       if(type=="group"){
-        type='.group'
+          type='.group'
       }
       vec = after_slice_geneinfo[,type]
       #vec = vec[[1]]
       vec = unique(vec)
       if(length(vec)>typeLimit){
-        sendSweetAlert(session = session,title = "Error",text = "Too Many Candidates",type = 'error')
+          sendSweetAlert(session = session,title = "Error",text = "Too Many Candidates",type = 'error')
       }else{
-        session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+          session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
       }
     }
     if(func=="shape"){
@@ -1605,7 +1643,8 @@ shinyServer(function(input,output,session) {
       msg=input$nodeCentrality
       centrality=unlist(msg$value)
     })
-    if(net_igraph==""){
+   
+    if(R.oo::equals(net_igraph,"")){
       sendSweetAlert(session = session,title = "Error",text = "Please complete step 3 first",type = 'error')
     }else{
       print(centrality)
@@ -1614,14 +1653,14 @@ shinyServer(function(input,output,session) {
       removeUI(selector = paste("#node_",deleted,sep=""),multiple = T,immediate = T)
       newadd=setdiff(centrality,node_property)
       node_property<<-centrality
-      if(nodeNewInfo=="")
+      if(R.oo::equals(nodeNewInfo,""))
       {
         nodeNewInfo<<-data.frame(.id=rownames(after_slice_geneinfo),stringsAsFactors = F,row.names = rownames(after_slice_geneinfo))
       }
       
       for(id in newadd)
       {
-        
+       
         ui=create_property_box('node',id)
         insertUI(selector = "#network_property",where = 'beforeEnd',ui = ui,
                  immediate = T)
@@ -1735,8 +1774,8 @@ shinyServer(function(input,output,session) {
       msg=input$edgeCentrality
       centrality=msg$value
     })
-    
-    if(net_igraph==""){
+  
+    if(R.oo::equals(net_igraph,"")){
       sendSweetAlert(session = session,title = "Error",text = "Please complete step 3 first",type = 'error')
     }else{
       print(centrality)
@@ -1827,7 +1866,7 @@ shinyServer(function(input,output,session) {
       algorithm=input$community_algorithm
     })
     
-    if(net_igraph==""){
+    if(R.oo::equals(net_igraph,"")){
       sendSweetAlert(session = session,title = "Error",text = "Please complete step 3 first",type = 'error')
     }else{
       removeUI(selector = "#module_info_box>",multiple = T,immediate = T)
@@ -2014,7 +2053,7 @@ shinyServer(function(input,output,session) {
           community_list=c(community_list,list(module_gene))
           after_slice_geneinfo[module_gene,'module']<<-paste(after_slice_geneinfo[module_gene,'module'],',Module',id,sep="")
         }
-        after_slice_geneinfo$module[which(after_slice_geneinfo$module=="")]<<-"Module0"
+        after_slice_geneinfo$module[which(R.oo::equals(after_slice_geneinfo$module,""))]<<-"Module0"
         after_slice_geneinfo$module<<-sub(pattern = "^,",replacement = "",x = after_slice_geneinfo$module)
         names(community_list)=paste("Module",unique(community$cluster),sep="")
         modules<<-community_list
@@ -2037,7 +2076,7 @@ shinyServer(function(input,output,session) {
           community_list=c(community_list,list(module_gene))
           after_slice_geneinfo[module_gene,'module']<<-paste(after_slice_geneinfo[module_gene,'module'],',Module',id,sep="")
         }
-        after_slice_geneinfo$module[which(after_slice_geneinfo$module=="")]<<-"Module0"
+        after_slice_geneinfo$module[which(R.oo::equals(after_slice_geneinfo$module,""))]<<-"Module0"
         after_slice_geneinfo$module<<-sub(pattern = "^,",replacement = "",x = after_slice_geneinfo$module)
         names(community_list)=paste("Module",unique(community$cluster),sep="")
         modules<<-community_list
@@ -2056,6 +2095,8 @@ shinyServer(function(input,output,session) {
           hot_col(col = "Edges",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))%>%
           hot_col(col = "Visualization",halign = 'htCenter',renderer=htmlwidgets::JS("safeHtmlRenderer"))
       })
+      updatePickerInput(session = session,inputId = "enrichment_Module_analysis1",
+                        choices = moduleinfo$ModuleID)
       updatePickerInput(session = session,inputId = "clinical_module",choices = names(modules))
     }
     
@@ -2284,7 +2325,7 @@ shinyServer(function(input,output,session) {
     }
     
   })
-  
+
   observeEvent(list(input$survival_exp_data,input$survival_exp_seperator,input$survival_exp_header,input$survival_exp_first_column),{
     isolate({
       file=input$survival_exp_data
@@ -2384,22 +2425,22 @@ shinyServer(function(input,output,session) {
       status=input$clinical_survival_status
       variable=input$clinical_survival_status_variable
     })
-    if(clinical_data=="")
+    if(R.oo::equals(clinical_data,""))
     {
       sendSweetAlert(session = session,title = "Error...",text = "Please Upload Clinical Data!",type = 'error')
       return()
     }
-    if(time=="")
+    if(R.oo::equals(time,""))
     {
       sendSweetAlert(session = session,title = "Error...",text = "Please Choose Column for Survival Time!",type = 'error')
       return()
     }
-    if(status=="")
+    if(R.oo::equals(status,""))
     {
       sendSweetAlert(session = session,title = "Error...",text = "Please Choose Column for Survival Status!",type = 'error')
       return()
     }
-    if(variable=="")
+    if(R.oo::equals(variable,""))
     {
       sendSweetAlert(session = session,title = "Error...",text = "Please Choose Column for Censor Variable!",type = 'error')
       return()
@@ -2429,7 +2470,7 @@ shinyServer(function(input,output,session) {
     }
     else if(genesource=="single.gene")
     {
-      if(singlelabel=="")
+      if(R.oo::equals(singlelabel,""))
       {
         sendSweetAlert(session = session,title = "Error...",text = "Please Input Gene Name!",type = 'error')
         return()
@@ -2437,432 +2478,533 @@ shinyServer(function(input,output,session) {
     }
     else if(genesource=="custom")
     {
-      if(customgene=="")
+      if(R.oo::equals(customgene,""))
       {
         sendSweetAlert(session = session,title = "Error...",text = "Please Input Gene Name!",type = 'error')
         return()
       }
     }
-    
+  
     clinical_data=clinical_data[valid_patient,]
     survival_exp=survival_exp[,valid_patient]
     index=which(clinical_data[,status]==variable)
     clinical_data[,status]=1
     clinical_data[index,status]=0
+   
+   removeUI(selector = "#survival_result_panel>",multiple = T,immediate = T)
     
-    removeUI(selector = "#survival_result_panel>",multiple = T,immediate = T)
+   if(model=="km_analysis")
+   {
+     if(genesource=="module")
+     {
+       print(moduleset)
+       
+       for(m in moduleset)
+       {
+         modulegene=modules[[m]]
+         modulegene=modulegene[which(modulegene%in%rownames(survival_exp))]
+         patient.cluster=kmeans(t(survival_exp[modulegene,]),centers = 2)$cluster
+         
+         tmpclinical=clinical_data[,c(time,status)]
+         tmpclinical$group=""
+         
+         for(cl in unique(patient.cluster))
+         {
+           tmpclinical[names(patient.cluster)[which(patient.cluster==cl)],'group']=paste("Group",cl,sep="")
+         }
+         
+         tmpclinical=tmpclinical[which(tmpclinical$group!=""),]
+         p=km.analysis(data = tmpclinical,time = time,status = status,factor = "group")
+         create_survival_result_box(session,label=paste("Survival Result of ",m,sep=""),id=m,model=model)
+         
+         imagepath_heat=paste(basepath,"/Plot/",m,"_",model,"_survival_cluster.png",sep="")
+         Heatmaps(survival_exp[modulegene,],tmpclinical,imagepath_heat)
+         #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
+         local({
+           id=m
+           print(id)
+           plot=p
+           imagepe_for_heat=imagepath_heat
+           output[[paste(id,model,"survival_curve",sep="_")]]=renderImage({
+             imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_curve.svg",sep="")
+             svg(imagepath,family = "serif")
+             print(plot$plot)
+             dev.off()
+             list(src=imagepath,width="100%",height="100%")
+           },deleteFile = F)
+           output[[paste(id,model,"survival_cluster",sep="_")]]=renderImage({
+             list(src=imagepe_for_heat,width="100%",height="100%")
+           },deleteFile = F)
+           output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
+             rhandsontable(plot$data.survtable)
+           })
+         })
+      }
+     }
+     else if(genesource=="single.gene")
+     {
+       research_gene=unlist(strsplit(x = singlelabel,split = "\n|\r\n"))
+       research_gene=research_gene[research_gene%in%rownames(survival_exp)]
+       for(rg in research_gene)
+       {
+         thresh=quantile(survival_exp[rg,],probs = quantile)[1,1]
+         tmpclinical=clinical_data[,c(time,status)]
+         tmpclinical$group=""
+         high_group=colnames(survival_exp)[which(as.numeric(survival_exp[rg,])>=thresh)]
+         low_group=colnames(survival_exp)[which(as.numeric(survival_exp[rg,])<thresh)]
+         tmpclinical[high_group,"group"]="High Expressed"
+         tmpclinical[low_group,"group"]="Low Expressed"
+         p=km.analysis(data = tmpclinical,time = time,status = status,factor = "group")
+         create_survival_result_box(session,label=paste("Survival Result of ",rg,sep=""),id=rg,model=model)
+         disp=SingleExpress(survival_exp[rg,],thresh,tmpclinical)
+         #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
+         local({
+           id=rg
+           print(id)
+           plot1=p
+           plot2=disp
+           output[[paste(id,model,"survival_curve",sep="_")]]=renderImage({
+             imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_curve.svg",sep="")
+             svg(imagepath,family = "serif")
+             print(plot1$plot)
+             dev.off()
+             list(src=imagepath,width="100%",height="100%")
+           },deleteFile = F)
+           output[[paste(id,model,"survival_cluster",sep="_")]]=renderImage({
+             imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_cluster.svg",sep="")
+             svg(imagepath,family = "serif")
+             print(plot2)
+             dev.off()
+             list(src=imagepath,width="100%",height="100%")
+           },deleteFile = F)
+           output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
+             rhandsontable(plot1$data.survtable)
+           })
+         })
+          
+       }
+     }
+     else if(genesource=="custom")
+     {
+       customgene=unlist(strsplit(x = customgene,split = "\r\n|\n"))
+       customgene=customgene[which(customgene%in%rownames(survival_exp))]
+       if(length(customgene)==1)
+       {
+         sendSweetAlert(session = session,title = "Warning...",text = "Please select Single Gene Model",type = "warning")
+         return()
+       }
+       patient.cluster=kmeans(t(survival_exp[customgene,]),centers = 2)$cluster
+       
+       tmpclinical=clinical_data[,c(time,status)]
+       tmpclinical$group=""
+       
+       for(cl in unique(patient.cluster))
+       {
+         tmpclinical[names(patient.cluster)[which(patient.cluster==cl)],'group']=paste("Group",cl,sep="")
+       }
+       
+       tmpclinical=tmpclinical[which(tmpclinical$group!=""),]
+       p=km.analysis(data = tmpclinical,time = time,status = status,factor = "group")
+       create_survival_result_box(session,label=paste("Survival Result of Custom Gene Set",sep=""),id="custom",model=model)
+       
+       imagepath_heat=paste(basepath,"/Plot/","custom","_",model,"_survival_cluster.png",sep="")
+       Heatmaps(survival_exp[customgene,],tmpclinical,imagepath_heat)
+       #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
+       local({
+         id="custom"
+         print(id)
+         plot=p
+         imagepe_for_heat=imagepath_heat
+         output[[paste(id,model,"survival_curve",sep="_")]]=renderImage({
+           imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_curve.svg",sep="")
+           svg(imagepath,family = "serif")
+           print(plot$plot)
+           dev.off()
+           list(src=imagepath,width="100%",height="100%")
+         },deleteFile = F)
+         output[[paste(id,model,"survival_cluster",sep="_")]]=renderImage({
+           list(src=imagepe_for_heat,width="100%",height="100%")
+         },deleteFile = F)
+         output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
+           rhandsontable(plot$data.survtable)
+         })
+       })
+     }
+   }
+   else if(model=="cox_model")
+   {
+     if(!is.null(extern_factor_continous)|!is.null(extern_factor_categorical))
+     {
+       tmpfactor=intersect(extern_factor_continous,extern_factor_categorical)
+       if(length(tmpfactor)>0)
+       {
+         sendSweetAlert(session = session,title = "Error...",text = paste("Confused Factors Type in (",paste(tmpfactor,collapse = ", "),")",sep=""),type = "error")
+         return()
+       }
+     }
+     if(genesource=="module")
+     {
+       print(moduleset)
+       for(m in moduleset)
+       {
+         modulegene=modules[[m]]
+         modulegene=modulegene[which(modulegene%in%rownames(survival_exp))]
+         
+         fit=cox.analysis(session,clinical_data,survival_exp,time,status,if_module_group,modulegene,extern_factor_continous,extern_factor_categorical,strata_factor)
+         create_cox_survival_result_box(session,label=paste("Survival Result of ",m,sep=""),id=m,model=model)
+         # 
+         # # imagepath_heat=paste(basepath,"/Plot/",m,"_",model,"_survival_cluster.png",sep="")
+         # # Heatmaps(survival_exp[modulegene,],tmpclinical,imagepath_heat)
+         # # #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
+         local({
+           id=m
+           result=summary(fit)
+           coefficients=result$coefficients
+           conf.int=result$conf.int
+           #imagepe_for_heat=imagepath_heat
+           output[[paste(id,model,"survival_coefficient",sep="_")]]=renderTable({
+             coefficients
+           },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
+           output[[paste(id,model,"survival_hazard",sep="_")]]=renderTable({
+             conf.int
+           },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
+           # output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
+           #   rhandsontable(plot$data.survtable)
+           #})
+         })
+       }
+     }
+     else if(genesource=="single.gene")
+     {
+       research_gene=unlist(strsplit(x = singlelabel,split = "\n|\r\n"))
+       research_gene=research_gene[research_gene%in%rownames(survival_exp)]
+       print(research_gene)
+       for(rg in research_gene)
+       {
+         tmpclinical=clinical_data
+         if(if_single_group)
+         {
+           thresh=quantile(survival_exp[rg,],probs = quantile)[1,1]
+           tmpclinical$group=""
+           high_group=colnames(survival_exp)[which(as.numeric(survival_exp[rg,])>=thresh)]
+           low_group=colnames(survival_exp)[which(as.numeric(survival_exp[rg,])<thresh)]
+           tmpclinical[high_group,"group"]="High Expressed"
+           tmpclinical[low_group,"group"]="Low Expressed"
+           if(length(unique(tmpclinical$group))==1)
+           {
+             sendSweetAlert(session = session,title = "Error...",text = paste("Patients can't be grouped by Gene ",rg,sep=""),type = 'error')
+             next
+           }
+           fit=cox.analysis(session = session,clinical = tmpclinical,exp = survival_exp,
+                            time = time,status = status,ifgroup = F,gene = rg,
+                            external_continous = extern_factor_continous,
+                            external_categorical = extern_factor_categorical,strata_factor = strata_factor,
+                            single_grouped=T)
+         }
+         else
+         {
+           fit=cox.analysis(session = session,clinical = tmpclinical,exp = survival_exp,
+                            time = time,status = status,ifgroup = F,gene = rg,
+                            external_continous = extern_factor_continous,
+                            external_categorical = extern_factor_categorical,strata_factor = strata_factor,
+                            single_grouped=F)
+         }
+         create_cox_survival_result_box(session,label=paste("Survival Result of ",rg,sep=""),id=rg,model=model)
+         local({
+           id=rg
+           result=summary(fit)
+           coefficients=result$coefficients
+           conf.int=result$conf.int
+           #imagepe_for_heat=imagepath_heat
+           output[[paste(id,model,"survival_coefficient",sep="_")]]=renderTable({
+             coefficients
+           },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
+           output[[paste(id,model,"survival_hazard",sep="_")]]=renderTable({
+             conf.int
+           },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
+           # output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
+           #   rhandsontable(plot$data.survtable)
+           #})
+         })
+       }
+     }
+     else if(genesource=="custom")
+     {
+       customgene=unlist(strsplit(x = customgene,split = "\r\n|\n"))
+       customgene=customgene[which(customgene%in%rownames(survival_exp))]
+       if(length(customgene)==1)
+       {
+         sendSweetAlert(session = session,title = "Warning...",text = "Please select Single Gene Model",type = "warning")
+         return()
+       }
+       fit=cox.analysis(session = session,clinical = clinical_data,exp = survival_exp,time = time,
+                        status = status,ifgroup = if_custom_group,gene = customgene,
+                        external_continous = extern_factor_continous,
+                        external_categorical = extern_factor_categorical,
+                        strata_factor = strata_factor,single_grouped = F)
+       create_cox_survival_result_box(session,label=paste("Survival Result of Custom Genes",sep=""),id="custom",model=model)
+       # 
+       # # imagepath_heat=paste(basepath,"/Plot/",m,"_",model,"_survival_cluster.png",sep="")
+       # # Heatmaps(survival_exp[modulegene,],tmpclinical,imagepath_heat)
+       # # #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
+       local({
+         id="custom"
+         result=summary(fit)
+         coefficients=result$coefficients
+         conf.int=result$conf.int
+         #imagepe_for_heat=imagepath_heat
+         output[[paste(id,model,"survival_coefficient",sep="_")]]=renderTable({
+           coefficients
+         },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
+         output[[paste(id,model,"survival_hazard",sep="_")]]=renderTable({
+           conf.int
+         },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
+         # output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
+         #   rhandsontable(plot$data.survtable)
+         #})
+       })
+     }
+   }
+   else if(model=="random.forest")
+   {
+     if(genesource=="module")
+     {
+       print(moduleset)
+     }
+     else if(genesource=="single.gene")
+     {
+       print(singlelabel)
+     }
+     else if(genesource=="custom")
+     {
+       print(customgene)
+     }
+   }
     
-    if(model=="km_analysis")
-    {
-      if(genesource=="module")
-      {
-        print(moduleset)
-        
-        for(m in moduleset)
-        {
-          modulegene=modules[[m]]
-          modulegene=modulegene[which(modulegene%in%rownames(survival_exp))]
-          patient.cluster=kmeans(t(survival_exp[modulegene,]),centers = 2)$cluster
-          
-          tmpclinical=clinical_data[,c(time,status)]
-          tmpclinical$group=""
-          
-          for(cl in unique(patient.cluster))
-          {
-            tmpclinical[names(patient.cluster)[which(patient.cluster==cl)],'group']=paste("Group",cl,sep="")
-          }
-          
-          tmpclinical=tmpclinical[which(tmpclinical$group!=""),]
-          p=km.analysis(data = tmpclinical,time = time,status = status,factor = "group")
-          create_survival_result_box(session,label=paste("Survival Result of ",m,sep=""),id=m,model=model)
-          
-          imagepath_heat=paste(basepath,"/Plot/",m,"_",model,"_survival_cluster.png",sep="")
-          Heatmaps(survival_exp[modulegene,],tmpclinical,imagepath_heat)
-          #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
-          local({
-            id=m
-            print(id)
-            plot=p
-            imagepe_for_heat=imagepath_heat
-            output[[paste(id,model,"survival_curve",sep="_")]]=renderImage({
-              imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_curve.svg",sep="")
-              svg(imagepath,family = "serif")
-              print(plot$plot)
-              dev.off()
-              list(src=imagepath,width="100%",height="100%")
-            },deleteFile = F)
-            output[[paste(id,model,"survival_cluster",sep="_")]]=renderImage({
-              list(src=imagepe_for_heat,width="100%",height="100%")
-            },deleteFile = F)
-            output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
-              rhandsontable(plot$data.survtable)
-            })
-          })
-        }
-      }
-      else if(genesource=="single.gene")
-      {
-        research_gene=unlist(strsplit(x = singlelabel,split = "\n|\r\n"))
-        research_gene=research_gene[research_gene%in%rownames(survival_exp)]
-        for(rg in research_gene)
-        {
-          thresh=quantile(survival_exp[rg,],probs = quantile)[1,1]
-          tmpclinical=clinical_data[,c(time,status)]
-          tmpclinical$group=""
-          high_group=colnames(survival_exp)[which(as.numeric(survival_exp[rg,])>=thresh)]
-          low_group=colnames(survival_exp)[which(as.numeric(survival_exp[rg,])<thresh)]
-          tmpclinical[high_group,"group"]="High Expressed"
-          tmpclinical[low_group,"group"]="Low Expressed"
-          p=km.analysis(data = tmpclinical,time = time,status = status,factor = "group")
-          create_survival_result_box(session,label=paste("Survival Result of ",rg,sep=""),id=rg,model=model)
-          disp=SingleExpress(survival_exp[rg,],thresh,tmpclinical)
-          #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
-          local({
-            id=rg
-            print(id)
-            plot1=p
-            plot2=disp
-            output[[paste(id,model,"survival_curve",sep="_")]]=renderImage({
-              imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_curve.svg",sep="")
-              svg(imagepath,family = "serif")
-              print(plot1$plot)
-              dev.off()
-              list(src=imagepath,width="100%",height="100%")
-            },deleteFile = F)
-            output[[paste(id,model,"survival_cluster",sep="_")]]=renderImage({
-              imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_cluster.svg",sep="")
-              svg(imagepath,family = "serif")
-              print(plot2)
-              dev.off()
-              list(src=imagepath,width="100%",height="100%")
-            },deleteFile = F)
-            output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
-              rhandsontable(plot1$data.survtable)
-            })
-          })
-          
-        }
-      }
-      else if(genesource=="custom")
-      {
-        customgene=unlist(strsplit(x = customgene,split = "\r\n|\n"))
-        customgene=customgene[which(customgene%in%rownames(survival_exp))]
-        if(length(customgene)==1)
-        {
-          sendSweetAlert(session = session,title = "Warning...",text = "Please select Single Gene Model",type = "warning")
-          return()
-        }
-        patient.cluster=kmeans(t(survival_exp[customgene,]),centers = 2)$cluster
-        
-        tmpclinical=clinical_data[,c(time,status)]
-        tmpclinical$group=""
-        
-        for(cl in unique(patient.cluster))
-        {
-          tmpclinical[names(patient.cluster)[which(patient.cluster==cl)],'group']=paste("Group",cl,sep="")
-        }
-        
-        tmpclinical=tmpclinical[which(tmpclinical$group!=""),]
-        p=km.analysis(data = tmpclinical,time = time,status = status,factor = "group")
-        create_survival_result_box(session,label=paste("Survival Result of Custom Gene Set",sep=""),id="custom",model=model)
-        
-        imagepath_heat=paste(basepath,"/Plot/","custom","_",model,"_survival_cluster.png",sep="")
-        Heatmaps(survival_exp[customgene,],tmpclinical,imagepath_heat)
-        #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
-        local({
-          id="custom"
-          print(id)
-          plot=p
-          imagepe_for_heat=imagepath_heat
-          output[[paste(id,model,"survival_curve",sep="_")]]=renderImage({
-            imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_curve.svg",sep="")
-            svg(imagepath,family = "serif")
-            print(plot$plot)
-            dev.off()
-            list(src=imagepath,width="100%",height="100%")
-          },deleteFile = F)
-          output[[paste(id,model,"survival_cluster",sep="_")]]=renderImage({
-            list(src=imagepe_for_heat,width="100%",height="100%")
-          },deleteFile = F)
-          output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
-            rhandsontable(plot$data.survtable)
-          })
-        })
-      }
-    }
-    else if(model=="cox_model")
-    {
-      if(!is.null(extern_factor_continous)|!is.null(extern_factor_categorical))
-      {
-        tmpfactor=intersect(extern_factor_continous,extern_factor_categorical)
-        if(length(tmpfactor)>0)
-        {
-          sendSweetAlert(session = session,title = "Error...",text = paste("Confused Factors Type in (",paste(tmpfactor,collapse = ", "),")",sep=""),type = "error")
-          return()
-        }
-      }
-      if(genesource=="module")
-      {
-        print(moduleset)
-        for(m in moduleset)
-        {
-          modulegene=modules[[m]]
-          modulegene=modulegene[which(modulegene%in%rownames(survival_exp))]
-          
-          fit=cox.analysis(session,clinical_data,survival_exp,time,status,if_module_group,modulegene,extern_factor_continous,extern_factor_categorical,strata_factor)
-          create_cox_survival_result_box(session,label=paste("Survival Result of ",m,sep=""),id=m,model=model)
-          # 
-          # # imagepath_heat=paste(basepath,"/Plot/",m,"_",model,"_survival_cluster.png",sep="")
-          # # Heatmaps(survival_exp[modulegene,],tmpclinical,imagepath_heat)
-          # # #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
-          local({
-            id=m
-            result=summary(fit)
-            coefficients=result$coefficients
-            conf.int=result$conf.int
-            #imagepe_for_heat=imagepath_heat
-            output[[paste(id,model,"survival_coefficient",sep="_")]]=renderTable({
-              coefficients
-            },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
-            output[[paste(id,model,"survival_hazard",sep="_")]]=renderTable({
-              conf.int
-            },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
-            # output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
-            #   rhandsontable(plot$data.survtable)
-            #})
-          })
-        }
-      }
-      else if(genesource=="single.gene")
-      {
-        research_gene=unlist(strsplit(x = singlelabel,split = "\n|\r\n"))
-        research_gene=research_gene[research_gene%in%rownames(survival_exp)]
-        print(research_gene)
-        for(rg in research_gene)
-        {
-          tmpclinical=clinical_data
-          if(if_single_group)
-          {
-            thresh=quantile(survival_exp[rg,],probs = quantile)[1,1]
-            tmpclinical$group=""
-            high_group=colnames(survival_exp)[which(as.numeric(survival_exp[rg,])>=thresh)]
-            low_group=colnames(survival_exp)[which(as.numeric(survival_exp[rg,])<thresh)]
-            tmpclinical[high_group,"group"]="High Expressed"
-            tmpclinical[low_group,"group"]="Low Expressed"
-            if(length(unique(tmpclinical$group))==1)
-            {
-              sendSweetAlert(session = session,title = "Error...",text = paste("Patients can't be grouped by Gene ",rg,sep=""),type = 'error')
-              next
-            }
-            fit=cox.analysis(session = session,clinical = tmpclinical,exp = survival_exp,
-                             time = time,status = status,ifgroup = F,gene = rg,
-                             external_continous = extern_factor_continous,
-                             external_categorical = extern_factor_categorical,strata_factor = strata_factor,
-                             single_grouped=T)
-          }
-          else
-          {
-            fit=cox.analysis(session = session,clinical = tmpclinical,exp = survival_exp,
-                             time = time,status = status,ifgroup = F,gene = rg,
-                             external_continous = extern_factor_continous,
-                             external_categorical = extern_factor_categorical,strata_factor = strata_factor,
-                             single_grouped=F)
-          }
-          create_cox_survival_result_box(session,label=paste("Survival Result of ",rg,sep=""),id=rg,model=model)
-          local({
-            id=rg
-            result=summary(fit)
-            coefficients=result$coefficients
-            conf.int=result$conf.int
-            #imagepe_for_heat=imagepath_heat
-            output[[paste(id,model,"survival_coefficient",sep="_")]]=renderTable({
-              coefficients
-            },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
-            output[[paste(id,model,"survival_hazard",sep="_")]]=renderTable({
-              conf.int
-            },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
-            # output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
-            #   rhandsontable(plot$data.survtable)
-            #})
-          })
-        }
-      }
-      else if(genesource=="custom")
-      {
-        customgene=unlist(strsplit(x = customgene,split = "\r\n|\n"))
-        customgene=customgene[which(customgene%in%rownames(survival_exp))]
-        if(length(customgene)==1)
-        {
-          sendSweetAlert(session = session,title = "Warning...",text = "Please select Single Gene Model",type = "warning")
-          return()
-        }
-        fit=cox.analysis(session = session,clinical = clinical_data,exp = survival_exp,time = time,
-                         status = status,ifgroup = if_custom_group,gene = customgene,
-                         external_continous = extern_factor_continous,
-                         external_categorical = extern_factor_categorical,
-                         strata_factor = strata_factor,single_grouped = F)
-        create_cox_survival_result_box(session,label=paste("Survival Result of Custom Genes",sep=""),id="custom",model=model)
-        # 
-        # # imagepath_heat=paste(basepath,"/Plot/",m,"_",model,"_survival_cluster.png",sep="")
-        # # Heatmaps(survival_exp[modulegene,],tmpclinical,imagepath_heat)
-        # # #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
-        local({
-          id="custom"
-          result=summary(fit)
-          coefficients=result$coefficients
-          conf.int=result$conf.int
-          #imagepe_for_heat=imagepath_heat
-          output[[paste(id,model,"survival_coefficient",sep="_")]]=renderTable({
-            coefficients
-          },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
-          output[[paste(id,model,"survival_hazard",sep="_")]]=renderTable({
-            conf.int
-          },striped = T,rownames = T,colnames = T,digits = -2,align='c',hover = T)
-          # output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
-          #   rhandsontable(plot$data.survtable)
-          #})
-        })
-      }
-    }
-    else if(model=="random.forest")
-    {
-      if(genesource=="module")
-      {
-        print(moduleset)
-      }
-      else if(genesource=="single.gene")
-      {
-        print(singlelabel)
-      }
-      else if(genesource=="custom")
-      {
-        print(customgene)
-      }
-    }
-    
-    
-  })
 
+  })
   
   observeEvent(input$initialization_enrichment,{
-    updatePickerInput(session = session,inputId = "Organism_enrichment",choices = sub(pattern ="_gene_ensembl$",replacement = "",x = specials$dataset),selected = "hsapiens")
+    updatePickerInput(session = session,inputId = "Organism_enrichment",
+                      choices = sub(pattern ="_gene_ensembl$",replacement = "",x = specials$dataset),selected = "hsapiens")
     updatePickerInput(session = session,inputId = "enrichment_Numeric_IDs_treated_as",choices = colnames(after_slice_geneinfo))
   })
   
   observeEvent(input$enrichment_finish,{
     isolate({
       Organism=input$Organism_enrichment
-      choose_analysis=input$enrichment_choose_module_or_customize_gene
+      choose_analysis_tool=input$gProfileOnline_Or_custom_analysis
       Module_analysis=input$enrichment_Module_analysis1
       Custom_input=input$enrichment_Custom_input1
-      Custom_input_function_gene=input$enrichment_Custom_input_function_gene
+      # Custom_input_function_gene=input$enrichment_Custom_input_function_gene
       Significance_threshold=input$enrichment_Significance_threshold
       User_threshold=input$enrichment_User_threshold
       Numeric_IDs_treated_as=input$enrichment_Numeric_IDs_treated_as
       Data_Sources=input$enrichment_Data_Sources
       choose_show=input$enrichment_choose_show
+      filepath=input$enrichment_Custom_input_function_gene$datapath;
       
     })
     browser()
     removeUI(selector = '#all_enrichment_show>',immediate = T)
     
     for(i in Module_analysis){
-      enrichment_result=gost(modules[[i]], organism = Organism,domain_scope='custom',
-                             custom_bg=rownames(after_slice_geneinfo))$result
-      
-      if(length(enrichment_result) ==0){
+      if(choose_analysis_tool=='gProfile'){
+        enrichment_result=gost(modules[[i]], organism = Organism,domain_scope='custom',
+                               custom_bg=rownames(after_slice_geneinfo))$result
         
-        print("tishi no picture!")
-        insertUI(
-          selector ='#all_enrichment_show',
-          where='beforeEnd',
-          ui=div(class='box box-solid box-primary',id=paste('enrichment_show_',i,sep = ""),
-                 div(class='box-header',
-                     h3(class="box-title",HTML(paste('enrichment_show_',i,sep = ""))),
-                     div(class="box-tools pull-right",
-                         tags$button(class='btn btn-box-tool',"data-widget"="collapse",
-                                     tags$i(class='fa fa-minus')
-                         )
-                     )
-                 ),
-                 div(class='box-body',
-                     div(class='row',
-                         div(
-                           h3(class="box-title",HTML(paste('No solve! So no picture...')))
-                         )
-                     )      
-                 )
-                 
-          ),
-          immediate = T
-        )
-      }else{
-        
-        insertUI(
-          selector ='#all_enrichment_show',
-          where='beforeEnd',
-          ui=div(class='box box-solid box-primary',id=paste('enrichment_show_',i,sep = ""),
-                 div(class='box-header',
-                     h3(class="box-title",HTML(paste('enrichment_show_',i,sep = ""))),
-                     div(class="box-tools pull-right",
-                         tags$button(class='btn btn-box-tool',"data-widget"="collapse",
-                                     tags$i(class='fa fa-minus')
-                         )
-                     )
-                 ),
-                 div(class='box-body',
-                     div(class='row')      
-                 )
-          ),
-          immediate = T
-        )
-        
-        # enrichment_result=gost(c("X:1000:1000000", "rs17396340", "GO:0005005", "ENSG00000156103", "NLRP1"))$result
-        a=1  
-        # removeUI(selector = paste('enrichment_show_',i,' .row',sep = ""),immediate = T)
-        for(j in Data_Sources){
-          svg(filename = paste(basepath,"Plot",paste("enrichment_plot",a,".svg",sep = ""),sep = "/"),family = 'serif')
-          if(choose_show=="bar_plot"){
-            print(
-              ggplot(enrichment_result[which(enrichment_result$source==j),],aes(x=term_name,y=p_value))+
-                geom_bar(stat = "identity")+labs(y="p_value",x="term_name",title = "Screening sample plot")+
-                theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
-                      panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))+coord_flip()
-            )
-          }else{
-            print(
-              ggplot(enrichment_result[which(enrichment_result$source==j),],aes(y= term_name,x=recall,colour=p_value,size=intersection_size))+
-                geom_point()+labs(x="Recall",y="term_name",title = "Screening sample plot")+
-                theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
-                      panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))
-            )
-            
-          }
-          dev.off()
+        if(length(enrichment_result) ==0){
+          
+          print("tishi no picture!")
           insertUI(
-            selector =paste('#enrichment_show_',i,' .row',sep = ""),
+            selector ='#all_enrichment_show',
             where='beforeEnd',
-            ui=div(class='col-lg-6',
-                   imageOutput(outputId = paste('enrichment_out_pic',a,sep = ""),height = "100%")),
+            ui=div(class='box box-solid box-primary',id=paste('enrichment_show_',i,sep = ""),
+                   div(class='box-header',
+                       h3(class="box-title",HTML(paste('enrichment_show_',i,sep = ""))),
+                       div(class="box-tools pull-right",
+                           tags$button(class='btn btn-box-tool',"data-widget"="collapse",
+                                       tags$i(class='fa fa-minus')
+                           )
+                       )
+                   ),
+                   div(class='box-body',
+                       div(class='row',
+                           div(
+                             h3(class="box-title",HTML(paste('     No solve! So no picture...',sep = "")))
+                           )
+                       )      
+                   )
+                   
+            ),
             immediate = T
           )
-          local({
-            temp_a=a
-            output[[paste('enrichment_out_pic',temp_a,sep = "")]]=renderImage({
-              list(src=paste(basepath,"Plot",paste("enrichment_plot",temp_a,".svg",sep = ""),sep = "/"),width="100%",height="100%")
-            },deleteFile = F)
-          })
-          a=a+1
+        }else{
+          
+          insertUI(
+            selector ='#all_enrichment_show',
+            where='beforeEnd',
+            ui=div(class='box box-solid box-primary',id=paste('enrichment_show_',i,sep = ""),
+                   div(class='box-header',
+                       h3(class="box-title",HTML(paste('enrichment_show_',i,sep = ""))),
+                       div(class="box-tools pull-right",
+                           tags$button(class='btn btn-box-tool',"data-widget"="collapse",
+                                       tags$i(class='fa fa-minus')
+                           )
+                       )
+                   ),
+                   div(class='box-body',
+                       div(class='row')      
+                   )
+            ),
+            immediate = T
+          )
+          
+          # enrichment_result=gost(c("X:1000:1000000", "rs17396340", "GO:0005005", "ENSG00000156103", "NLRP1"))$result
+          a=1  
+          # removeUI(selector = paste('enrichment_show_',i,' .row',sep = ""),immediate = T)
+          for(j in Data_Sources){
+            svg(filename = paste(basepath,"Plot",paste("enrichment_plot",a,".svg",sep = ""),sep = "/"),family = 'serif')
+            if(choose_show=="bar_plot"){
+              print(
+                ggplot(enrichment_result[which(enrichment_result$source==j),],aes(x=term_name,y=p_value))+
+                  geom_bar(stat = "identity")+labs(y="p_value",x="term_name",title = "Screening sample plot")+
+                  theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
+                        panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))+coord_flip()
+              )
+            }else{
+              print(
+                ggplot(enrichment_result[which(enrichment_result$source==j),],aes(y= term_name,x=recall,colour=p_value,size=intersection_size))+
+                  geom_point()+labs(x="Recall",y="term_name",title = "Screening sample plot")+
+                  theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
+                        panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))
+              )
+              
+            }
+            dev.off()
+            insertUI(
+              selector =paste('#enrichment_show_',i,' .row',sep = ""),
+              where='beforeEnd',
+              ui=div(class='col-lg-6',
+                     imageOutput(outputId = paste('enrichment_out_pic',a,sep = ""),height = "100%")),
+              immediate = T
+            )
+            local({
+              temp_a=a
+              output[[paste('enrichment_out_pic',temp_a,sep = "")]]=renderImage({
+                list(src=paste(basepath,"Plot",paste("enrichment_plot",temp_a,".svg",sep = ""),sep = "/"),width="100%",height="100%")
+              },deleteFile = F)
+            })
+            a=a+1
+          }
+          
         }
+      }
+      else{
+        custom_enrichment_set<-readLines(filepath)
+        for(k in length(custom_enrichment_set) ){
+          singl_func<-unlist(strsplit(x=custom_enrichment_set[k],split = '\t'))
+          singl_func_gene<-unique(singl_func[-1])
+          background_set=as.character(unique(after_slice_geneinfo[,Numeric_IDs_treated_as]))
+          modules_gene<-as.character(unique(after_slice_geneinfo[modules[[i]],][,Numeric_IDs_treated_as]))
+          overlap_gene<-intersect(singl_func_gene,modules_gene)
+          x=length(overlap_gene)
+          func_gene_num=length(singl_func_gene)
+          n=length(setdiff(background_set,singl_func_gene))
+          k=length(modules_gene)
+          custom_pvalue=1-phyper(x-1,func_gene_num,n,k)
+        }  
         
       }
     }
     
   })
+  observeEvent(input$show_custom_input_file,{
+    
+    session$sendCustomMessage('reading',list(div='custom_preview_panel',status='ongoing'))
+    isolate({
+      # sep_cus=input$target_seprator_cus;
+      # sep=input$target_seperator;
+      filepath=input$enrichment_Custom_input_function_gene$datapath;
+      # header=as.logical(input$target_header);
+      # quote=input$target_quote
+    })
+    
+    # if(sep_cus!="")
+    # {
+    #   sep=sep_cus
+    # }
+    if(is.null(filepath))
+    {
+      lines<-'No Data'
+    }else
+    {
+      # target<<-read.table(file = filepath,header = header,sep = sep,quote = quote,stringsAsFactors = F)
+      lines<-readLines(con =filepath )
+    }
+    Sys.sleep(2)
+    session$sendCustomMessage('reading',list(div='custom_preview_panel',status='finish'))
+    custom_gene_set<<-list()
+    df=data.frame()
+    for(i in lines){
+      tmp=unlist(strsplit(x=i,split = '\t'))
+      tmp_list=list(tmp[-1])
+      names(tmp_list)=tmp[1]
+      custom_gene_set<<-c(custom_gene_set,tmp_list)
+      df=rbind(df,data.frame(Name=tmp[1],Size=length(tmp)-1,Action="Details",stringsAsFactors = F))
+    }
+    sign_formatter=formatter("span",onclick="showCustomGeneDetails(this)",style=function(x) {
+      style(display = "inline-block",direction = "rtl", `border-radius` = "4px",`background-color` = csscolor('#3498db'), width = '150px')} )
+    
+    
+    df$Action=sign_formatter(df$Action)
+    
+    my_color_bar <- function (color = "lightgray", fixedWidth=150,...) 
+    {
+      formatter("span", style = function(x) style(display = "inline-block", 
+                                                  direction = "rtl", `border-radius` = "4px", `padding-right` = "2px", 
+                                                  `background-color` = csscolor(color), width = paste(fixedWidth*proportion(x),"px",sep=""), 
+                                                  ...))
+    }
+    
+    output$custom_preview_panel=renderFormattable({
+      formattable(df,align=c("c","r","c"),list(Size=my_color_bar("#2ecc71",250)
+      )
+      )
+      
+      
+    })
+    
+    
+    
+    
+  })
   
+  observeEvent(input$showCustomDetails,{
+    isolate({
+      msg=input$showCustomDetails
+      id=msg$id
+    })
+    id=sub(pattern = '^ +',replacement = '',x = id)
+    id=sub(pattern = ' +$',replacement = '',x = id)
+    # aaa=tagList()
+    # for(i in custom_gene_set[[id]]){
+    #   aaa=tagList(aaa,tags$tr(tags$td(i)))
+    # }
+    aaa=paste('<table style="font-family:Times New Roman" align="center">',paste(paste('<tr><td>',custom_gene_set[[id]],'</td></tr>'),collapse = "") ,'</table>')
+    aaa=HTML(aaa)
+    
+    confirmSweetAlert(session = session,inputId = "temp",title = id,
+                      text =aaa ,html =T  )
+    
+  })
+    
+  
+  
+
+    
+  
+
 })
-
-
-
 
 

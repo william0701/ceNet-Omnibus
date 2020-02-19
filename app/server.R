@@ -1605,8 +1605,6 @@ shinyServer(function(input,output,session) {
       msg=input$nodeCentrality
       centrality=unlist(msg$value)
     })
-    
-    
     if(net_igraph==""){
       sendSweetAlert(session = session,title = "Error",text = "Please complete step 3 first",type = 'error')
     }else{
@@ -1638,14 +1636,24 @@ shinyServer(function(input,output,session) {
           data=data[which(data$Var1!=0),]
           p=ggplot(data = data,aes(x = Var1,ymax=Freq,ymin=0,y=Freq))+
             geom_linerange(linetype='dashed')+
-            geom_point(size=3)+scale_x_log10()+scale_y_log10()+geom_smooth(method = lm)
+            geom_point(size=3)+scale_x_log10()+scale_y_log10()+geom_smooth(method = lm)+
+            labs(title = "Degree Distribution")+xlab(label = "Degree")+ylab("Node Count")+
+            theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
+                  axis.text.x = element_text(family = "serif",colour = "black"), 
+                  axis.text.y = element_text(family = "serif",colour = "black"), 
+                  plot.title = element_text(family = "serif", hjust = 0.5,size=14),
+                  panel.background = element_rect(fill = NA),legend.position = 'none',
+                  plot.subtitle = element_text(family = "serif",size = 12, colour = "black", hjust = 0.5,vjust = 1))
+          pp=ggplot_build(p)
+          axis_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
+          axis_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
+          x_pianyi=(axis_x[2]-axis_x[1])*0.2
+          model=lm(formula = log(Freq)~log(Var1),data = data)
+          R.square=round(summary(model)[["r.squared"]],digits = 3)
+          text=data.frame(label=paste0("R-square=",R.square),x=10^axis_x[2]*0.7,y=10^axis_y[2]*0.8,stringsAsFactors = F)
+          p=p+geom_text(mapping = aes(x = x,y = y,label=label),data = text,inherit.aes = F,size=6,family='serif',fontface='bold')
           svg(filename = paste(basepath,"Plot",'node_degree.svg',sep="/"),family = 'serif')
-          # print(p)
-          print(p+theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
-                        axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
-                        plot.title = element_text(hjust = 0.5,size=20),
-                        legend.position = "bottom", legend.direction = "horizontal")
-                )
+          print(p)
           dev.off()
           output$node_Degree_plot=renderImage({
             list(src=normalizePath(paste(basepath,"Plot",'node_degree.svg',sep="/")),height="100%",width="100%")
@@ -1658,14 +1666,16 @@ shinyServer(function(input,output,session) {
           nodeNewInfo[names(betweenness),'Betweenness']<<-betweenness
           density=density(x = betweenness,from = min(betweenness,na.rm = T),to = max(betweenness,na.rm = T),na.rm = T)
           density=data.frame(x=density$x,y=density$y)
-          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)+
+            labs(title = "Betweenness Distribution")+xlab(label = "Betweenness")+ylab("Density")+
+            theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
+                  axis.text.x = element_text(family = "serif",colour = "black"), 
+                  axis.text.y = element_text(family = "serif",colour = "black"), 
+                  plot.title = element_text(family = "serif", hjust = 0.5,size=14),
+                  panel.background = element_rect(fill = NA),legend.position = 'none',
+                  plot.subtitle = element_text(family = "serif",size = 12, colour = "black", hjust = 0.5,vjust = 1))
           svg(filename = paste(basepath,"Plot",'node_betweenness.svg',sep="/"),family = 'serif')
-          # print(p)
-          print(p+theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
-                        axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
-                        plot.title = element_text(hjust = 0.5,size=20),
-                        legend.position = "bottom", legend.direction = "horizontal")
-                )
+          print(p)
           dev.off()
           output$node_Betweenness_plot=renderImage({
             list(src=normalizePath(paste(basepath,"Plot",'node_betweenness.svg',sep="/")),height="100%",width="100%")
@@ -1678,14 +1688,16 @@ shinyServer(function(input,output,session) {
           nodeNewInfo[names(closeness),'Closeness']<<-closeness
           density=density(x = closeness,from = min(closeness,na.rm = T),to = max(closeness,na.rm = T),na.rm = T)
           density=data.frame(x=density$x,y=density$y)
-          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)+
+            labs(title = "Closeness Distribution")+xlab(label = "Closeness")+ylab("Density")+
+            theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
+                  axis.text.x = element_text(family = "serif",colour = "black"), 
+                  axis.text.y = element_text(family = "serif",colour = "black"), 
+                  plot.title = element_text(family = "serif", hjust = 0.5,size=14),
+                  panel.background = element_rect(fill = NA),legend.position = 'none',
+                  plot.subtitle = element_text(family = "serif",size = 12, colour = "black", hjust = 0.5,vjust = 1))
           svg(filename = paste(basepath,"Plot",'node_closeness.svg',sep="/"),family = 'serif')
-          # print(p)
-          print(p+theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
-                        axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
-                        plot.title = element_text(hjust = 0.5,size=20),
-                        legend.position = "bottom", legend.direction = "horizontal")
-                )
+          print(p)
           dev.off()
           output$node_Closeness_plot=renderImage({
             list(src=normalizePath(paste(basepath,"Plot",'node_closeness.svg',sep="/")),height="100%",width="100%")
@@ -1698,13 +1710,16 @@ shinyServer(function(input,output,session) {
           nodeNewInfo[V(net_igraph)$name,'Clustering.Coefficient']<<-cc
           density=density(x = cc,from = min(cc,na.rm = T),to = max(cc,na.rm = T),na.rm = T)
           density=data.frame(x=density$x,y=density$y)
-          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)+
+            labs(title = "Clustering Coefficient Distribution")+xlab(label = "Clustering Coefficient")+ylab("Density")+
+            theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
+                  axis.text.x = element_text(family = "serif",colour = "black"), 
+                  axis.text.y = element_text(family = "serif",colour = "black"), 
+                  plot.title = element_text(family = "serif", hjust = 0.5,size=14),
+                  panel.background = element_rect(fill = NA),legend.position = 'none',
+                  plot.subtitle = element_text(family = "serif",size = 12, colour = "black", hjust = 0.5,vjust = 1))
           svg(filename = paste(basepath,"Plot",'node_clustering_coefficient.svg',sep="/"),family = 'serif')
-          # print(p)
-          print(p+theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
-                        axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
-                        plot.title = element_text(hjust = 0.5,size=20),
-                        legend.position = "bottom", legend.direction = "horizontal"))
+          print(p)
           dev.off()
           output$node_Clustering_Coefficient_plot=renderImage({
             list(src=normalizePath(paste(basepath,"Plot",'node_clustering_coefficient.svg',sep="/")),height="100%",width="100%")
@@ -1739,21 +1754,30 @@ shinyServer(function(input,output,session) {
         {
           betweenness=edge_betweenness(net_igraph,directed = F)
           
-          edgelist=t(apply(X = as_edgelist(net_igraph),MARGIN = 1,FUN = sort))
-          edgename=t(apply(X = edgeinfo[,c('N1','N2')],MARGIN = 1,FUN = sort))
-          rownames(edgeinfo)<<-paste(edgename[,1],edgename[,2],sep="|")
-          edgeinfo[paste(edgename[,1],edgename[,2],sep="|"),'Betweenness']<<-betweenness
-          rownames(edgeinfo)<<-NULL
+          #edgelist=t(apply(X = as_edgelist(net_igraph),MARGIN = 1,FUN = sort))
+          #edgename=rownames(edgeinfo)
+          #rownames(edgeinfo)<<-paste(edgename[,1],edgename[,2],sep="|")
+          edgelist=as_edgelist(net_igraph)
+          badindex=which(edgelist[,1]>=edgelist[,2])
+          tmpnode1=edgelist[badindex,1]
+          edgelist[badindex,1]=edgelist[badindex,2]
+          edgelist[badindex,2]=tmpnode1
+          print(all(edgelist==edgeinfo[,c('N1','N2')]))
+          edgeinfo[paste(edgelist[,1],edgelist[,2],sep="+"),'Betweenness']<<-betweenness
+          #rownames(edgeinfo)<<-NULL
           
           density=density(x = betweenness,from = min(betweenness,na.rm = T),to = max(betweenness,na.rm = T),na.rm = T)
           density=data.frame(x=density$x,y=density$y)
-          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)
+          p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)+
+            labs(title = "Edge Betweenness Distribution")+xlab(label = "Betweenness")+ylab("Density")+
+            theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
+                  axis.text.x = element_text(family = "serif",colour = "black"), 
+                  axis.text.y = element_text(family = "serif",colour = "black"), 
+                  plot.title = element_text(family = "serif", hjust = 0.5,size=14),
+                  panel.background = element_rect(fill = NA),legend.position = 'none',
+                  plot.subtitle = element_text(family = "serif",size = 12, colour = "black", hjust = 0.5,vjust = 1))
           svg(filename = paste(basepath,"Plot",'edge_betweenness.svg',sep="/"),family = 'serif')
-          # print(p)
-          print(p+theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
-                        axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
-                        plot.title = element_text(hjust = 0.5,size=20),
-                        legend.position = "bottom", legend.direction = "horizontal"))
+          print(p)
           dev.off()
           output$edge_Betweenness_plot=renderImage({
             list(src=normalizePath(paste(basepath,"Plot",'edge_betweenness.svg',sep="/")),height="100%",width="100%")

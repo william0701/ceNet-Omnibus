@@ -311,7 +311,7 @@ network_construnction=function(after_slice_geneinfo)
     tmpedges=data.frame()
     type.thresh=thresh[which(thresh$type==type),]
     datalist=readData(type,unlist(strsplit(condition[type,'task'],split = ";")))
-    colnames(edgeinfo)[ncol(edgeinfo)]<<-type
+    #colnames(edgeinfo)[ncol(edgeinfo)]<<-type
     for(i in seq(1,dim(type.thresh)[1]))
     {
       task=type.thresh$task[i]

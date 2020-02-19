@@ -1,5 +1,9 @@
 $(document).ready(function(){
-
+  $("a[href='#shiny-tab-analysis']").on("click",function(e){
+    Shiny.setInputValue("initialization_enrichment",Math.random());
+    
+  });
+   $("#custom_preview_panel").parent().css({'overflow':'auto','height':'530'});
 })
 
 function showNodeCentrality(box)
@@ -143,4 +147,14 @@ function module_setting(btn)
 function survival(obj)
 {
   Shiny.setInputValue("execute_survival",Math.random())
+}
+
+function showCustomGeneDetails(obj){
+
+  var name=$(obj).parent().parent().children(":first-child").html()
+  var temp={}
+  temp['stamp']=Math.random()
+  temp['id']=name
+  Shiny.setInputValue("showCustomDetails",temp)
+  
 }

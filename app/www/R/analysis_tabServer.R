@@ -14,7 +14,7 @@ default.configure=list(color="red",
 clinical_data=""
 survival_exp=""
 valid_patient=""
-
+custom_gene_set=""
 
 create_property_box=function(type,id)
 {

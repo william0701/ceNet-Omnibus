@@ -13,22 +13,21 @@ header=dashboardHeader(
 sidebar=dashboardSidebar(
   sidebarMenu(
     menuItem("1st Step: Data Input", tabName = "input", icon = icon("table",class = 'far'),badgeLabel = 3),
-    menuItem("2nd Step: Data Preprocess", tabName = "process", icon = icon("cog"),badgeLabel = 4),
-    menuItem("3rd Step: Network Construction", tabName = "construction", icon = icon("connectdevelop"),badgeLabel = 2),
-    menuItem("4th Step: Network Visualization", tabName = "visualization", icon = icon("project-diagram"),badgeLabel = 1),
-    menuItem("5th Step: Network Analysis", tabName = "analysis", icon = icon("chart-line"),badgeLabel = 4)
+    menuItem("2nd Step: Data Preprocess", tabName = "process", icon = icon("cog"),badgeLabel = 3),
+    menuItem("3rd Step: Network Construction", tabName = "construction", icon = icon("connectdevelop"),badgeLabel = 3),
+    menuItem("4th Step: Network Visualization", tabName = "visualization", icon = icon("project-diagram"),badgeLabel = 3),
+    menuItem("5th Step: Network Analysis", tabName = "analysis", icon = icon("chart-line"),badgeLabel = 3)
   ),width=280
 )
 
 process_tab=tabItem(tabName = "process",
-                    #h2("Data Preprocess"),
+                    h2("Data Preprocess"),
                     div(class="row" ,id="float_banner",
                       #box(title='Data Process',collapsible=T,collapsed=F,status='primary',solidHeader=T,width = 12,
                           value_BoxInput(value = 0,subtitle =  "Valid RNA", icon = "twitter",color = "red",width = 4,inputId="Rnaoutput" ),
                           value_BoxInput(value = 0,subtitle =  "Valid MicroRNA", icon = "twitter",color = "purple",width = 4,inputId="MicroRnaoutput" ),
                           value_BoxInput(value = 0,subtitle =  "Valid Sample", icon = "twitter",color = "yellow",width = 4,inputId="Sampleoutput" )
-                    ),
-                    h2("Step1: Gene Grouping",style='font-family:Georgia'),
+                    ),      
                     fluidRow(      
                           box(title = "Info Map",status = 'success',solidHeader = F,width = 12,id="Info_Map_all",
                               div(class='col-lg-6',style="padding:0px",
@@ -61,69 +60,66 @@ process_tab=tabItem(tabName = "process",
                              div(class='col-lg-6',
                                  imageOutput(outputId = 'biotype_group_statics_graph',height = "100%",width="100%")
                             ),
-                            footer = tags$button(id = 'biotype_group_statics', type = "button",class = "btn btn-success action-button pull-right",HTML('Preview'),width='20')
-                        )
-                    )
-                    ,
-                    h2("Step2: Sample Filter",style='font-family:Georgia'),
-                    fluidRow(
-                      box(title = "Sample Filter",status = 'danger',solidHeader = F,width = 12,id="Sample_Filter_all"
-                      )
-                    ),
-                    h2("Step3: Gene Filter",style='font-family:Georgia'),
-                    fluidRow(
-                      box(title = "Gene Filter",status = 'danger',solidHeader = F,width = 12,id="Gene_Filter_all"
-                        )
-                    ),
-                    h2("Step4: Value Transformation",style='font-family:Georgia'),
-                    fluidRow(
-                      box(title = "Value Transform",status = 'danger',solidHeader = F,width = 12,id="Value_Transform_all",
-                          tabsetPanel(
-                            tabPanel(title='CeRNA',
-                                     div(class="col-lg-12",id="ceRNA_choose_transfunction",
-                                         h2("1.Choose value transform operation"),
-                                         div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                             h3("Logtransform Module",style="text-align:center;")
-                                             
-                                             
-                                         ),
-                                         div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                             h3("Normalized Module",style="text-align:center;")
-                                             
-                                         ),
-                                         div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                             h3("Action Module",style="text-align:center;")
-                                         )
-                                     ),
-                                     div(class="col-lg-12",id="ceRNA_handson_id",
-                                         h2("2.Part data show")
-                                         
-                                     )
-                                     
+                            
+                            footer =div(
+                                      downloadButton("downloadData_group", "Download"),
+                                      tags$button(id = 'biotype_group_statics', type = "button",class = "btn btn-success action-button pull-right",HTML('Preview'),width='20')
+                                    )
+                        ),
+                        box(title = "Sample Filter",status = 'danger',solidHeader = F,width = 12,id="Sample_Filter_all"
+                            
+                        ),
+                        box(title = "Gene Filter",status = 'danger',solidHeader = F,width = 12,id="Gene_Filter_all"
+                            
                             ),
-                            tabPanel(title='MicroRNA',
-                                     div(class="col-lg-12",id="microRNA_choose_transfunction",
-                                         h2("1.Choose value transform operation"),
-                                         div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                             h3("Logtransform Module",style="text-align:center;")
-                                             
-                                             
-                                         ),
-                                         div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                             h3("Normalized Module",style="text-align:center;")
-                                             
-                                         ),
-                                         div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                             h3("Action Module",style="text-align:center;")
-                                         )
-                                     ),
-                                     div(class="col-lg-12",id="microRNA_handson_id",
-                                         h2("2.Part data show")
-                                         
-                                     )
+                        box(title = "Value Transform",status = 'danger',solidHeader = F,width = 12,id="Value_Transform_all",
+                            tabsetPanel(
+                              tabPanel(title='CeRNA',
+                                  div(class="col-lg-12",id="ceRNA_choose_transfunction",
+                                      h2("1.Choose value transform operation"),
+                                       div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                           h3("Logtransform Module",style="text-align:center;")
+                                           
+                                           
+                                       ),
+                                       div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                           h3("Normalized Module",style="text-align:center;")
+                                           
+                                       ),
+                                      div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                           h3("Action Module",style="text-align:center;")
+                                      )
+                                  ),
+                                  div(class="col-lg-12",id="ceRNA_handson_id",
+                                      h2("2.Part data show")
+                              
+                                  )
+                                       
+                              ),
+                              tabPanel(title='MicroRNA',
+                                    div(class="col-lg-12",id="microRNA_choose_transfunction",
+                                       h2("1.Choose value transform operation"),
+                                       div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                           h3("Logtransform Module",style="text-align:center;")
+                                           
+                                           
+                                       ),
+                                       div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                           h3("Normalized Module",style="text-align:center;")
+                                           
+                                       ),
+                                       div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                           h3("Action Module",style="text-align:center;")
+                                       )
+                                    ),
+                                    div(class="col-lg-12",id="microRNA_handson_id",
+                                        h2("2.Part data show")
+                                        
+                                    )
+                              )
                             )
-                          )
-                      )
+                        )
+                            
                     )
 )
 
@@ -136,9 +132,13 @@ visual_tab=tabItem(tabName = "visualization",
                         h4("choose layout",style="font-family:Georgia;font-weight:bold") 
                   
                       ),
-                      div(class="input-group-btn",id="choose_differ_name",
-                        h4("change gene name",style="font-family:Georgia;font-weight:bold"))
+                      div(class="form-group",id="choose_differ_name",
+                        h4("change gene name",style="font-family:Georgia;font-weight:bold")
                       ),
+                      div(class="form-group",id="export_network_png",
+                          h4("export network",style="font-family:Georgia;font-weight:bold")
+                      )
+                    ),
                      div(class='col-lg-3',id='change_network_color'
                        
                       ),
@@ -352,117 +352,70 @@ analysis_tab=tabItem(tabName = "analysis",
                                                  )
                                              ),
                                              
+                                             
+                                             
                                              div(class='box-body',
                                                  div(class='row',
                                                      div(class='col-lg-3',
-                                                         pickerInput(inputId = 'choose_analysis',label = 'choose analysis',
-                                                                     choices = c("gProfile(Online)"="gProfile",
-                                                                                 "custom input"="custom_input"
+                                                         pickerInput(inputId = 'community_algorithm',label = 'Community Detection Algorithm',
+                                                                     choices = c("gProfile(Online)"="...",
+                                                                                 "Cluster Profiler(Offline)"="..."
                                                                      ),
                                                                      width = "100%"
+                                                         )
+                                                     )
+                                                 ),
+                                                 div(class='row',
+                                                     div(class='col-lg-3',
+                                                         prettyRadioButtons(
+                                                           inputId = "Id036",
+                                                           label = "Choose:", 
+                                                           choices = c("Module analysis"="Module_analysis", "Custom input"="Custom_input"),
+                                                           inline = TRUE
                                                          ),
-                                                         # conditionalPanel( "input.choose_analysis=='gProfile'",
-                                                         #                   fileInput(inputId="enrichment_Custom_input_function_gene",label = "Custom input function gene",width ="400px")
-                                                         # ),
-                                                         conditionalPanel( "input.choose_analysis=='custom_input'",
-                                                                           fileInput(inputId="enrichment_Custom_input_function_gene",label = "Custom input function gene",width ="400px")
+                                                         conditionalPanel("input.Id036=='Module_analysis'",
+                                                                          pickerInput(inputId = 'Module_analysis1',label = 'Module analysis',
+                                                                                      choices = c("NG Algorithm"="cluster_edge_betweenness",
+                                                                                                  "Modularity Optimization"="cluster_fast_greedy"
+                                                                                      ),
+                                                                                      multiple = TRUE,
+                                                                                      width = "100%"
+                                                                          )
+                                                         ),
+                                                         conditionalPanel( "input.Id036=='Custom_input'",
+                                                                           textAreaInput("Custom_input1", "Custom input", "gene", width = "500px",height = "200px")
                                                          )
                                                      )
                                                  ),
                                                  
-                                                 div(class='row',
-                                                     div(class='col-lg-3',
-                                                         pickerInput(inputId = 'Organism_enrichment',label = 'Organism:',
-                                                                     choices = c(),
-                                                                     options = list(size = 8,`live-search` = TRUE),
-                                                                     width = "100%"
-                                                         )
-                                                     )
-                                                 ),
-                                                 
-                                                 div(class='row',
-                                                     div(class='col-lg-3',
-                                                         pickerInput(inputId = 'enrichment_Module_analysis1',label = 'Module analysis',
-                                                                     choices = c("finish Part2: Network Modules first"),
-                                                                     selected="finish Part2: Network Modules first",
-                                                                     multiple = TRUE,
-                                                                     options = list(size = 8,`live-search` = TRUE,"actions-box"=T),
-                                                                     width = "100%"
-                                                         )
-                                                         # prettyRadioButtons(
-                                                         #   inputId = "enrichment_choose_module_or_customize_gene",
-                                                         #   label = "Choose:", 
-                                                         #   choices = c("Module analysis"="Module_analysis", "Custom input"="Custom_input"),
-                                                         #   inline = TRUE
-                                                         # ),
-                                                         # conditionalPanel("input.enrichment_choose_module_or_customize_gene=='Module_analysis'",
-                                                         #                  pickerInput(inputId = 'enrichment_Module_analysis1',label = 'Module analysis',
-                                                         #                              choices = c("finish Part2: Network Modules first"),
-                                                         #                              selected="finish Part2: Network Modules first",
-                                                         #                              multiple = TRUE,
-                                                         #                              options = list(size = 8,`live-search` = TRUE,"actions-box"=T),
-                                                         #                              width = "100%"
-                                                         #                  )
-                                                         #                  
-                                                         #                  
-                                                         # ),
-                                                         # conditionalPanel( "input.enrichment_choose_module_or_customize_gene=='Custom_input'",
-                                                         #                   fileInput(inputId="enrichment_Custom_input_function_gene",label = "Custom input function gene",width ="400px")
-                                                         # )
-                                                     )
-                                                 ),
-                                                 
-                                                 
-                                                 # fileInput(inputId="enrichment_Custom_input_function_gene",label = "Custom input function gene",width ="400px"),
-                                                 pickerInput(inputId = 'enrichment_Significance_threshold',label = 'Significance threshold',
+                                                 pickerInput(inputId = 'Significance_threshold',label = 'Significance threshold',
                                                              choices = c("g:SCS threshold"="g:SCS_threshold",
                                                                          "Bonferroni correction"="Bonferroni_correction",
                                                                          "Benjamini-Hochberg FDR"="Benjamini-Hochberg_FDR"
                                                              ),
-                                                             width = "50%"
-                                                 ),
-                                                 textInput("enrichment_User_threshold", "User threshold", "0.05",width="400px"),
-                                                 
-                                                 
-                                                 
-                                                 pickerInput(inputId = 'enrichment_Numeric_IDs_treated_as',label = 'Numeric IDs treated as',
-                                                             choices =c("onclick page2 first!"),
-                                                             options = list(size = 8,`live-search` = TRUE),
+                                                             
                                                              width = "50%"
                                                  ),
                                                  
-                                                 pickerInput(inputId = 'enrichment_Data_Sources',label = 'Data Sources',
-                                                             choices = c("GO Molecular Function(MF)"="GO:MF",
-                                                                         "GO Cellular Component(CC)"="GO:CC",
-                                                                         "GO Biological Process(BP)"="GO:BP",
-                                                                         "KEGG"="KEGG",
-                                                                         "Reactome"="REAC",
-                                                                         "WikiPathways"="WP"
+                                                 textInput("User_threshold", "User threshold", "0.05",width="400px"),
+                                                 
+                                                 pickerInput(inputId = 'Numeric_IDs_treated_as',label = 'Numeric IDs treated as',
+                                                             
+                                                             choices =c(),
+                                                             width = "50%"
+                                                 ),
+                                                 
+                                                 pickerInput(inputId = 'Data_Sources',label = 'Data Sources',
+                                                             choices = c("NG Algorithm"="cluster_edge_betweenness",
+                                                                         "Modularity Optimization"="cluster_fast_greedy"
+                                                                         
                                                              ),
                                                              multiple = TRUE,
-                                                             width = "50%",
-                                                             options = list("actions-box"=T)
-                                                 ),
-                                                 
-                                                 prettyRadioButtons(
-                                                   inputId = "enrichment_choose_show",
-                                                   label = "Choose which plot:", 
-                                                   choices = c("bar plot"="bar_plot", "point plot"="point_plot"),
-                                                   inline = TRUE
-                                                 ),
-                                                 
-                                                 div(class="col-lg-2",style="padding:0;margin:0",
-                                                     div(class="form-group shiny-input-container",
-                                                         tags$label(class="control-label"),tags$br(),
-                                                         tags$button(id="enrichment_finish",class="btn btn-primary btn-flat action-button shiny-bound-input",
-                                                                     HTML("Perform"),onclick="run_enrichment_finish(this)")
-                                                     )
+                                                             width = "50%"
                                                  )
                                                  
                                              )
-                                         ),
-                                         
-                                         div(id="all_enrichment_show")
+                                         )
                                 ),
                                 tabPanel(title="Survival Analysis",
                                          h2("Part4: Survival Analysis",style='font-family:Georgia'),
@@ -485,7 +438,7 @@ analysis_tab=tabItem(tabName = "analysis",
                                                                                 fileInput(inputId="clinical_file",label = "Clinical Data")
                                                                             ),
                                                                             div(class='col-lg-12',style="padding:0px",
-                                                                                prettyRadioButtons(inputId = 'clinical_seperator',label = 'Seprator',choices = c("Tab"="\t",'Comma'=',','Space'=' ','Semicolon'=';'),status='primary',inline=T)
+                                                                                prettyRadioButtons(inputId = 'clinical_seperator',label = 'Seprator',choices = c("Tab"="\t",'Common'=',','Space'=' ','Semicolon'=';'),status='primary',inline=T)
                                                                             ),
                                                                             div(class="col-lg-12",style="padding:0px",
                                                                                 prettyRadioButtons(inputId = 'clinical_header',label = 'Header',choices = c("With header"=T,'Without header'=F),selected=T,status='primary',inline=T)
@@ -514,7 +467,7 @@ analysis_tab=tabItem(tabName = "analysis",
                                                                             conditionalPanel("!input.survival_exp_con",
                                                                                              div(class="row",
                                                                                                  div(class='col-lg-12',
-                                                                                                     prettyRadioButtons(inputId = 'survival_exp_seperator',label = 'Seprator',choices = c("Tab"="\t",'Comma'=',','Space'=' ','Semicolon'=';'),status='primary',inline=T)
+                                                                                                     prettyRadioButtons(inputId = 'survival_exp_seperator',label = 'Seprator',choices = c("Tab"="\t",'Common'=',','Space'=' ','Semicolon'=';'),status='primary',inline=T)
                                                                                                  ),
                                                                                                  div(class="col-lg-12",
                                                                                                      prettyRadioButtons(inputId = 'survival_exp_header',label = 'Header',choices = c("With header"=T,'Without header'=F),selected=T,status='primary',inline=T)
@@ -658,7 +611,8 @@ dashboardPage(
     tags$script(src="js/cytoscape.js"),tags$script(src='js/visualization.js'),
     tags$link(href ='css/network-table.css',rel="stylesheet"),
     tags$script(src="js/jscolor.js"),
-    tags$script(src='js/analysis.js')
+    tags$script(src='js/analysis.js'),tags$script(src='js/FileSaver.js'),
+    tags$script(src='js/base64toblob.js')
     ),
   header=header,
   sidebar = sidebar,

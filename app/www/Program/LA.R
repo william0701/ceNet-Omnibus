@@ -5,8 +5,8 @@ LA=function(g2,g1)
     x=as.numeric(as.vector(x))
     return((x-mean(x))/sd(x))
   }
-  exp1=normalize(rna.exp[g1,])
-  exp2=normalize(rna.exp[g2,])
+  exp1=normalize(log(rna.exp[g1,]+1))
+  exp2=normalize(log(rna.exp[g2,]+1))
   la=NA
   share.micro=colnames(target)[which(target[g1,]&target[g2,])]
   if(length(share.micro)>1)

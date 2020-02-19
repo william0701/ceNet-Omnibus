@@ -1,17 +1,9 @@
 library(parallel)
 library(jsonlite)
-library(infotheo)
-run=function(g1,type,codepath,param)
+run=function(g1,type,codepath)
 {
   source(codepath)
-  if(is.null(param))
-  {
-    result=t(as.matrix(unlist(lapply(X = as.list(geneset2),FUN = get(type),g1=g1))))
-  }
-  else
-  {
-    result=t(as.matrix(unlist(lapply(X = as.list(geneset2),FUN = get(type),g1=g1,param=param))))
-  }
+  result=t(as.matrix(unlist(lapply(X = as.list(geneset2),FUN = get(type),g1=g1))))
   cat(".",file = logpath,append = T)
   colnames(result)=geneset2
   rownames(result)=g1
@@ -25,23 +17,10 @@ core=as.numeric(args[4])
 logpath=args[5]
 tasks=args[6]
 resultpath=args[7]
-param=NULL
-if(length(args)>7)
-{
-  param=args[8]
-  param=gsub(pattern = "\\\"",replacement = "\"",param)
-  param=fromJSON(param)
-}
-
 load(datapath)
 tasks=unlist(strsplit(x = tasks,split = ";"))
 
 allresult=list()
-
-if(type=="MI"||type=="CMI")
-{
-  rna.exp=t(discretize(X = t(rna.exp),disc = param$disc,nbins = param$nbin))
-}
 
 if(length(which(tasks=='all'))>0)
 {
@@ -53,7 +32,7 @@ if(length(which(tasks=='all'))>0)
 
   cluster=makeCluster(core)
   clusterExport(cluster,varlist = ls())
-  result=parLapply(cl = cluster,X = as.list(geneset1),fun = run,type=type,codepath=codepath,param=param)
+  result=parLapply(cl = cluster,X = as.list(geneset1),fun = run,type=type,codepath=codepath)
   result=do.call(what = rbind,args = result)
   stopCluster(cluster)
   cat("\nFinish!\n",file = logpath,append = T)
@@ -73,7 +52,7 @@ if(length(which(tasks=='all'))>0)
     
     cluster=makeCluster(core)
     clusterExport(cluster,varlist = ls())
-    result=parLapply(cl = cluster,X = as.list(geneset1),fun = run,type=type,codepath=codepath,param=param)
+    result=parLapply(cl = cluster,X = as.list(geneset1),fun = run,type=type,codepath=codepath)
     result=do.call(what = rbind,args = result)
     stopCluster(cluster)
     cat("\nFinish!\n",file = logpath,append = T)

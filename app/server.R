@@ -1020,16 +1020,19 @@ shinyServer(function(input,output,session) {
                       textAreaInput(inputId = 'ceRna_norm_funcion_input',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='130%',resize='both')
                   ),
                   div(class='col-lg-6',
-                      textAreaInput(inputId = 'ceRna_norm_funcion_input_example',label = 'Example',rows = 20,value = 'function(exp){
-   action_min = function(x){
-      (x-min(x))/(max(x)-min(x))
-    }
-   exp_trans = t(apply(exp, 1, action_min))
-   return (exp_trans)
-}',width='130%',resize='both')
+                      tags$label(class="control-label",HTML("Example")),
+                      verbatimTextOutput("placeholder", placeholder = TRUE)
                   )
             )
     )
+    example_input = 'function(exp){
+    action_min = function(x){
+      (x-min(x))/(max(x)-min(x))
+    }
+    exp_trans = t(apply(exp, 1, action_min))
+    return (exp_trans)
+}'
+    output$placeholder <- renderText({ example_input })
     session$sendCustomMessage('ceRNA_Norm_signal_custom_insert',"success")
   })
   observeEvent(input$microRNA_Norm_signal_custom,{
@@ -1047,16 +1050,19 @@ shinyServer(function(input,output,session) {
                         textAreaInput(inputId = 'ceRna_norm_funcion_input',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='130%',resize='both')
                     ),
                     div(class='col-lg-6',
-                        textAreaInput(inputId = 'ceRna_norm_funcion_input_example',label = 'Example',rows = 20,value = 'function(exp){
-   action_min = function(x){
-      (x-min(x))/(max(x)-min(x))
-    }
-   exp_trans = t(apply(exp, 1, action_min))
-   return (exp_trans)
-}',width='130%',resize='both')
+                        tags$label(class="control-label",HTML("Example")),
+                        verbatimTextOutput("placeholder_micro", placeholder = TRUE)
                     )
              )
     )
+    example_input = 'function(exp){
+    action_min = function(x){
+      (x-min(x))/(max(x)-min(x))
+    }
+    exp_trans = t(apply(exp, 1, action_min))
+    return (exp_trans)
+}'
+    output$placeholder_micro <- renderText({ example_input })
     session$sendCustomMessage('microRNA_Norm_signal_custom_insert',"success")
   })
   observeEvent(input$ceRNA_Norm_signal_custom_insert_ok,{
@@ -1232,12 +1238,32 @@ shinyServer(function(input,output,session) {
                                 ),
                                 div(class='row',
                                     div(class='col-lg-12',
-                                        textAreaInput(inputId = 'custom_condition_code',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='100%',resize='both')
+                                        div(class='col-lg-6',
+                                            textAreaInput(inputId = 'custom_condition_code',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='130%',resize='both')
+                                        ),
+                                        div(class='col-lg-6',
+                                            tags$label(class="control-label",HTML("Example")),
+                                            verbatimTextOutput("placeholder_third", placeholder = TRUE)
+                                            )
+                                        
                                     )
                                 )
                )
              )
     )
+    example_input = 'MS=function(g1,g2)
+{
+  allset=colnames(target)
+  set1=allset[target[g1,]==1];
+  set2=allset[target[g2,]==1];
+  x=length(intersect(set1,set2));
+  m=length(set2);
+  n=length(setdiff(allset,set2));
+  k=length(set1);
+  pvalue=1-phyper(x-1,m,n,k);
+  return(pvalue)
+}'
+    output$placeholder_third <- renderText({ example_input })
     session$sendCustomMessage('conditions',condition)
   })
   observeEvent(input$choose_new_condition,{

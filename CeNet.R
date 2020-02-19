@@ -38,4 +38,4 @@ Super <- function(run = TRUE,maxRequestSize=5*1024^2,workpath=tempdir(),projectN
   #if(run) suppressMessages(shiny::runApp(system.file("app", package = "shinyAppDemo"),launch.browser=TRUE,...))
   runApp(appDir = "app")
 }
-Super(workpath = "D:/Test/",projectName = "Single cell case",typeLimit = 20)
+Super(workpath = "D://ceNet-Omnibus1",projectName = "Single cell case",typeLimit = 20)

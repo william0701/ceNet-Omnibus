@@ -182,10 +182,8 @@ Shiny.addCustomMessageHandler('ensembl_database_info',function(msg){
      $('#'+$('#infolist').attr('currentTarget').toLowerCase()).val(value);
      $('#'+$('#infolist').attr('currentTarget').toLowerCase()).trigger('change');
     }
-    hiddenModal()
     if($('#infolist').attr('currenttarget')=='archieve'||$('#infolist').attr('currenttarget')=='database')
       Shiny.setInputValue('Update_Ensembl',Math.random())
-    
   })
   if(!$('#infolist').hasClass('in'))
   {
@@ -247,7 +245,6 @@ Shiny.addCustomMessageHandler('ensembl_archieve_info',function(msg){
      $('#'+$('#infolist').attr('currentTarget').toLowerCase()).val(value);
      $('#'+$('#infolist').attr('currentTarget').toLowerCase()).trigger('change');
     }
-    $('#'+$('#infolist').attr('currentTarget').toLowerCase())
     if($('#infolist').attr('currenttarget')=='archieve'||$('#infolist').attr('currenttarget')=='database')
      Shiny.setInputValue('Update_Ensembl',Math.random())
   })
@@ -299,7 +296,6 @@ Shiny.addCustomMessageHandler('ensembl_filter_info',function(msg){
      $('#'+$('#infolist').attr('currentTarget').toLowerCase()).val(value);
      $('#'+$('#infolist').attr('currentTarget').toLowerCase()).trigger('change');
     }
-    hiddenModal()
   })
   if(!$('#infolist').hasClass('in'))
   {
@@ -435,18 +431,7 @@ Shiny.addCustomMessageHandler('select_gene',function(msg){
 Shiny.addCustomMessageHandler('geneinfo',function(msg){
   alert(msg)
 })
-Shiny.addCustomMessageHandler('connect_biomart',function(msg){
-  if(msg=="connection")
-  {
-    showModal()
-    $(".modal-footer").css("visibility","hidden")
-  }
-  else if (msg=="finish")
-  {
-    hiddenModal()
-    $(".modal-footer").removeAttr("style","")
-  }
-})
+
 sweetAlert=function(type,title,text)
 {
   var obj={}
@@ -455,21 +440,4 @@ sweetAlert=function(type,title,text)
   obj['title']=title
   obj['text']=text
   Shiny.setInputValue('sweetAlert',obj)
-}
-showModal=function()
-{
-  if(!$('#infolist').hasClass('in'))
-  {
-    $('#infolist').modal({backdrop: 'static', keyboard: false});
-  }
-   else
-  {
-    $('#infolist').modal('hide');
-    $('#infolist').modal({backdrop: 'static', keyboard: false});
-  }
-}
-hiddenModal=function()
-{
-  $('#infolist').modal('hide')
-  $('#infolist button').css({ "display": "inline" });
 }

@@ -149,7 +149,7 @@ creat_geneFilter = function(title,inputId,type)
     $('#Gene_Filter_all').append($modal);
   
   $inPut.on("change",function(e){
-    var reg=/^[0-9]+(\.[0-9]+)?$/;
+    var reg=/^-?[0-9]+(\.[0-9]+)?$/;
     if(!$(e.currentTarget).val().match(reg)){
       $(e.currentTarget).val(0);
       sweetAlert("warning","warning..","Invalid Input!");
@@ -161,7 +161,8 @@ creat_geneFilter = function(title,inputId,type)
   })
   $buttonMinus.children("button").on("click",function(e){
     var value=parseFloat($(e.currentTarget).parent().next().val());
-    $(e.currentTarget).parent().next().val(value-0.5<0?0:value-0.5);
+    //$(e.currentTarget).parent().next().val(value-0.5<0?0:value-0.5);
+    $(e.currentTarget).parent().next().val(value-0.5);
   })
    //choose a percent filter value modal
   var $labelRight = $('<label class="control-label">Minimal Sample Ratio</label>')

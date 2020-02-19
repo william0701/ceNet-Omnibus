@@ -1,4 +1,4 @@
-MS=function(g2,g1)
+MS=function(g1,g2)
 {
   allset=colnames(target)
   set1=allset[target[g1,]==1];

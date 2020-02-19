@@ -30,7 +30,7 @@ Super <- function(run = TRUE,maxRequestSize=5*1024^2,workpath=tempdir(),projectN
   library(ComplexHeatmap)
   library(circlize) 
   tmpdir<<-normalizePath(workpath)
-  projName <<- projectName
+  projName <<- gsub(pattern = " ",replacement = '_',x = projectName)
   typeLimit <<- typeLimit
   ggthemr('flat')
   usedcolors=swatch()
@@ -38,4 +38,6 @@ Super <- function(run = TRUE,maxRequestSize=5*1024^2,workpath=tempdir(),projectN
   #if(run) suppressMessages(shiny::runApp(system.file("app", package = "shinyAppDemo"),launch.browser=TRUE,...))
   runApp(appDir = "D:/software/code/R_code/R_web_git/ceNet-Omnibus/app")
 }
+
 Super()
+

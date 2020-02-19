@@ -293,9 +293,9 @@ create_modal_setting=function(id)
   return(ui)
 }
 
-create_progress=function(msg,id=paste("#",as.numeric(Sys.time()),"_progress",sep=""))
+create_progress=function(msg)
 {
-  ui=div(class='progress active',id=id,
+  ui=div(class='progress active',
          div(class='progress-bar progress-bar-primary progress-bar-striped',"aria-valuenow"="100","aria-valuemin"="0","aria-valuemax"="100",style="width:100%",
              tags$span(msg)
             )

@@ -371,7 +371,7 @@ analysis_tab=tabItem(tabName = "analysis",
                                                      ),
                                                      conditionalPanel("input.gProfileOnline_Or_custom_analysis=='gProfile'",
                                                                       div(class='row',
-                                                                          div(class='col-lg-6',
+                                                                          div(class='col-lg-12',
                                                                               pickerInput(inputId = 'Organism_enrichment',label = 'Organism:',
                                                                                           choices = c(),
                                                                                           options = list(size = 8,`live-search` = TRUE),
@@ -390,6 +390,13 @@ analysis_tab=tabItem(tabName = "analysis",
                                                                                   multiple = TRUE,
                                                                                   width = "370px",
                                                                                   options = list("actions-box"=T)
+                                                                      ),
+                                                                      pickerInput(inputId = 'enrichment_Significance_threshold',label = 'Significance threshold',
+                                                                                  choices = c("g:SCS threshold"="g_SCS",
+                                                                                              "Bonferroni correction"="bonferroni",
+                                                                                              "Benjamini-Hochberg FDR"="fdr"
+                                                                                  ),
+                                                                                  width = "370px"
                                                                       )
                                                                       
                                                      ),
@@ -415,7 +422,7 @@ analysis_tab=tabItem(tabName = "analysis",
                                                     ),
                                                     conditionalPanel("input.choose_which_gene_to_analysis=='Modules_Gene'",
                                                       div(class='row',
-                                                        div(class='col-lg-6',
+                                                        div(class='col-lg-12',
                                                           pickerInput(inputId = 'enrichment_Module_analysis1',label = 'Module analysis',
                                                              choices = c("finish Part2: Network Modules first"),
                                                                        selected="finish Part2: Network Modules first",
@@ -427,19 +434,14 @@ analysis_tab=tabItem(tabName = "analysis",
                                                                      )
                                                     ),
                                                     conditionalPanel("input.choose_which_gene_to_analysis=='Custom_Gene'",
-                                                       textAreaInput(inputId="custom_input_gene",label = "please input gene!",width = "400px")
-                                                                     
+                                                       textAreaInput(inputId="custom_input_gene",label = "Custom input gene",
+                                                                     value ="One gene per line", 
+                                                                      width = "370px",height = "100px")
                                                     )
                                                  )
                                              ),   
                                              
-                                             pickerInput(inputId = 'enrichment_Significance_threshold',label = 'Significance threshold',
-                                                         choices = c("g:SCS threshold"="g_SCS",
-                                                                     "Bonferroni correction"="bonferroni",
-                                                                     "Benjamini-Hochberg FDR"="fdr"
-                                                         ),
-                                                         width = "370px"
-                                             ),
+                                             
                                              textInput("enrichment_User_threshold", "User threshold", "0.05",width="370px"),
                                              
                                              pickerInput(inputId = 'enrichment_Numeric_IDs_treated_as',label = 'Numeric IDs treated as',

@@ -1160,7 +1160,7 @@ shinyServer(function(input,output,session) {
   
   #########Construction Page Action########
   observeEvent(input$construction_data_confirm,{
-    if(after_slice_rna.exp==""){
+    if(R.oo::equals(after_slice_rna.exp,"")){
       sendSweetAlert(session = session,title = "Error...",text = "Please do this step after the step2",type = 'error')
     }else{
       samples=intersect(colnames(after_slice_rna.exp),colnames(after_slice_micro.exp))
@@ -1175,7 +1175,7 @@ shinyServer(function(input,output,session) {
       msg=input$add_new_condition
       core=input$use_core
     })
-    if(after_slice_geneinfo==""){
+    if(R.oo::equals(after_slice_geneinfo,"")){
       sendSweetAlert(session = session,title = "Error...",text = "Please do this step after the step2",type = 'error')
       return()
     }
@@ -1330,6 +1330,7 @@ shinyServer(function(input,output,session) {
     isolate({
       type=input$compute_condition$type
     })
+    
     core=condition[type,'core']
     tasks=condition[type,'task']
     logpath=normalizePath(paste(basepath,'/log/',type,'.txt',sep=""))
@@ -1564,18 +1565,26 @@ shinyServer(function(input,output,session) {
       msg=input$network
       do_what =msg$do_what
     })
-    if(R.oo::equals(after_slice_rna.exp,"")|R.oo::equals(network,"")){
+   
+    if(R.oo::equals(after_slice_rna.exp,"")|R.oo::equals(edgeinfo,"")){
       sendSweetAlert(session = session,title = "Error",text = "Please do this step after the step2 and step3",type = 'error')
     }else{
       if(do_what=="layout"){
+       
         type=msg$type
         visual_layout<<-type
-        edge=as.data.frame(which(network==1,arr.ind = T))
-        edge[,1]=rownames(network)[edge[,1]]
-        edge[,2]=colnames(network)[edge[,2]]
-        nodes=unique(c(edge[,1],edge[,2]))
-        colnames(edge)=c('source','target')
+        nodes=unique(c(edgeinfo[,1],edgeinfo[,2]))
         num=which(colnames(after_slice_geneinfo)==".group")
+        edge = edgeinfo[,1:2]
+        colnames(edge)=c('source','target')
+        # edge=as.data.frame(which(network==1,arr.ind = T))
+        # edge[,1]=rownames(network)[edge[,1]]
+        # edge[,2]=colnames(network)[edge[,2]]
+        # nodes=unique(c(edge[,1],edge[,2]))
+        # colnames(edge)=c('source','target')
+        # num=which(colnames(after_slice_geneinfo)==".group")
+        # new_after_geneinfo = after_slice_geneinfo
+        # colnames(new_after_geneinfo)[num]="group"
         new_after_geneinfo = after_slice_geneinfo
         colnames(new_after_geneinfo)[num]="group"
         nodes=data.frame(id=nodes,new_after_geneinfo[nodes,],stringsAsFactors = F)

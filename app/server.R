@@ -1570,7 +1570,7 @@ shinyServer(function(input,output,session) {
       sendSweetAlert(session = session,title = "Error",text = "Please do this step after the step2 and step3",type = 'error')
     }else{
       if(do_what=="layout"){
-        browser()
+       
         type=msg$type
         visual_layout<<-type
         nodes=unique(c(edgeinfo[,1],edgeinfo[,2]))

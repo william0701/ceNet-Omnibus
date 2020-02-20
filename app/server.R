@@ -6,12 +6,13 @@ print(options('shiny.maxRequestSize'))
 
 shinyServer(function(input,output,session) {
 
-  
+  FLAGS=list(reintersect=T)
   source('www/R/input_tabServer.R',local = T)
   source('www/R/construct_tabServer.R',local = T)
   source('www/R/analysis_tabServer.R',local = T)
   source('www/R/process_tabServer.R',local = T)
- 
+  
+  connectEnsembl(session)
   if(is.null(projName)){
     projName <<- session$token
   }
@@ -22,7 +23,7 @@ shinyServer(function(input,output,session) {
   dir.create(paste(basepath,'code',sep="/"))
   dir.create(paste(basepath,'data',sep="/"))
   dir.create(paste(basepath,'log',sep="/"))
-
+  print(paste("Templete File Dictionary:",basepath))
   visual_layout=""
 
   load('testdata/ph1.RData',envir = environment())
@@ -56,7 +57,7 @@ shinyServer(function(input,output,session) {
         rna.exp<<-'No Data'
       }else
       {
-        rna.exp<<-read.table(file = filepath,header = header,sep = sep,quote = quote,nrow=-1,stringsAsFactors = F)
+        rna.exp<<-read.table(file = filepath,header = header,sep = sep,quote = quote,nrow=-1,stringsAsFactors = F,check.names = F)
       }
       if(!row)
       {
@@ -93,7 +94,7 @@ shinyServer(function(input,output,session) {
         micro.ex<<-'No Data'
       }else
       {
-        micro.exp<<-read.table(file = filepath,header = header,sep = sep,quote = quote,nrow=-1,stringsAsFactors = F)
+        micro.exp<<-read.table(file = filepath,header = header,sep = sep,quote = quote,nrow=-1,stringsAsFactors = F,check.names = F)
       }
       if(!row)
       {
@@ -129,7 +130,7 @@ shinyServer(function(input,output,session) {
         target<<-'No Data'
       }else
       {
-        target<<-read.table(file = filepath,header = header,sep = sep,quote = quote,stringsAsFactors = F)
+        target<<-read.table(file = filepath,header = header,sep = sep,quote = quote,stringsAsFactors = F,check.names = F)
       }
       Sys.sleep(2)
       session$sendCustomMessage('reading',list(div='target_preview_panel',status='finish'))
@@ -226,14 +227,30 @@ shinyServer(function(input,output,session) {
     attr=unique(c(filter,attr))
     session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='ongoing'))
     feature=getBM(attributes = attr,filters = filter,values = select.gene,mart = ensembl)
-    rownames(feature)=feature[,filter]
+    newfeature=data.frame()
+    for(g in unique(feature[,1]))
+    {
+      index=which(feature[,1]==g)
+      tmpFeature=t(as.data.frame(apply(X = feature[index,],MARGIN = 2,FUN = mergeEnsembl),stringsAsFactors = F))
+      newfeature=rbind(newfeature,tmpFeature[1,],stringsAsFactors=F)
+    }
+    colnames(newfeature)=colnames(tmpFeature)
+    rownames(newfeature)=newfeature[,filter]
     session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='finish'))
-    geneinfo<<-feature
+    geneinfo<<-newfeature
     output$geneinfo_preview_panel=renderTable({
-      return(geneinfo)
+      return(head(geneinfo,n = 20))
     },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
     # session$sendCustomMessage('geneinfo',toJSON(geneinfo))
   })
+  output$geneinfo_export <- downloadHandler(
+    filename = function() {
+      return("geneinfo.txt")
+    },
+    content = function(file) {
+      write.table(x=geneinfo,file = file, quote = F,sep = "\t",row.names = T,col.names = T)
+    }
+  )
   #########Process Page Action########
   observeEvent(input$interclick,{
     if(is.character(rna.exp)){
@@ -253,8 +270,8 @@ shinyServer(function(input,output,session) {
       return();
     }
     else{
-    
-      if(R.oo::equals(after_slice_rna.exp,"")){
+      if(FLAGS[['reintersect']]){
+        FLAGS[['reintersect']]=F
         sect_gene=intersect(rownames(rna.exp),rownames(target));
         sect_gene=intersect(sect_gene,rownames(geneinfo));
         sect_micro=intersect(rownames(micro.exp),names(target));
@@ -1143,7 +1160,7 @@ shinyServer(function(input,output,session) {
   
   #########Construction Page Action########
   observeEvent(input$construction_data_confirm,{
-    if(R.oo::equals(after_slice_rna.exp,"")){
+    if(after_slice_rna.exp==""){
       sendSweetAlert(session = session,title = "Error...",text = "Please do this step after the step2",type = 'error')
     }else{
       samples=intersect(colnames(after_slice_rna.exp),colnames(after_slice_micro.exp))
@@ -1153,13 +1170,12 @@ shinyServer(function(input,output,session) {
       after_slice_micro.exp<<-after_slice_micro.exp[,samples]
     }
   })
-
   observeEvent(input$add_new_condition,{
     isolate({
       msg=input$add_new_condition
       core=input$use_core
     })
-    if(R.oo::equals(after_slice_geneinfo,"")){
+    if(after_slice_geneinfo==""){
       sendSweetAlert(session = session,title = "Error...",text = "Please do this step after the step2",type = 'error')
       return()
     }
@@ -1174,10 +1190,15 @@ shinyServer(function(input,output,session) {
       after_slice_geneinfo$.group<<-'Default'
       sendSweetAlert(session = session,title = "Warning",text = 'Group All Genes in Defaut',type = 'warning')
     }
-    groupstaistic=as.data.frame(table(after_slice_geneinfo$.group))
+    
+    groupstaistic=as.data.frame(table(after_slice_geneinfo$.group),stringsAsFactors = F)
     rownames(groupstaistic)=groupstaistic$Var1
-    pairs=data.frame(v1=rep(groupstaistic$Var1,times=dim(groupstaistic)[1]),v2=rep(groupstaistic$Var1,each=dim(groupstaistic)[1]),stringsAsFactors = F)
-    pairs=unique(t(apply(X = pairs,MARGIN = 1,FUN = sort)))
+    .group=sort(groupstaistic$Var1)
+    groupstaistic=groupstaistic[.group,]
+    pairs=data.frame(v1=rep(.group,each=length(.group)),v2=rep(.group,times=length(.group)),stringsAsFactors = F)
+    pairs=pairs[which(pairs$v1<=pairs$v2),]
+    #pairs=data.frame(v1=rep(groupstaistic$Var1,times=dim(groupstaistic)[1]),v2=rep(groupstaistic$Var1,each=dim(groupstaistic)[1]),stringsAsFactors = F)
+    #pairs=unique(t(apply(X = pairs,MARGIN = 1,FUN = sort)))
     show=paste(pairs[,1],'(',groupstaistic[pairs[,1],'Freq'],') vs ',pairs[,2],'(',groupstaistic[pairs[,2],'Freq'],')',sep="")
     values=paste(pairs[,1],"---",pairs[,2],sep="")
     show=c('All',show)
@@ -1209,6 +1230,19 @@ shinyServer(function(input,output,session) {
                        selectInput(inputId = 'use_core',label = 'Choose Parallel Cores',choices = cores ,multiple = F,selected = as.character(core))
                    )
                ),
+               conditionalPanel(condition = "input.condition_type=='MI'||input.condition_type=='CMI'",
+                                div(class="row",
+                                    div(class="col-lg-4",
+                                        pickerInput(inputId = "mi_disc_method",label = "Discretization Method",choices = c("Equal Frequencie"="equalfreq","Equal Width Binning"="equalwidth","Global Equal Width Binning"="globalequalwidth"))
+                                    ),
+                                    div(class="col-lg-4",
+                                        numericInput(inputId = "mi_nbins",label = "Number Of Bins (Default: #sample^(1/3))",value =floor(ncol(after_slice_rna.exp)^(1/3)),min = 2,max = ncol(after_slice_rna.exp),width = "100%")
+                                    ),
+                                    div(class="col-lg-4",
+                                        pickerInput(inputId = "mi_est_method",label = "Entropy Estimator",choices = c("Empirical Probability Distribution"="emp","Miller-Madow Asymptotic Bias Corrected Empirical Estimator"="mm","Shrinkage Estimate of a Dirichlet Probability Distribution"="shrink","Schurmann-Grassberger Estimate"="sg"))
+                                    )
+                                )
+               ),
                div(class='row',
                    div(class="col-lg-12",
                        multiInput(inputId = 'group_pairs',label = 'Group Pairs',choiceNames = show,choiceValues = values,selected = tasks,width = "100%")
@@ -1238,32 +1272,12 @@ shinyServer(function(input,output,session) {
                                 ),
                                 div(class='row',
                                     div(class='col-lg-12',
-                                        div(class='col-lg-6',
-                                            textAreaInput(inputId = 'custom_condition_code',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='130%',resize='both')
-                                        ),
-                                        div(class='col-lg-6',
-                                            tags$label(class="control-label",HTML("Example")),
-                                            verbatimTextOutput("placeholder_third", placeholder = TRUE)
-                                            )
-                                        
+                                        textAreaInput(inputId = 'custom_condition_code',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='100%',resize='both')
                                     )
                                 )
                )
              )
     )
-    example_input = 'MS=function(g1,g2)
-{
-  allset=colnames(target)
-  set1=allset[target[g1,]==1];
-  set2=allset[target[g2,]==1];
-  x=length(intersect(set1,set2));
-  m=length(set2);
-  n=length(setdiff(allset,set2));
-  k=length(set1);
-  pvalue=1-phyper(x-1,m,n,k);
-  return(pvalue)
-}'
-    output$placeholder_third <- renderText({ example_input })
     session$sendCustomMessage('conditions',condition)
   })
   observeEvent(input$choose_new_condition,{
@@ -1284,11 +1298,21 @@ shinyServer(function(input,output,session) {
       write(x = code,file = paste(basepath,"/code/",abbr,'.R',sep=""))
       #thresh<<-rbind(thresh,data.frame(type=condition$abbr,task=tasks,direction="<",thresh=0,stringsAsFactors = F))
     }
+    
     else
     {
       condition[type,'used']<<-T
       condition[type,'core']<<-core
       condition[type,'task']<<-tasks
+      if(type=="CMI"||type=="MI")
+      {
+        isolate({
+          disc_method=input$mi_disc_method
+          nbin=input$mi_nbins
+          est=input$mi_est_method
+        })
+        condition[type,'others']<<-gsub(pattern = "\"",replacement = "\\\\\"",x = toJSON(x = list(disc=disc_method,nbin=nbin,est=est),auto_unbox = T))
+      }
       #thresh<<-rbind(thresh,data.frame(type=condition$abbr,task=tasks,direction="<",thresh=0,stringsAsFactors = F))
     }
   })
@@ -1298,6 +1322,7 @@ shinyServer(function(input,output,session) {
     })
     condition[msg$type,'used']<<-F
     condition[msg$type,'core']<<-0
+    condition[msg$type,'others']<<-""
     thresh<<-thresh[thresh$type!=msg$type,]
     removeUI(selector = paste("div.col-lg-12 > #density_plot_",msg$type,sep=""),immediate = T)
   })
@@ -1306,24 +1331,27 @@ shinyServer(function(input,output,session) {
       type=input$compute_condition$type
     })
     core=condition[type,'core']
-    
     tasks=condition[type,'task']
-    logpath=paste(basepath,'/log/',type,'.txt',sep="")
+    logpath=normalizePath(paste(basepath,'/log/',type,'.txt',sep=""))
     if(file.exists(logpath))
     {
       file.remove(logpath)
     }
     if(type=="PCC")
     {
-      if(dir.exists(paths = paste(basepath,'/log/')))
+      if(dir.exists(paths = normalizePath(paste(basepath,'/log/',sep=""))))
       {
-        dir.create(paths = paste(basepath,'/log/'),recursive = T)
+        dir.create(path = normalizePath(paste(basepath,'/log/',sep="")),recursive = T)
       }
       print('start')
       session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
-      filepath=paste(basepath,"/data/rna.exp.mat",sep="")
-      writeMat(con=filepath,x=as.matrix(after_slice_rna.exp))
-      system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
+      filepath=paste(basepath,"/data/rna.exp.RData",sep="")
+      saveRDS(file=filepath,object=after_slice_rna.exp)
+      #system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
+      scriptpath="www/Program/PCC.R"
+      resultpath=paste(basepath,'/all.cor.RData',sep="")
+      system(paste("Rscript",scriptpath,filepath,logpath,resultpath),wait = F)
+      
     }
     else
     {
@@ -1356,8 +1384,16 @@ shinyServer(function(input,output,session) {
       target=sect_output_target[rownames(rna.exp),rownames(micro.exp)]
       geneinfo=after_slice_geneinfo
       save(rna.exp,micro.exp,target,geneinfo,file = datapath)
-      print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
-      system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
+      if(condition[type,'others']=="")
+      {
+        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
+        system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
+      }
+      else
+      {
+        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,condition[type,'others']))
+        system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath,condition[type,'others']),wait = F)
+      }
     }
   })
   observeEvent(input$compute_status,{
@@ -1423,6 +1459,7 @@ shinyServer(function(input,output,session) {
           eta=(endtime-info$time)/complete*(info$total-complete)#预计时间
           finish.task=length(which(grepl(pattern = "^Finish",x = content)))#总完成任务数
           status="run"
+          print(eta)
           msg=paste("Running:",info$task,"&nbsp;&nbsp;&nbsp;&nbsp;ETA:",time(eta))
           progress=format(x = complete/info$total*100,nsmall=2)
           if(length(which(grepl(pattern = "^All Finish.$",x = content)))>0)
@@ -1457,85 +1494,6 @@ shinyServer(function(input,output,session) {
     })
     tasks=condition[type,'task']
     tasks=unlist(strsplit(x = tasks,split = ";"))
-    if(type=="PCC")
-    {
-      result=readMat(paste(basepath,'/all.cor.mat',sep=""))
-      cor=result$cor
-      pvalue=result$pvalue
-      print(dim(after_slice_geneinfo))
-      gene=rownames(after_slice_rna.exp)
-      print(dim(cor))
-      rownames(cor)=gene
-      colnames(cor)=gene
-      rownames(pvalue)=gene
-      colnames(pvalue)=gene
-      if(length(which(tasks=='all'))==1)
-      {
-        cor=list(cor)
-        names(cor)='all'
-        corlist=list(cor)
-        names(corlist)='PCC'
-        
-        pvalue=list(pvalue)
-        names(pvalue)="all"
-        pvaluelist=list(pvalue)
-        names(pvaluelist)='PCC.pvalue'
-      }
-      else
-      {
-        corlist=list()
-        pvaluelist=list()
-        for(task in tasks)
-        {
-          groups=unlist(strsplit(x = task,split = "---"))
-          group1=rownames(after_slice_geneinfo)[which(after_slice_geneinfo$.group==groups[1])]
-          group2=rownames(after_slice_geneinfo)[which(after_slice_geneinfo$.group==groups[2])]
-          
-          tmp=list(cor[group1,group2])
-          names(tmp)=task
-          corlist=c(corlist,tmp)
-          tmp=list(pvalue[group1,group2])
-          names(tmp)=task
-          pvaluelist=c(pvaluelist,tmp)
-        }
-        corlist=list(corlist)
-        names(corlist)="PCC"
-        
-        pvaluelist=list(pvaluelist)
-        names(pvaluelist)="PCC.pvalue"
-        #condition.values<<-c(condition.values,corlist,pvaluelist)
-      }
-      if(is.null(condition.values[['PCC']]))
-      {
-        condition.values<<-c(condition.values,corlist)
-      }
-      else
-      {
-        condition.values['PCC']<<-corlist
-      }
-      if(is.null(condition.values[['PCC.pvalue']]))
-      {
-        condition.values<<-c(condition.values,pvaluelist)
-      }
-      else
-      {
-        condition.values['PCC.pvalue']<<-pvaluelist
-      }
-    }
-    else
-    {
-      result=readRDS(paste(basepath,'/',type,'.RData',sep=""))
-      result=list(result)
-      names(result)=type
-      if(is.null(condition.values[[type]]))
-      {
-        condition.values<<-c(condition.values,result)
-      }
-      else
-      {
-        condition.values[type]<<-result
-      }    
-    }
     draw_density(basepath,output,session,type,tasks)
     condition[type,'core']<<-0
   })
@@ -1543,12 +1501,20 @@ shinyServer(function(input,output,session) {
     isolate({
       msg=input$update_condition_thresh
       direction=input[[paste("direction",msg$type,msg$task,sep="_")]]
+      type=msg$type
+      task=msg$task
+      value=msg$value
     })
-    condition_density_plot(basepath = basepath,type = msg$type,task = msg$task,value = msg$value,direction = direction)
+    session$sendCustomMessage('distribution_plot',list(status='update',value="Updating Plot...",id=paste("density_plot",type,task,"progress",sep="_")))
+    data=readData(type,task)
+    data=data[[type]][[task]]
+    condition_density_plot(basepath = basepath,data=data,type = type,task = task,value = value,direction = direction)
     output[[paste("density_plot",msg$type,msg$task,"image",sep="_")]]=renderImage({
       figurepath=paste(basepath,'/Plot/density_plot_',msg$type,"_",msg$task,".svg",sep="")
       list(src=figurepath,width="100%",height="100%")
     },deleteFile = F)
+    session$sendCustomMessage('distribution_plot',list(status='finish',value="",id=paste("density_plot",type,task,"progress",sep="_")))
+    
   })
   observeEvent(input$construct_network,{
     isolate({
@@ -1556,29 +1522,49 @@ shinyServer(function(input,output,session) {
       newthresh=msg$thresh
       type=msg$type
     })
+    removeUI(selector = "#modalbody>",immediate = T)
+    insertUI(selector = "#modalbody",where = 'beforeEnd',ui = create_progress("",id="network_construction"),immediate = T)
+    session$sendCustomMessage('network_construction',list(status='update',value="Initializing Network...",id="network_construction"))
+    
+    
     thresh<<-thresh[thresh$type!=type,]
     for(name in names(newthresh))
     {
       thresh<<-rbind(thresh,data.frame(type=type,task=name,direction=newthresh[[name]][['direction']],thresh=as.numeric(newthresh[[name]][['thresh']]),stringsAsFactors = F))
     }
     network_construnction(after_slice_geneinfo)
-    
+    session$sendCustomMessage('network_construction',list(status='update',value="Network Summarizing...",id="network_construction"))
     removeUI(selector = "#network_summary>",multiple = T,immediate = T)
-    insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::degree(net_igraph)!=0),subtitle = "Nodes with edges",icon = icon("eye-open",lib = "glyphicon"),color = "green",width = 3),immediate = T)
-    insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::degree(net_igraph)==0),subtitle = "Nodes without edges",icon = icon("eye-close",lib = "glyphicon"),color = "red",width = 3),immediate = T)
+    insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::degree(net_igraph)!=0),subtitle = "Connected Nodes",icon = icon("eye-open",lib = "glyphicon"),color = "green",width = 3),immediate = T)
+    insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::degree(net_igraph)==0),subtitle = "Isolated Nodes",icon = icon("eye-close",lib = "glyphicon"),color = "red",width = 3),immediate = T)
     insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = length(E(net_igraph)),subtitle = "Edges",icon = icon("link",lib = "font-awesome"),color = "orange",width = 3),immediate = T)
     insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::components(net_igraph)$csize>1),subtitle = "Components",icon = icon("connectdevelop",lib = "font-awesome"),color = "maroon",width = 3),immediate = T)
-    
+    session$sendCustomMessage('network_construction',list(status='finish',value="",id="network_construction"))
     sendSweetAlert(session = session,title = "Success",text = "Apply Conditions Successfully!",type = 'success')
   })
-
+  output$network_export <- downloadHandler(
+    filename = function() {
+      return("network.txt")
+    },
+    content = function(file) {
+      if(nrow(edgeinfo)==0)
+      {
+        write(x = "No Network Exist",file = file)
+        sendSweetAlert(session = session,title = "Error",text = "No network exists!",type = 'error')
+      }
+      else
+      {
+        write.table(x=edgeinfo,file = file, quote = F,sep = "\t",row.names = F,col.names = T)
+      }
+    }
+  )
   ##########Visualization Page Action#########
   observeEvent(input$network,{
     isolate({
       msg=input$network
       do_what =msg$do_what
     })
-    if(is.null(nrow(after_slice_rna.exp)) | is.null(nrow(network))){
+    if(R.oo::equals(after_slice_rna.exp,"")|R.oo::equals(network,"")){
       sendSweetAlert(session = session,title = "Error",text = "Please do this step after the step2 and step3",type = 'error')
     }else{
       if(do_what=="layout"){

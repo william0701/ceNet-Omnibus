@@ -13,113 +13,117 @@ header=dashboardHeader(
 sidebar=dashboardSidebar(
   sidebarMenu(
     menuItem("1st Step: Data Input", tabName = "input", icon = icon("table",class = 'far'),badgeLabel = 3),
-    menuItem("2nd Step: Data Preprocess", tabName = "process", icon = icon("cog"),badgeLabel = 3),
-    menuItem("3rd Step: Network Construction", tabName = "construction", icon = icon("connectdevelop"),badgeLabel = 3),
-    menuItem("4th Step: Network Visualization", tabName = "visualization", icon = icon("project-diagram"),badgeLabel = 3),
-    menuItem("5th Step: Network Analysis", tabName = "analysis", icon = icon("chart-line"),badgeLabel = 3)
+    menuItem("2nd Step: Data Preprocess", tabName = "process", icon = icon("cog"),badgeLabel = 4),
+    menuItem("3rd Step: Network Construction", tabName = "construction", icon = icon("connectdevelop"),badgeLabel = 2),
+    menuItem("4th Step: Network Visualization", tabName = "visualization", icon = icon("project-diagram"),badgeLabel = 1),
+    menuItem("5th Step: Network Analysis", tabName = "analysis", icon = icon("chart-line"),badgeLabel = 4)
   ),width=280
 )
 
 process_tab=tabItem(tabName = "process",
-                    h2("Data Preprocess"),
+                    #h2("Data Preprocess"),
                     div(class="row" ,id="float_banner",
-                      #box(title='Data Process',collapsible=T,collapsed=F,status='primary',solidHeader=T,width = 12,
-                          value_BoxInput(value = 0,subtitle =  "Valid RNA", icon = "twitter",color = "red",width = 4,inputId="Rnaoutput" ),
-                          value_BoxInput(value = 0,subtitle =  "Valid MicroRNA", icon = "twitter",color = "purple",width = 4,inputId="MicroRnaoutput" ),
-                          value_BoxInput(value = 0,subtitle =  "Valid Sample", icon = "twitter",color = "yellow",width = 4,inputId="Sampleoutput" )
-                    ),      
+                        #box(title='Data Process',collapsible=T,collapsed=F,status='primary',solidHeader=T,width = 12,
+                        value_BoxInput(value = 0,subtitle =  "Valid RNA", icon = "twitter",color = "red",width = 4,inputId="Rnaoutput" ),
+                        value_BoxInput(value = 0,subtitle =  "Valid MicroRNA", icon = "twitter",color = "purple",width = 4,inputId="MicroRnaoutput" ),
+                        value_BoxInput(value = 0,subtitle =  "Valid Sample", icon = "twitter",color = "yellow",width = 4,inputId="Sampleoutput" )
+                    ),
+                    h2("Step1: Gene Grouping",style='font-family:Georgia'),
                     fluidRow(      
-                          box(title = "Info Map",status = 'success',solidHeader = F,width = 12,id="Info_Map_all",
-                              div(class='col-lg-6',style="padding:0px",
-                                  prettyRadioButtons(inputId = 'biotype_map',label = 'Which Column is Gene Biotype',choices = c('None'),selected = 'None',status='success',inline=T,shape = 'round'),
-                                  #multiInput(inputId = 'valid_biotype',label = 'Select Used Biotype',choices = c('None'),selected = NULL,options = list(enable_search = T,non_selected_header = "Choose between:",selected_header = "You have selected:")),
-                                  div(class="form-group",style='padding:0px',
-                                       tags$label(class='control-label',HTML('Group Biotypes')),
-                                       div(class='multi-wrapper',
-                                           div(class='input-group margin',style='display:table;margin:0px',
-                                               div(style='display:table-row',
-                                                   div(class='input-group-btn',
-                                                       tags$button(class='btn btn-success',type='button',id="add_group",
-                                                                   HTML("<i class='fa fa-plus'></i> Add Group")
-                                                                   )
-                                                   ),
-                                                   tags$input(class='form-control search-input',type='text',id='new_group_name')
-                                               )
-                                           )
-                                       ),
-                                       div(class='multi-wrapper',
-                                           div(class='col-lg-6 non-selected-wrapper',style="height:350px;overflow-y:auto",id='group_biotype',
-                                               div(class='header',HTML('Groups'))
-                                           ),
-                                           div(class='col-lg-6 non-selected-wrapper',style="height:350px;overflow-y:auto",id='candidate_biotype',
-                                               div(class='header',HTML('Candidate Biotypes'))
-                                           )
-                                       )
-                                   )
-                            ),
-                             div(class='col-lg-6',
-                                 imageOutput(outputId = 'biotype_group_statics_graph',height = "100%",width="100%")
-                            ),
-                            
-                            footer =div(
-                                      downloadButton("downloadData_group", "Download"),
-                                      tags$button(id = 'biotype_group_statics', type = "button",class = "btn btn-success action-button pull-right",HTML('Preview'),width='20')
-                                    )
-                        ),
-                        box(title = "Sample Filter",status = 'danger',solidHeader = F,width = 12,id="Sample_Filter_all"
-                            
-                        ),
-                        box(title = "Gene Filter",status = 'danger',solidHeader = F,width = 12,id="Gene_Filter_all"
-                            
-                            ),
-                        box(title = "Value Transform",status = 'danger',solidHeader = F,width = 12,id="Value_Transform_all",
-                            tabsetPanel(
-                              tabPanel(title='CeRNA',
-                                  div(class="col-lg-12",id="ceRNA_choose_transfunction",
-                                      h2("1.Choose value transform operation"),
-                                       div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                           h3("Logtransform Module",style="text-align:center;")
-                                           
-                                           
-                                       ),
-                                       div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                           h3("Normalized Module",style="text-align:center;")
-                                           
-                                       ),
-                                      div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                           h3("Action Module",style="text-align:center;")
+                      box(title = "Info Map",status = 'success',solidHeader = F,width = 12,id="Info_Map_all",
+                          div(class='col-lg-6',style="padding:0px",
+                              prettyRadioButtons(inputId = 'biotype_map',label = 'Which Column is Gene Biotype',choices = c('None'),selected = 'None',status='success',inline=T,shape = 'round'),
+                              #multiInput(inputId = 'valid_biotype',label = 'Select Used Biotype',choices = c('None'),selected = NULL,options = list(enable_search = T,non_selected_header = "Choose between:",selected_header = "You have selected:")),
+                              div(class="form-group",style='padding:0px',
+                                  tags$label(class='control-label',HTML('Group Biotypes')),
+                                  div(class='multi-wrapper',
+                                      div(class='input-group margin',style='display:table;margin:0px',
+                                          div(style='display:table-row',
+                                              div(class='input-group-btn',
+                                                  tags$button(class='btn btn-success',type='button',id="add_group",
+                                                              HTML("<i class='fa fa-plus'></i> Add Group")
+                                                  )
+                                              ),
+                                              tags$input(class='form-control search-input',type='text',id='new_group_name')
+                                          )
                                       )
                                   ),
-                                  div(class="col-lg-12",id="ceRNA_handson_id",
-                                      h2("2.Part data show")
-                              
+                                  div(class='multi-wrapper',
+                                      div(class='col-lg-6 non-selected-wrapper',style="height:350px;overflow-y:auto",id='group_biotype',
+                                          div(class='header',HTML('Groups'))
+                                      ),
+                                      div(class='col-lg-6 non-selected-wrapper',style="height:350px;overflow-y:auto",id='candidate_biotype',
+                                          div(class='header',HTML('Candidate Biotypes'))
+                                      )
                                   )
-                                       
-                              ),
-                              tabPanel(title='MicroRNA',
-                                    div(class="col-lg-12",id="microRNA_choose_transfunction",
-                                       h2("1.Choose value transform operation"),
-                                       div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                           h3("Logtransform Module",style="text-align:center;")
-                                           
-                                           
-                                       ),
-                                       div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                           h3("Normalized Module",style="text-align:center;")
-                                           
-                                       ),
-                                       div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                           h3("Action Module",style="text-align:center;")
-                                       )
-                                    ),
-                                    div(class="col-lg-12",id="microRNA_handson_id",
-                                        h2("2.Part data show")
-                                        
-                                    )
                               )
+                          ),
+                          div(class='col-lg-6',
+                              imageOutput(outputId = 'biotype_group_statics_graph',height = "100%",width="100%")
+                          ),
+                          footer = tags$button(id = 'biotype_group_statics', type = "button",class = "btn btn-success action-button pull-right",HTML('Preview'),width='20')
+                      )
+                    )
+                    ,
+                    h2("Step2: Sample Filter",style='font-family:Georgia'),
+                    fluidRow(
+                      box(title = "Sample Filter",status = 'danger',solidHeader = F,width = 12,id="Sample_Filter_all"
+                      )
+                    ),
+                    h2("Step3: Gene Filter",style='font-family:Georgia'),
+                    fluidRow(
+                      box(title = "Gene Filter",status = 'danger',solidHeader = F,width = 12,id="Gene_Filter_all"
+                      )
+                    ),
+                    h2("Step4: Value Transformation",style='font-family:Georgia'),
+                    fluidRow(
+                      box(title = "Value Transform",status = 'danger',solidHeader = F,width = 12,id="Value_Transform_all",
+                          tabsetPanel(
+                            tabPanel(title='CeRNA',
+                                     div(class="col-lg-12",id="ceRNA_choose_transfunction",
+                                         h2("1.Choose value transform operation"),
+                                         div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                             h3("Logtransform Module",style="text-align:center;")
+                                             
+                                             
+                                         ),
+                                         div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                             h3("Normalized Module",style="text-align:center;")
+                                             
+                                         ),
+                                         div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                             h3("Action Module",style="text-align:center;")
+                                         )
+                                     ),
+                                     div(class="col-lg-12",id="ceRNA_handson_id",
+                                         h2("2.Part data show")
+                                         
+                                     )
+                                     
+                            ),
+                            tabPanel(title='MicroRNA',
+                                     div(class="col-lg-12",id="microRNA_choose_transfunction",
+                                         h2("1.Choose value transform operation"),
+                                         div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                             h3("Logtransform Module",style="text-align:center;")
+                                             
+                                             
+                                         ),
+                                         div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                             h3("Normalized Module",style="text-align:center;")
+                                             
+                                         ),
+                                         div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
+                                             h3("Action Module",style="text-align:center;")
+                                         )
+                                     ),
+                                     div(class="col-lg-12",id="microRNA_handson_id",
+                                         h2("2.Part data show")
+                                         
+                                     )
                             )
-                        )
-                            
+                          )
+                      )
                     )
 )
 

@@ -2797,7 +2797,8 @@ shinyServer(function(input,output,session) {
     for(i in Module_analysis){
       if(choose_analysis_tool=='gProfile'){
         enrichment_result=gost(modules[[i]], organism = Organism,domain_scope='custom',
-                               custom_bg=rownames(after_slice_geneinfo))$result
+                               custom_bg=rownames(after_slice_geneinfo),user_threshold =User_threshold,
+                               correction_method = Significance_threshold )$result
         
         if(length(enrichment_result) ==0){
           
@@ -2865,7 +2866,6 @@ shinyServer(function(input,output,session) {
                   theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
                         panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))
               )
-              
             }
             dev.off()
             insertUI(
@@ -2888,6 +2888,10 @@ shinyServer(function(input,output,session) {
       }
       else{
         custom_enrichment_set<-readLines(filepath)
+        singl_func_name=c()
+        custom_pvalue=c()
+        custom_recall=c()
+        custom_size=c()
         for(k in length(custom_enrichment_set) ){
           singl_func<-unlist(strsplit(x=custom_enrichment_set[k],split = '\t'))
           singl_func_gene<-unique(singl_func[-1])
@@ -2898,9 +2902,67 @@ shinyServer(function(input,output,session) {
           func_gene_num=length(singl_func_gene)
           n=length(setdiff(background_set,singl_func_gene))
           k=length(modules_gene)
-          custom_pvalue=1-phyper(x-1,func_gene_num,n,k)
-        }  
-        
+          temp_pvalue=1-phyper(x-1,func_gene_num,n,k)
+          temp_recall=x/func_gene_num
+          if(x!=0){
+            singl_func_name=c(singl_func_name,singl_func[1])
+            custom_pvalue=c(custom_pvalue,temp_pvalue)
+            custom_recall=c(custom_recall,temp_recall)
+            custom_size=c(custom_size,x)
+          }
+        }
+        custom_enrichment_result=data.frame(singl_func_name=singl_func_name,custom_pvalue=custom_pvalue,
+                                            custom_recall=custom_recall,custom_size=custom_size)
+        if(length(custom_enrichment_result)==0){
+          print("tishi no picture!")
+          insertUI(
+            selector ='#all_enrichment_show',
+            where='beforeEnd',
+            ui=div(class='box box-solid box-primary',id=paste('enrichment_show_',i,sep = ""),
+                   div(class='box-header',
+                       h3(class="box-title",HTML(paste('enrichment_show_',i,sep = ""))),
+                       div(class="box-tools pull-right",
+                           tags$button(class='btn btn-box-tool',"data-widget"="collapse",
+                                       tags$i(class='fa fa-minus')
+                           )
+                       )
+                   ),
+                   div(class='box-body',
+                       div(class='row',
+                           div(
+                             h3(class="box-title;align=center",HTML(paste('No solve! So no picture...',sep = "")))
+                           )
+                       )      
+                   )
+            ),
+            immediate = T
+          )
+        }else{
+          svg(filename = paste(basepath,"Plot",paste("enrichment_plot",a,".svg",sep = ""),sep = "/"),family = 'serif')
+          if(choose_show=="bar_plot"){
+            print(
+              ggplot(custom_enrichment_result,aes(x=singl_func_name,y=custom_pvalue))+
+                geom_bar(stat = "identity")+labs(y="p_value",x="term_name",title = "Screening sample plot")+
+                theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
+                      panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))+coord_flip()
+            )
+          }else{
+            print(
+              ggplot(custom_enrichment_result,aes(y= singl_func_name,x=custom_recall,colour=custom_pvalue,size=custom_size))+
+                geom_point()+labs(x="Recall",y="term_name",title = "Screening sample plot")+
+                theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
+                      panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))
+            )
+          }
+          dev.off()
+          insertUI(
+            selector =paste('#enrichment_show_',i,' .row',sep = ""),
+            where='beforeEnd',
+            ui=div(class='col-lg-6',
+                   imageOutput(outputId = paste('enrichment_out_pic',a,sep = ""),height = "100%")),
+            immediate = T
+          )
+        }
       }
     }
     

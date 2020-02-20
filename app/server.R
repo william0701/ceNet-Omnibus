@@ -12,7 +12,7 @@ shinyServer(function(input,output,session) {
   source('www/R/analysis_tabServer.R',local = T)
   source('www/R/process_tabServer.R',local = T)
   
-  connectEnsembl(session)
+  #connectEnsembl(session)
   if(is.null(projName)){
     projName <<- session$token
   }

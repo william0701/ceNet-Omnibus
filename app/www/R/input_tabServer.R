@@ -7,7 +7,7 @@ connectEnsembl=function(session)
   currentURL<<-"asia.ensembl.org"
   ensembl<<-useMart(biomart='ensembl',dataset = currentSpecial,host=currentURL,ensemblRedirect=F)
   archieves<<-listEnsemblArchives()
-  specials<<-readRDS("testdata/specials.RDate")#listDatasets(ensembl)
+  specials<<-listDatasets(ensembl)
   filters<<-listFilters(ensembl)
   attributions<<-listAttributes(ensembl)
   addAttribution(session)
@@ -67,5 +67,6 @@ attributions=""#listAttributes(ensembl)
 currentSpecial=""#"hsapiens_gene_ensembl"
 currentURL=""#"www.ensembl.org"
 select.gene=""#""
+specials<<-readRDS("testdata/specials.RDate")#listDatasets(ensembl)
 
 # #Input Page Action

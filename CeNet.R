@@ -30,7 +30,11 @@ Super <- function(run = TRUE,maxRequestSize=5*1024^2,workpath=tempdir(),projectN
   library(ComplexHeatmap)
   library(circlize) 
   tmpdir<<-normalizePath(workpath)
-  projName <<- gsub(pattern = " ",replacement = '_',x = projectName)
+  projName<<-projectName
+  if(!is.null(projectName))
+  {
+    projName <<- gsub(pattern = " ",replacement = '_',x = projectName)
+  }
   typeLimit <<- typeLimit
   ggthemr('flat')
   usedcolors=swatch()

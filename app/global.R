@@ -29,7 +29,7 @@ library(circlize)
 
 library(R.oo)
 library(formattable)
-
+library(gprofiler2)
 # library(ggplotify)
 #library(reshape2)
 # library(plotly)

@@ -25,7 +25,7 @@ shinyServer(function(input,output,session) {
   dir.create(paste(basepath,'log',sep="/"))
   print(paste("Templete File Dictionary:",basepath))
   visual_layout=""
-
+  #load('C:/Users/DELL/Desktop/single-cell/ph3.RData',envir=environment())
   load('testdata/ph1.RData',envir = environment())
   # rna.exp<<-rna.exp
   # geneinfo<<-geneinfo
@@ -1351,7 +1351,7 @@ shinyServer(function(input,output,session) {
       scriptpath="www/Program/PCC.R"
       resultpath=paste(basepath,'/all.cor.RData',sep="")
       system(paste("Rscript",scriptpath,filepath,logpath,resultpath),wait = F)
-      
+
     }
     else
     {
@@ -1378,7 +1378,7 @@ shinyServer(function(input,output,session) {
       {
         sendSweetAlert(session = session,title = "Error..",text = "No Code",type = 'error')
       }
-      
+
       rna.exp=after_slice_rna.exp
       micro.exp=after_slice_micro.exp
       target=sect_output_target[rownames(rna.exp),rownames(micro.exp)]
@@ -2271,7 +2271,7 @@ shinyServer(function(input,output,session) {
       removeUI(selector = "#clinical_data_preview>",multiple = T,immediate = T)
       insertUI(selector = "#clinical_data_preview",where = 'beforeEnd',ui = div(class="overlay",id="icon",tags$i(class="fa fa-spinner fa-spin",style="font-size:50px")))
       insertUI(selector = "#clinical_data_preview",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "clinical_data_table"))
-      clinical_data<<-read.table(file = file$datapath,header = header,sep = seperator,stringsAsFactors = F)
+      clinical_data<<-read.table(file = file$datapath,header = header,sep = seperator,stringsAsFactors = F,check.names = F)
       if(first_column)
       {
         clinical_data[,1]<<-gsub(pattern = "-",replacement = ".",x = clinical_data[,1])
@@ -2324,7 +2324,7 @@ shinyServer(function(input,output,session) {
       removeUI(selector = "#survival_exp_preview>",multiple = T,immediate = T)
       insertUI(selector = "#survival_exp_preview",where = 'beforeEnd',ui = div(class="overlay",id="icon",tags$i(class="fa fa-spinner fa-spin",style="font-size:50px")))
       insertUI(selector = "#survival_exp_preview",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "survival_exp_data_table"))
-      survival_exp<<-read.table(file = file$datapath,header = header,sep = seperator,stringsAsFactors = F)
+      survival_exp<<-read.table(file = file$datapath,header = header,sep = seperator,stringsAsFactors = F,check.names = F)
       if(first_column)
       {
         survival_exp[,1]<<-gsub(pattern = "-",replacement = ".",x = survival_exp[,1])

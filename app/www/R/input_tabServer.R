@@ -67,6 +67,6 @@ attributions=""#listAttributes(ensembl)
 currentSpecial=""#"hsapiens_gene_ensembl"
 currentURL=""#"www.ensembl.org"
 select.gene=""#""
-specials<<-readRDS("testdata/specials.RDate")#listDatasets(ensembl)
+specials=readRDS("testdata/specials.RDate")#listDatasets(ensembl)
 
 # #Input Page Action

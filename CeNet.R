@@ -43,5 +43,5 @@ Super <- function(run = TRUE,maxRequestSize=5*1024^2,workpath=tempdir(),projectN
   runApp(appDir = "app")
 }
 
+#Super(run = T,workpath = "D://Test/",projectName = "Single_cell_case")
 Super()
-

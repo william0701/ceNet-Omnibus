@@ -357,15 +357,21 @@ analysis_tab=tabItem(tabName = "analysis",
                                              title = "Select parameters",collapsible = T,collapsed = F,status = 'primary',solidHeader=T,
                                              div(class='row',
                                                  div(class='col-lg-6',
-                                                     pickerInput(inputId = 'gProfileOnline_Or_custom_analysis',label = 'gProfile(Online) Or custom analysis',
-                                                                 choices = c("gProfile(Online)"="gProfile",
-                                                                             "custom input"="custom_input"
-                                                                 ),
-                                                                 width = "100%"
+                                                     # pickerInput(inputId = 'gProfileOnline_Or_custom_analysis',label = 'gProfile(Online) Or custom analysis',
+                                                     #             choices = c("gProfile(Online)"="gProfile",
+                                                     #                         "custom input"="custom_input"
+                                                     #             ),
+                                                     #             width = "100%"
+                                                     # ),
+                                                     prettyRadioButtons(
+                                                       inputId = "gProfileOnline_Or_custom_analysis",
+                                                       label = "gProfile(Online) Or custom analysis",
+                                                       choices = c("gProfile(Online)"="gProfile", "custom input"="custom_input"),
+                                                       inline = TRUE
                                                      ),
                                                      conditionalPanel("input.gProfileOnline_Or_custom_analysis=='gProfile'",
                                                                       div(class='row',
-                                                                          div(class='col-lg-6',
+                                                                          div(class='col-lg-12',
                                                                               pickerInput(inputId = 'Organism_enrichment',label = 'Organism:',
                                                                                           choices = c(),
                                                                                           options = list(size = 8,`live-search` = TRUE),
@@ -385,11 +391,12 @@ analysis_tab=tabItem(tabName = "analysis",
                                                                                   width = "370px",
                                                                                   options = list("actions-box"=T)
                                                                       ),
-                                                                      prettyRadioButtons(
-                                                                        inputId = "choose_which_gene_to_analysis",
-                                                                        label = "Choose which gene to analysis:",
-                                                                        choices = c("Modules Gene"="Modules_Gene", "Custom Gene"="Custom_Gene"),
-                                                                        inline = TRUE
+                                                                      pickerInput(inputId = 'enrichment_Significance_threshold',label = 'Significance threshold',
+                                                                                  choices = c("g:SCS threshold"="g_SCS",
+                                                                                              "Bonferroni correction"="bonferroni",
+                                                                                              "Benjamini-Hochberg FDR"="fdr"
+                                                                                  ),
+                                                                                  width = "370px"
                                                                       )
                                                                       
                                                      ),
@@ -405,32 +412,36 @@ analysis_tab=tabItem(tabName = "analysis",
                                                      )
                                                  )
                                              ),
-                                             
-                                             prettyRadioButtons(
-                                               inputId = "choose_which_gene_to_analysis",
-                                               label = "Choose which gene to analysis:",
-                                               choices = c("Modules Gene"="Modules_Gene", "Custom Gene"="Custom_Gene"),
-                                               inline = TRUE
-                                             ),
                                              div(class='row',
                                                  div(class='col-lg-6',
-                                                     pickerInput(inputId = 'enrichment_Module_analysis1',label = 'Module analysis',
-                                                                 choices = c("finish Part2: Network Modules first"),
-                                                                 selected="finish Part2: Network Modules first",
-                                                                 multiple = TRUE,
-                                                                 options = list(size = 8,`live-search` = TRUE,"actions-box"=T),
-                                                                 width = "100%"
-                                                     )
-                                                     
+                                                    prettyRadioButtons(
+                                                      inputId = "choose_which_gene_to_analysis",
+                                                      label = "Choose which gene to analysis:",
+                                                      choices = c("Modules Gene"="Modules_Gene", "Custom Gene"="Custom_Gene"),
+                                                      inline = TRUE
+                                                    ),
+                                                    conditionalPanel("input.choose_which_gene_to_analysis=='Modules_Gene'",
+                                                      div(class='row',
+                                                        div(class='col-lg-12',
+                                                          pickerInput(inputId = 'enrichment_Module_analysis1',label = 'Module analysis',
+                                                             choices = c("finish Part2: Network Modules first"),
+                                                                       selected="finish Part2: Network Modules first",
+                                                                       multiple = TRUE,
+                                                                       options = list(size = 8,`live-search` = TRUE,"actions-box"=T),
+                                                                       width = "100%"
+                                                                             )
+                                                                         )
+                                                                     )
+                                                    ),
+                                                    conditionalPanel("input.choose_which_gene_to_analysis=='Custom_Gene'",
+                                                       textAreaInput(inputId="custom_input_gene",label = "Custom input gene",
+                                                                     value ="One gene per line", 
+                                                                      width = "370px",height = "100px")
+                                                    )
                                                  )
-                                             ),
-                                             pickerInput(inputId = 'enrichment_Significance_threshold',label = 'Significance threshold',
-                                                         choices = c("g:SCS threshold"="g:SCS_threshold",
-                                                                     "Bonferroni correction"="Bonferroni_correction",
-                                                                     "Benjamini-Hochberg FDR"="Benjamini-Hochberg_FDR"
-                                                         ),
-                                                         width = "370px"
-                                             ),
+                                             ),   
+                                             
+                                             
                                              textInput("enrichment_User_threshold", "User threshold", "0.05",width="370px"),
                                              
                                              pickerInput(inputId = 'enrichment_Numeric_IDs_treated_as',label = 'Numeric IDs treated as',

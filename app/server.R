@@ -489,17 +489,20 @@ shinyServer(function(input,output,session) {
     }
     
 
-    # p_test1=p+xlim(axis_x[1], axis_x[2])+
-    #   geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
     # p_test2=ggplot_build(p_test1)
-    print(p+xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)+
-          geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
-            )
+    # print(p+xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)+
+    #       geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
+    #         )
 
+    print(p+xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)+
+            geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
+            labs(x="Effective sample ratio",y="Number",title = "Screening sample plot",fill = "Remain")+
+            theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
+                  axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
+                  plot.title = element_text(hjust = 0.5,size=20,colour = "black"),
+                  legend.position = "bottom", legend.direction = "horizontal")
+    )
     
-    # print(p+
-    #         geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
-    # )
     dev.off()
     # file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),
     #           to = paste('www/templePlot/microSampleFilter',session$token,'.svg',sep = ""))
@@ -630,12 +633,18 @@ shinyServer(function(input,output,session) {
       else{
         text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
       }
-      # print(p+xlim(axis_x[1], axis_x[2])+
+      
+      # print(p+xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)+
       #         geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
       # )
       
       print(p+xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)+
-              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
+              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
+              labs(x="Effective sample ratio",y="Number",title = "Screening sample plot",fill = "Remain")+
+              theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
+                    axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
+                    plot.title = element_text(hjust = 0.5,size=20,colour = 'black'),
+                    legend.position = "bottom", legend.direction = "horizontal")
       )
       
       dev.off()
@@ -788,8 +797,16 @@ shinyServer(function(input,output,session) {
         text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
       }
       
+      # print(p+xlim(draw_x[1]-x_pianyi*5/150, draw_x[2]+x_pianyi*5/150)+
+      #         geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+      
       print(p+xlim(draw_x[1]-x_pianyi*5/150, draw_x[2]+x_pianyi*5/150)+
-              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
+              labs(x="Effective sample ratio",y="Number",title = "Screening sample plot",fill = "remain")+
+              theme(axis.title = element_text(size=12),axis.text.x =element_text(size=12), 
+                    axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
+                    plot.title = element_text(hjust = 0.5,size = 20,colour = 'black'))
+      )
       
       dev.off()
       #file.copy(from = paste(basepath,"Plot","microStatistic.svg",sep = "/"),to = paste('www/templePlot/microStatistic',session$token,'.svg',sep = ""))
@@ -876,9 +893,16 @@ shinyServer(function(input,output,session) {
         text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
       }
       
-      print(p+xlim(draw_x[1]-x_pianyi*5/150, draw_x[2]+x_pianyi*5/150)+
-              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+      # print(p+xlim(draw_x[1]-x_pianyi*5/150, draw_x[2]+x_pianyi*5/150)+
+      #         geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
       
+      print(p+xlim(draw_x[1]-x_pianyi*5/150, draw_x[2]+x_pianyi*5/150)+
+              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
+              labs(x="Effective sample ratio",y="Number",title = "Screening sample plot",fill = "remain")+
+              theme(axis.title = element_text(size=12),axis.text.x =element_text(size=12), 
+                    axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
+                    plot.title = element_text(hjust = 0.5,size = 20,colour = 'black'))
+      )
       
       dev.off()
       #file.copy(from = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),to = paste('www/templePlot/',group,'Statistic',session$token,'.svg',sep = ""))
@@ -1160,7 +1184,7 @@ shinyServer(function(input,output,session) {
   
   #########Construction Page Action########
   observeEvent(input$construction_data_confirm,{
-    if(after_slice_rna.exp==""){
+    if(R.oo::equals(after_slice_rna.exp,"")){
       sendSweetAlert(session = session,title = "Error...",text = "Please do this step after the step2",type = 'error')
     }else{
       samples=intersect(colnames(after_slice_rna.exp),colnames(after_slice_micro.exp))
@@ -1175,7 +1199,7 @@ shinyServer(function(input,output,session) {
       msg=input$add_new_condition
       core=input$use_core
     })
-    if(after_slice_geneinfo==""){
+    if(R.oo::equals(after_slice_geneinfo,"")){
       sendSweetAlert(session = session,title = "Error...",text = "Please do this step after the step2",type = 'error')
       return()
     }
@@ -1330,6 +1354,7 @@ shinyServer(function(input,output,session) {
     isolate({
       type=input$compute_condition$type
     })
+    
     core=condition[type,'core']
     tasks=condition[type,'task']
     logpath=normalizePath(paste(basepath,'/log/',type,'.txt',sep=""))
@@ -1564,18 +1589,26 @@ shinyServer(function(input,output,session) {
       msg=input$network
       do_what =msg$do_what
     })
-    if(R.oo::equals(after_slice_rna.exp,"")|R.oo::equals(network,"")){
+   
+    if(R.oo::equals(after_slice_rna.exp,"")|R.oo::equals(edgeinfo,"")){
       sendSweetAlert(session = session,title = "Error",text = "Please do this step after the step2 and step3",type = 'error')
     }else{
       if(do_what=="layout"){
+       
         type=msg$type
         visual_layout<<-type
-        edge=as.data.frame(which(network==1,arr.ind = T))
-        edge[,1]=rownames(network)[edge[,1]]
-        edge[,2]=colnames(network)[edge[,2]]
-        nodes=unique(c(edge[,1],edge[,2]))
-        colnames(edge)=c('source','target')
+        nodes=unique(c(edgeinfo[,1],edgeinfo[,2]))
         num=which(colnames(after_slice_geneinfo)==".group")
+        edge = edgeinfo[,1:2]
+        colnames(edge)=c('source','target')
+        # edge=as.data.frame(which(network==1,arr.ind = T))
+        # edge[,1]=rownames(network)[edge[,1]]
+        # edge[,2]=colnames(network)[edge[,2]]
+        # nodes=unique(c(edge[,1],edge[,2]))
+        # colnames(edge)=c('source','target')
+        # num=which(colnames(after_slice_geneinfo)==".group")
+        # new_after_geneinfo = after_slice_geneinfo
+        # colnames(new_after_geneinfo)[num]="group"
         new_after_geneinfo = after_slice_geneinfo
         colnames(new_after_geneinfo)[num]="group"
         nodes=data.frame(id=nodes,new_after_geneinfo[nodes,],stringsAsFactors = F)
@@ -2781,8 +2814,8 @@ shinyServer(function(input,output,session) {
       Organism=input$Organism_enrichment
       choose_analysis_tool=input$gProfileOnline_Or_custom_analysis
       Module_analysis=input$enrichment_Module_analysis1
-      Custom_input=input$enrichment_Custom_input1
-      # Custom_input_function_gene=input$enrichment_Custom_input_function_gene
+      choose_analysis_gene=input$choose_which_gene_to_analysis
+      Custom_input_gene=input$custom_input_gene
       Significance_threshold=input$enrichment_Significance_threshold
       User_threshold=input$enrichment_User_threshold
       Numeric_IDs_treated_as=input$enrichment_Numeric_IDs_treated_as
@@ -2794,13 +2827,13 @@ shinyServer(function(input,output,session) {
     browser()
     removeUI(selector = '#all_enrichment_show>',immediate = T)
     
-    for(i in Module_analysis){
+    if(choose_analysis_gene=="Custom_Gene"){
+      Custom_gene=unlist(strsplit(x=Custom_input_gene,split = '\n')) 
       if(choose_analysis_tool=='gProfile'){
-        enrichment_result=gost(modules[[i]], organism = Organism,domain_scope='custom',
-                               custom_bg=rownames(after_slice_geneinfo))$result
-        
+        enrichment_result=gost(Custom_gene, organism = Organism,domain_scope='custom',
+                               custom_bg=rownames(after_slice_geneinfo),user_threshold =User_threshold,
+                               correction_method = Significance_threshold)$result
         if(length(enrichment_result) ==0){
-          
           print("tishi no picture!")
           insertUI(
             selector ='#all_enrichment_show',
@@ -2817,7 +2850,7 @@ shinyServer(function(input,output,session) {
                    div(class='box-body',
                        div(class='row',
                            div(
-                             h3(class="box-title",HTML(paste('     No solve! So no picture...',sep = "")))
+                             h3(class="box-title",align="center",HTML(paste('No solve! So no picture...',sep = "")))
                            )
                        )      
                    )
@@ -2826,7 +2859,6 @@ shinyServer(function(input,output,session) {
             immediate = T
           )
         }else{
-          
           insertUI(
             selector ='#all_enrichment_show',
             where='beforeEnd',
@@ -2845,49 +2877,55 @@ shinyServer(function(input,output,session) {
             ),
             immediate = T
           )
-          
-          # enrichment_result=gost(c("X:1000:1000000", "rs17396340", "GO:0005005", "ENSG00000156103", "NLRP1"))$result
+
           a=1  
           # removeUI(selector = paste('enrichment_show_',i,' .row',sep = ""),immediate = T)
           for(j in Data_Sources){
-            svg(filename = paste(basepath,"Plot",paste("enrichment_plot",a,".svg",sep = ""),sep = "/"),family = 'serif')
-            if(choose_show=="bar_plot"){
-              print(
-                ggplot(enrichment_result[which(enrichment_result$source==j),],aes(x=term_name,y=p_value))+
-                  geom_bar(stat = "identity")+labs(y="p_value",x="term_name",title = "Screening sample plot")+
-                  theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
-                        panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))+coord_flip()
+            if(!empty(enrichment_result[which(enrichment_result$source==j),])){
+              svg(filename = paste(basepath,"Plot",paste("enrichment_plot",a,".svg",sep = ""),sep = "/"),family = 'serif')
+              if(choose_show=="bar_plot"){
+                print(
+                  ggplot(enrichment_result[which(enrichment_result$source==j),],aes(x=term_name,y=p_value))+
+                    geom_bar(stat = "identity")+labs(y="p_value",x="term_name",title = "Screening sample plot")+
+                    theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
+                          panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))+coord_flip()
+                )
+              }else{
+                print(
+                  ggplot(enrichment_result[which(enrichment_result$source==j),],aes(y= term_name,x=recall,colour=p_value,size=intersection_size))+
+                    geom_point()+labs(x="Recall",y="term_name",title = "Screening sample plot")+
+                    theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
+                          panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))
+                )
+              }
+              dev.off()
+              insertUI(
+                selector =paste('#enrichment_show_',i,' .row',sep = ""),
+                where='beforeEnd',
+                ui=div(class='col-lg-6',
+                       imageOutput(outputId = paste('enrichment_out_pic',a,sep = ""),height = "100%")),
+                immediate = T
               )
-            }else{
-              print(
-                ggplot(enrichment_result[which(enrichment_result$source==j),],aes(y= term_name,x=recall,colour=p_value,size=intersection_size))+
-                  geom_point()+labs(x="Recall",y="term_name",title = "Screening sample plot")+
-                  theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
-                        panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))
-              )
-              
+              local({
+                temp_a=a
+                output[[paste('enrichment_out_pic',temp_a,sep = "")]]=renderImage({
+                  list(src=paste(basepath,"Plot",paste("enrichment_plot",temp_a,".svg",sep = ""),sep = "/"),width="100%",height="100%")
+                },deleteFile = F)
+              })
+              a=a+1
             }
-            dev.off()
-            insertUI(
-              selector =paste('#enrichment_show_',i,' .row',sep = ""),
-              where='beforeEnd',
-              ui=div(class='col-lg-6',
-                     imageOutput(outputId = paste('enrichment_out_pic',a,sep = ""),height = "100%")),
-              immediate = T
-            )
-            local({
-              temp_a=a
-              output[[paste('enrichment_out_pic',temp_a,sep = "")]]=renderImage({
-                list(src=paste(basepath,"Plot",paste("enrichment_plot",temp_a,".svg",sep = ""),sep = "/"),width="100%",height="100%")
-              },deleteFile = F)
-            })
-            a=a+1
+            
+            
           }
           
         }
-      }
-      else{
+        
+      }else{
         custom_enrichment_set<-readLines(filepath)
+        singl_func_name=c()
+        custom_pvalue=c()
+        custom_recall=c()
+        custom_size=c()
         for(k in length(custom_enrichment_set) ){
           singl_func<-unlist(strsplit(x=custom_enrichment_set[k],split = '\t'))
           singl_func_gene<-unique(singl_func[-1])
@@ -2898,34 +2936,258 @@ shinyServer(function(input,output,session) {
           func_gene_num=length(singl_func_gene)
           n=length(setdiff(background_set,singl_func_gene))
           k=length(modules_gene)
-          custom_pvalue=1-phyper(x-1,func_gene_num,n,k)
-        }  
-        
+          temp_pvalue=1-phyper(x-1,func_gene_num,n,k)
+          temp_recall=x/func_gene_num
+          if(x!=0){
+            singl_func_name=c(singl_func_name,singl_func[1])
+            custom_pvalue=c(custom_pvalue,temp_pvalue)
+            custom_recall=c(custom_recall,temp_recall)
+            custom_size=c(custom_size,x)
+          }
+        }
+        custom_enrichment_result=data.frame(singl_func_name=singl_func_name,custom_pvalue=custom_pvalue,
+                                            custom_recall=custom_recall,custom_size=custom_size)
+        if(length(custom_enrichment_result)==0){
+          print("tishi no picture!")
+          insertUI(
+            selector ='#all_enrichment_show',
+            where='beforeEnd',
+            ui=div(class='box box-solid box-primary',id=paste('enrichment_show_',i,sep = ""),
+                   div(class='box-header',
+                       h3(class="box-title",HTML(paste('enrichment_show_',i,sep = ""))),
+                       div(class="box-tools pull-right",
+                           tags$button(class='btn btn-box-tool',"data-widget"="collapse",
+                                       tags$i(class='fa fa-minus')
+                           )
+                       )
+                   ),
+                   div(class='box-body',
+                       div(class='row',
+                           div(
+                             h3(class="box-title",align="center",HTML(paste('No solve! So no picture...',sep = "")))
+                           )
+                       )      
+                   )
+            ),
+            immediate = T
+          )
+        }else{
+          svg(filename = paste(basepath,"Plot",paste("enrichment_plot",a,".svg",sep = ""),sep = "/"),family = 'serif')
+          if(choose_show=="bar_plot"){
+            print(
+              ggplot(custom_enrichment_result,aes(x=singl_func_name,y=custom_pvalue))+
+                geom_bar(stat = "identity")+labs(y="p_value",x="term_name",title = "Screening sample plot")+
+                theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
+                      panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))+coord_flip()
+            )
+          }else{
+            print(
+              ggplot(custom_enrichment_result,aes(y= singl_func_name,x=custom_recall,colour=custom_pvalue,size=custom_size))+
+                geom_point()+labs(x="Recall",y="term_name",title = "Screening sample plot")+
+                theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
+                      panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))
+            )
+          }
+          dev.off()
+          insertUI(
+            selector =paste('#enrichment_show_',i,' .row',sep = ""),
+            where='beforeEnd',
+            ui=div(class='col-lg-6',
+                   imageOutput(outputId = paste('enrichment_out_pic',a,sep = ""),height = "100%")),
+            immediate = T
+          )
+        }
+      }
+      
+    }else{
+      for(i in Module_analysis){
+        if(choose_analysis_tool=='gProfile'){
+          enrichment_result=gost(modules[[i]], organism = Organism,domain_scope='custom',
+                                 custom_bg=rownames(after_slice_geneinfo),user_threshold =User_threshold,
+                                 correction_method = Significance_threshold)$result
+          
+          if(length(enrichment_result) ==0){
+            
+            print("tishi no picture!")
+            insertUI(
+              selector ='#all_enrichment_show',
+              where='beforeEnd',
+              ui=div(class='box box-solid box-primary',id=paste('enrichment_show_',i,sep = ""),
+                     div(class='box-header',
+                         h3(class="box-title",HTML(paste('enrichment_show_',i,sep = ""))),
+                         div(class="box-tools pull-right",
+                             tags$button(class='btn btn-box-tool',"data-widget"="collapse",
+                                         tags$i(class='fa fa-minus')
+                             )
+                         )
+                     ),
+                     div(class='box-body',
+                         div(class='row',
+                             div(
+                               h3(class="box-title",align="center",HTML(paste('No solve! So no picture...',sep = "")))
+                             )
+                         )      
+                     )
+                     
+              ),
+              immediate = T
+            )
+          }else{
+            insertUI(
+              selector ='#all_enrichment_show',
+              where='beforeEnd',
+              ui=div(class='box box-solid box-primary',id=paste('enrichment_show_',i,sep = ""),
+                     div(class='box-header',
+                         h3(class="box-title",HTML(paste('enrichment_show_',i,sep = ""))),
+                         div(class="box-tools pull-right",
+                             tags$button(class='btn btn-box-tool',"data-widget"="collapse",
+                                         tags$i(class='fa fa-minus')
+                             )
+                         )
+                     ),
+                     div(class='box-body',
+                         div(class='row')      
+                     )
+              ),
+              immediate = T
+            )
+
+            a=1  
+            # removeUI(selector = paste('enrichment_show_',i,' .row',sep = ""),immediate = T)
+            for(j in Data_Sources){
+              if(!empty(enrichment_result[which(enrichment_result$source==j),])){
+                svg(filename = paste(basepath,"Plot",paste("enrichment_plot",a,".svg",sep = ""),sep = "/"),family = 'serif')
+                if(choose_show=="bar_plot"){
+                  print(
+                    ggplot(enrichment_result[which(enrichment_result$source==j),],aes(x=term_name,y=p_value))+
+                      geom_bar(stat = "identity")+labs(y="p_value",x="term_name",title = "Screening sample plot")+
+                      theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
+                            panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))+coord_flip()
+                  )
+                }else{
+                  print(
+                    ggplot(enrichment_result[which(enrichment_result$source==j),],aes(y= term_name,x=recall,colour=p_value,size=intersection_size))+
+                      geom_point()+labs(x="Recall",y="term_name",title = "Screening sample plot")+
+                      theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
+                            panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))
+                  )
+                }
+                dev.off()
+                insertUI(
+                  selector =paste('#enrichment_show_',i,' .row',sep = ""),
+                  where='beforeEnd',
+                  ui=div(class='col-lg-6',
+                         imageOutput(outputId = paste('enrichment_out_pic',a,sep = ""),height = "100%")),
+                  immediate = T
+                )
+                local({
+                  temp_a=a
+                  output[[paste('enrichment_out_pic',temp_a,sep = "")]]=renderImage({
+                    list(src=paste(basepath,"Plot",paste("enrichment_plot",temp_a,".svg",sep = ""),sep = "/"),width="100%",height="100%")
+                  },deleteFile = F)
+                })
+                a=a+1
+              }
+              
+            }
+            
+          }
+        }
+        else{
+          custom_enrichment_set<-readLines(filepath)
+          singl_func_name=c()
+          custom_pvalue=c()
+          custom_recall=c()
+          custom_size=c()
+          for(k in length(custom_enrichment_set) ){
+            singl_func<-unlist(strsplit(x=custom_enrichment_set[k],split = '\t'))
+            singl_func_gene<-unique(singl_func[-1])
+            background_set=as.character(unique(after_slice_geneinfo[,Numeric_IDs_treated_as]))
+            modules_gene<-as.character(unique(after_slice_geneinfo[modules[[i]],][,Numeric_IDs_treated_as]))
+            overlap_gene<-intersect(singl_func_gene,modules_gene)
+            x=length(overlap_gene)
+            func_gene_num=length(singl_func_gene)
+            n=length(setdiff(background_set,singl_func_gene))
+            k=length(modules_gene)
+            temp_pvalue=1-phyper(x-1,func_gene_num,n,k)
+            temp_recall=x/func_gene_num
+            if(x!=0){
+              singl_func_name=c(singl_func_name,singl_func[1])
+              custom_pvalue=c(custom_pvalue,temp_pvalue)
+              custom_recall=c(custom_recall,temp_recall)
+              custom_size=c(custom_size,x)
+            }
+          }
+          custom_enrichment_result=data.frame(singl_func_name=singl_func_name,custom_pvalue=custom_pvalue,
+                                              custom_recall=custom_recall,custom_size=custom_size)
+          if(length(custom_enrichment_result)==0){
+            print("tishi no picture!")
+            insertUI(
+              selector ='#all_enrichment_show',
+              where='beforeEnd',
+              ui=div(class='box box-solid box-primary',id=paste('enrichment_show_',i,sep = ""),
+                     div(class='box-header',
+                         h3(class="box-title",HTML(paste('enrichment_show_',i,sep = ""))),
+                         div(class="box-tools pull-right",
+                             tags$button(class='btn btn-box-tool',"data-widget"="collapse",
+                                         tags$i(class='fa fa-minus')
+                             )
+                         )
+                     ),
+                     div(class='box-body',
+                         div(class='row',
+                             div(
+                               h3(class="box-title",align="center",HTML(paste('No solve! So no picture...',sep = "")))
+                             )
+                         )      
+                     )
+              ),
+              immediate = T
+            )
+          }else{
+            svg(filename = paste(basepath,"Plot",paste("enrichment_plot",a,".svg",sep = ""),sep = "/"),family = 'serif')
+            if(choose_show=="bar_plot"){
+              print(
+                ggplot(custom_enrichment_result,aes(x=singl_func_name,y=custom_pvalue))+
+                  geom_bar(stat = "identity")+labs(y="p_value",x="term_name",title = "Screening sample plot")+
+                  theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
+                        panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))+coord_flip()
+              )
+            }else{
+              print(
+                ggplot(custom_enrichment_result,aes(y= singl_func_name,x=custom_recall,colour=custom_pvalue,size=custom_size))+
+                  geom_point()+labs(x="Recall",y="term_name",title = "Screening sample plot")+
+                  theme(axis.text.x =element_text(size=10), axis.text.y=element_text(size=10),
+                        panel.background=element_rect(fill='white'),plot.title = element_text(hjust = 0.5))
+              )
+            }
+            dev.off()
+            insertUI(
+              selector =paste('#enrichment_show_',i,' .row',sep = ""),
+              where='beforeEnd',
+              ui=div(class='col-lg-6',
+                     imageOutput(outputId = paste('enrichment_out_pic',a,sep = ""),height = "100%")),
+              immediate = T
+            )
+          }
+        }
       }
     }
     
+
+    
   })
   observeEvent(input$show_custom_input_file,{
-    
     session$sendCustomMessage('reading',list(div='custom_preview_panel',status='ongoing'))
     isolate({
-      # sep_cus=input$target_seprator_cus;
-      # sep=input$target_seperator;
-      filepath=input$enrichment_Custom_input_function_gene$datapath;
-      # header=as.logical(input$target_header);
-      # quote=input$target_quote
+      filepath=input$enrichment_Custom_input_function_gene$datapath
     })
     
-    # if(sep_cus!="")
-    # {
-    #   sep=sep_cus
-    # }
     if(is.null(filepath))
     {
       lines<-'No Data'
     }else
     {
-      # target<<-read.table(file = filepath,header = header,sep = sep,quote = quote,stringsAsFactors = F)
       lines<-readLines(con =filepath )
     }
     Sys.sleep(2)
@@ -2942,7 +3204,6 @@ shinyServer(function(input,output,session) {
     sign_formatter=formatter("span",onclick="showCustomGeneDetails(this)",style=function(x) {
       style(display = "inline-block",direction = "rtl", `border-radius` = "4px",`background-color` = csscolor('#3498db'), width = '150px')} )
     
-    
     df$Action=sign_formatter(df$Action)
     
     my_color_bar <- function (color = "lightgray", fixedWidth=150,...) 
@@ -2954,16 +3215,8 @@ shinyServer(function(input,output,session) {
     }
     
     output$custom_preview_panel=renderFormattable({
-      formattable(df,align=c("c","r","c"),list(Size=my_color_bar("#2ecc71",250)
-      )
-      )
-      
-      
+      formattable(df,align=c("c","r","c"),list(Size=my_color_bar("#2ecc71",250)))
     })
-    
-    
-    
-    
   })
   
   observeEvent(input$showCustomDetails,{
@@ -2986,9 +3239,6 @@ shinyServer(function(input,output,session) {
   })
     
   
-  
-
-    
   
 
 })

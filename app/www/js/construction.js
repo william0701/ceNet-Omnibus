@@ -358,6 +358,7 @@ Shiny.addCustomMessageHandler('network_construction',function(msg){
     $('.modal-footer').css('visibility','visible')
   }
 })
+
 comfirm_thresh=function(e)
 {
   var $thresh_panel=$(e).parent().prev()

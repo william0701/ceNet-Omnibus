@@ -356,13 +356,29 @@ shinyServer(function(input,output,session) {
       sect_output_geneinfo[sect_output_geneinfo[,biotype] %in% subset,'.group']<<-group
     }
     output$biotype_group_statics_graph=renderImage({
-      p=ggplot(data =sect_output_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill=biotype))+
-        labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
-        theme(legend.position = 'bottom')
-      # ggplotly(p) %>%
-      #   layout(title = list(text="Gene Counts Statistics in Groups",font=list(family='serif')),
-      #          legend = list(orientation = "h",font=list(family='Georgia')),
-      #          autosize=T)
+      if(length(unique(after_slice_geneinfo[,'gene_biotype']))>8)
+      {
+        p=ggplot(data =after_slice_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill='gene_biotype'))+
+          labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
+          scale_fill_manual(values = colorRampPalette(usedcolors)(length(unique(after_slice_geneinfo[,'gene_biotype']))))+
+          theme(legend.position = 'bottom',panel.background = element_rect(fill = NA))
+      }else
+      {
+        p=ggplot(data =after_slice_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill='gene_biotype'))+
+          labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
+          theme(legend.position = 'bottom',panel.background = element_rect(fill = NA))
+      }
+      p=p+theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
+                axis.text.x = element_text(family = "serif",colour = "black"), 
+                axis.text.y = element_text(family = "serif",colour = "black"), 
+                plot.title = element_text(family = "serif", hjust = 0.5,size=14), 
+                legend.text = element_text(family = "serif"),
+                legend.title = element_text(family = "serif"),
+                legend.key = element_rect(fill = NA), 
+                legend.background = element_rect(fill = NA),
+                legend.direction = "horizontal",
+                legend.position = 'bottom',
+                panel.background = element_rect(fill = NA))
       svg(filename = paste(basepath,"Plot",'ph1.svg',sep="/"),family = 'serif')
       print(p)
       dev.off()
@@ -1567,6 +1583,33 @@ shinyServer(function(input,output,session) {
     session$sendCustomMessage('network_construction',list(status='finish',value="",id="network_construction"))
     sendSweetAlert(session = session,title = "Success",text = "Apply Conditions Successfully!",type = 'success')
   })
+  output$export_condition_value=downloadHandler(
+    filename="Condition_values.RData",
+    content=function(file){
+      types=condition$abbr[which(condition$used)]
+      data=list()
+      for(type in types)
+      {
+        tasks=unlist(strsplit(x = condition[type,'task'],split = ";"))
+        tmp=readData(type,tasks)
+        data=c(data,tmp)
+      }
+      saveRDS(object = data,file = file)
+    }
+  )
+  output$export_condition_plot=downloadHandler(
+    filename="Condition_Plots.zip",
+    content=function(file){
+      types=condition$abbr[which(condition$used)]
+      files=c()
+      for(type in types)
+      {
+        tasks=unlist(strsplit(x = condition[type,'task'],split = ";"))
+        files=c(files,paste(basepath,'/Plot/density_plot_',paste(type,tasks,sep="_"),'.svg',sep=""))
+      }
+      zip(zipfile = file,files = files,flags = '-j')
+    }
+  )
   output$network_export <- downloadHandler(
     filename = function() {
       return("network.txt")

@@ -1,5 +1,5 @@
 construction_tab=tabItem(tabName = "construction",
-                         h2("Step1: Choose Conditions",style='font-family:Georgia'),
+                         h2("Step1: Choose Conditions",style='font-family:Georgia',downloadButton(outputId = 'export_condition_value',label = 'Export Values')),
                          div(class='col-lg-12 callout callout-info',
                              tags$p(style="font-size:14px;font-family:sans-serif",
                                     HTML("Please choose conditions used for construct ceRNA network, e.g. Pearson Correlation(PCC), Shared MicroRNA Significance(MS), Liquid Association(LA).&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"),
@@ -9,7 +9,7 @@ construction_tab=tabItem(tabName = "construction",
                          fluidRow(
                            div(id='condition_panel')
                          ),
-                         h2("Step2: Condition Filter",style='font-family:Georgia'),
+                         h2("Step2: Condition Filter",style='font-family:Georgia',downloadButton(outputId = 'export_condition_plot',label = "Export Plots")),
                          div(class='col-lg-12 callout callout-info',
                              tags$p(style="font-size:14px;font-family:sans-serif",
                                     HTML("Please choose threshold for every condition and every task.")

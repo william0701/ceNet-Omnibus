@@ -218,6 +218,7 @@ create_condition=function(name,tasks,core)
     var obj={}
     obj['stamp']=Math.random()
     obj['type']=type
+    condition_status[type]='stop'
     Shiny.setInputValue('remove_condition',obj)
     $(e.currentTarget).parent().parent().parent().parent().parent().remove()
     //$("#density_plot_"+type).parent().remove()

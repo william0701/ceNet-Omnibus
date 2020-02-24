@@ -180,6 +180,13 @@ analysis_tab=tabItem(tabName = "analysis",
                                                   create_property_checkboxgroup(type='edge',id='edge_centrality',label='Edges Centrality',items=c("Betweenness"),f='showEdgeCentrality'),
                                                   tags$br(),
                                                   div(id="network_property",class="row")
+                                              ),
+                                              div(class='box-footer',
+                                                  div(class='pull-right',
+                                                      downloadButton(outputId='export_network_node_property', label = "Export Node Property"),
+                                                      downloadButton(outputId='export_network_edge_property', label = "Export Edge Property"),
+                                                      downloadButton(outputId='export_network_property_plot', label = "Export Plots")
+                                                  )
                                               )
                                           )
                                 ),
@@ -296,7 +303,7 @@ analysis_tab=tabItem(tabName = "analysis",
                                                  ),
                                                  div(class="row",
                                                      div(class="col-lg-12",
-                                                         tags$label(HTML("Module Summary")),
+                                                         tags$label(HTML("Module Summary"),downloadButton(outputId = "export_module_info",label = "Export")),
                                                          div(id="module_info_box")
                                                      )
                                                  ),

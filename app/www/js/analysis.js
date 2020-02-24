@@ -118,6 +118,28 @@ function displayCommunity(id)
   Shiny.setInputValue("displayCommunity",obj)
 }
 
+function export_enrichment_plot(e)
+{
+  var obj={}
+  obj['stamp']=Math.random()
+  var picid=[]
+  var $pic=$(e).parent().prev().find('.col-lg-6').children('div')
+  for(var i=0;i<$pic.length;++i)
+  {
+    picid.push($pic.get(i).getAttribute('id')) 
+  }
+  obj['picid']=picid
+  obj['id']=$(e).attr('id')
+  Shiny.setInputValue("export_enrichment_plot",obj)
+}
+function export_survival_plot(id,model)
+{
+  var obj={}
+  obj['stamp']=Math.random()
+  obj['id']=id
+  obj['model']=model
+  Shiny.setInputValue("export_survival_plot",obj)
+}
 function module_setting(btn)
 {
   var id=$(btn).attr("id")

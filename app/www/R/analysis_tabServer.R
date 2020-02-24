@@ -41,9 +41,6 @@ create_property_box=function(type,id)
   return(ui)
 }
 
-
-
-
 cluster_mcl=function(graph,expansion=2,inflation=2,allow1=F,max.iter=100)
 {
   community=mcl(as.matrix(as_adjacency_matrix(graph,type='both')),addLoops = T,expansion = expansion,inflation = inflation,allow1 = allow1,max.iter = max.iter)
@@ -305,8 +302,8 @@ create_progress=function(msg,id=paste("#",as.numeric(Sys.time()),"_progress",sep
 create_alert_box=function(header,msg,class){
   ui=div(class=paste("alert alert-info alert-dismissible",class),
          h4(tags$i(class="icon fa fa-info"),HTML(header)),
-         HTML(msg)
-         )
+         HTML(msg)         
+    )
   return(ui)
 }
 
@@ -477,7 +474,7 @@ create_survival_result_box=function(session,label,id,model)
   box=div(class="col-lg-6 col-md-12",
           div(class="box box-primary",id=paste(id,model,sep="_"),
               div(class="box-header with-border",
-                  h4(label)
+                  h4(label,downloadButton(outputId =paste(id,'_survival_export',sep=""),label = "Export",onclick=paste('export_survival_plot("',id,'","km_analysis")',sep="")))
               ),
               div(class="box-body",
                   div(class="box-group",id=paste(id,model,"group",sep="_"),

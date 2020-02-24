@@ -404,134 +404,73 @@ shinyServer(function(input,output,session) {
   observeEvent(input$Sample_Filter,{
     isolate({
       msg=input$Sample_Filter
-      sep=msg$sep
+      #sep=msg$sep
       group=msg$group
       exist=msg$exist
       value=msg$value
-      
+      direction=msg$direction
+      thresh=msg$thresh
     })
     
-    if(group=="micro_invalid_name"){
-    len_sep<-length(sep)
-
-    if(len_sep==1){
-      myfunc<-function(x){
-        if(is.character(x)){
-          x<-toupper(x)
+    if(group=="micro_invalid_name")
+    {
+      tmpdata=data.frame(count=(colSums(get(direction)(sect_output_micro.exp,thresh)))/nrow(sect_output_micro.exp),
+                             color='Remove',stringsAsFactors = F)
+      draw_x<-(max(tmpdata$count)+min(tmpdata$count))/2  
+      x2<-quantile(tmpdata$count,value,type=3) 
+      draw_x2<-round(x2,3)
+      tmpdata$color[which(tmpdata$count>x2)]='Remain'
+    
+      liuxiasum<-length(which(tmpdata$count>x2))
+      text1=paste("Thresh:",round(x2,3))
+      text2=paste("Remain:",liuxiasum)
+      p=ggplot()+
+        geom_histogram(data = tmpdata,mapping = aes(x=count,fill=color),color="black",bins = 100) +
+        scale_fill_manual(values=c('Remove'="white",'Remain'= "#9b59b6"))+
+        geom_vline(xintercept=x2, colour="#990000", linetype="dashed",size=1.1)+
+        labs(title = "MicroRNA Sample Quality Control")+xlab("Valid MicroRNA Ratio")+ylab('Sample Count')+
+        theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
+              axis.text.x = element_text(family = "serif",colour = "black"), 
+              axis.text.y = element_text(family = "serif",colour = "black"), 
+              plot.title = element_text(family = "serif", hjust = 0.5,size=14), 
+              legend.text = element_text(family = "serif"),
+              legend.title = element_text(family = "serif"),
+              legend.key = element_rect(fill = NA), 
+              legend.background = element_rect(fill = NA),
+              legend.direction = "horizontal",
+              legend.position = 'bottom',
+              panel.background = element_rect(fill = NA)) +labs(fill = "If Remain")
+      pp=ggplot_build(p)
+      axis_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
+      axis_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
+      x_pianyi=(axis_x[2]-axis_x[1])*0.2
+      if(var(tmpdata$count)!=0){
+        if(skewness(tmpdata$count)<0){
+          text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
+        }else{
+          text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
         }
-        # x<-as.character(x)
-        sum(x!=sep[[1]])
-      }
-      expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
-      # expressgene_num<<-colSums(sect_output_micro.exp!=0) 
-    }
-    else if(len_sep==2){
-      myfunc<-function(x){
-        if(is.character(x)){
-          x<-toupper(x)
-        }
-        # x<-as.character(x)
-        sum(x!=sep[[1]]&x!=sep[[2]])
-      }  
-      expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
-     
-    }
-    else if(len_sep==3){
-      myfunc<-function(x){
-        if(is.character(x)){
-          x<-toupper(x)
-        }
-        # x<-as.character(x)
-        sum(x!=sep[[1]]&x!=sep[[2]]&x!=sep[[3]])
-      }
-      expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
-    }
-    
-    else if(len_sep==4){
-      myfunc<-function(x){
-        if(is.character(x)){
-          x<-toupper(x)
-        }
-        # x<-as.character(x)
-        sum(x!=sep[[1]]&x!=sep[[2]]&x!=sep[[3]]&x!=sep[[4]])
-      }
-      expressgene_num<<-apply(sect_output_micro.exp, 2, myfunc)
-    }
-    else{
-      sendSweetAlert(session = session,title = "Warning..",text = 'Please choose valid value',type = 'warning')
-      expressgene_num<<-rep(dim(sect_output_micro.exp)[1],time=dim(sect_output_micro.exp)[2])
-    }
-    
-    expressgene_num<<-expressgene_num/(dim(sect_output_micro.exp)[1])
-    process_sample<-data.frame(
-      x=expressgene_num
-    )
-    
-    value=as.numeric(value)
-    draw_x<-(max(expressgene_num)+min(expressgene_num))/2  
-
-    x2<-quantile(expressgene_num,value,type=3) 
-    draw_x2<-round(x2,3)
-    process_sample<-data.frame(
-      x=expressgene_num,
-      color=as.character(c(expressgene_num>x2)),stringsAsFactors = F
-    )
-    svg(filename = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),family = 'serif')
-
-    liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num>x2)]))
-    
-    text1=paste("Thresh:",draw_x2)
-    text2=paste("Remain:",liuxiasum)
-    
-    p=ggplot(process_sample,aes(x=x,fill=..x..>x2))+
-      geom_histogram(color="black",bins = 100) +
-      scale_fill_manual(values=c('FALSE'="white",'TRUE'= "#9b59b6"))+
-      geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")
-    pp=ggplot_build(p)
-    axis_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
-    axis_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
-    x_pianyi=(axis_x[2]-axis_x[1])*0.2
-    
-    if(var(process_sample$x)!=0){
-      if(skewness(process_sample$x)<0){
+      }else{
         text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
       }
-      else{
-        text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
-      }
-    }
-    else{
-      text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
-    }
-    
+      p=p+geom_text(data=text,mapping = aes(x = x,y = y,label=label),size=6,family='serif',inherit.aes = F)+
+        xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)
 
-    # p_test2=ggplot_build(p_test1)
-    # print(p+xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)+
-    #       geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
-    #         )
 
-    print(p+xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)+
-            geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
-            labs(x="Effective sample ratio",y="Number",title = "Screening sample plot",fill = "Remain")+
-            theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
-                  axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
-                  plot.title = element_text(hjust = 0.5,size=20,colour = "black"),
-                  legend.position = "bottom", legend.direction = "horizontal")
-    )
-    
-    dev.off()
-    # file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),
-    #           to = paste('www/templePlot/microSampleFilter',session$token,'.svg',sep = ""))
-    if(exist=="F"){
-      print(paste("#","sample_Group_",group,'_panel',sep=""))
-      insertUI(
-        selector = paste("#","sample_Group_",group,'_panel',sep=""),
-        where='beforeEnd',
-        ui=imageOutput(outputId = paste(group,'_plot',sep=""),height = "100%"),
-        immediate = T
-      )
-      
-       insertUI(
+      svg(filename = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),family = 'serif')
+      print(p)
+      dev.off()
+  
+      if(exist=="F"){
+        print(paste("#","sample_Group_",group,'_panel',sep=""))
+        insertUI(
+          selector = paste("#","sample_Group_",group,'_panel',sep=""),
+          where='beforeEnd',
+          ui=imageOutput(outputId = paste(group,'_plot',sep=""),height = "100%"),
+          immediate = T
+        )
+        
+        insertUI(
          selector = paste("#","sample_Group_",group,'_panel',sep=""),
          where='beforeEnd',
          ui=div(class="box-footer",
@@ -540,131 +479,69 @@ shinyServer(function(input,output,session) {
                             onclick=paste("slice('#","sample_Group_",group,"_panel')",sep=""),
                             style="margin:5px",height = "100%",HTML("Filter"))),
          immediate = T
-       )
-    }
-    output$downloadData_micro_sample <- downloadHandler(
-      filename = function() {
-        return("Micro_sample_filter.svg");
-      },
-      content = function(file) {
-        file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),to = file);
+        )
       }
-    )
-    output[[paste(group,'_plot',sep="")]]=renderImage({
-      list(src=paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),width="100%",height="100%")
-    },deleteFile = F)
+      output$downloadData_micro_sample <- downloadHandler(
+        filename = function() {
+          return("Micro_sample_filter.svg");
+        },
+        content = function(file) {
+          file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),to = file);
+        }
+      )
+      output[[paste(group,'_plot',sep="")]]=renderImage({
+        list(src=paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),width="100%",height="100%")
+      },deleteFile = F)
     }
     
     else if(group=="ce_invalid_name"){
-      len_sep<-length(sep)
-      # for(n in 1:len_sep){
-      #   
-      # }
-      if(len_sep==1){
-        myfunc<-function(x){
-          if(is.character(x)){
-            x<-toupper(x)
-          }
-          # x<-as.character(x)
-          sum(x!=sep[[1]])
-        }
-        expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
-        # expressgene_num2<<-colSums(sect_output_rna.exp!=0)
-
-      }
-      else if(len_sep==2){
-        myfunc<-function(x){
-          if(is.character(x)){
-            x<-toupper(x)
-          }
-          # x<-as.character(x)
-          sum(x!=sep[[1]]&x!=sep[[2]])
-        }
-        expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
-
-      }
-      else if(len_sep==3){
-        myfunc<-function(x){
-          if(is.character(x)){
-            x<-toupper(x)
-          }
-          # x<-as.character(x)
-          sum(x!=sep[[1]]&x!=sep[[2]]&x!=sep[[3]])
-        }
-        expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
-      }
-
-      else if(len_sep==4){
-        myfunc<-function(x){
-          if(is.character(x)){
-            x<-toupper(x)
-          }
-          # x<-as.character(x)
-          sum(x!=sep[[1]]&x!=sep[[2]]&x!=sep[[3]]&x!=sep[[4]])
-        }
-        expressgene_num2<<-apply(sect_output_rna.exp, 2, myfunc)
-      }
-      else{
-        sendSweetAlert(session = session,title = "Warning..",text = 'Please choose valid value',type = 'warning')
-        expressgene_num2<<-rep(dim(sect_output_rna.exp)[1],time=dim(sect_output_rna.exp)[2])
-        
-        process_sample<-data.frame(#also will crash the page
-          x=expressgene_num2,stringsAsFactors = F
-        )
-      }
-  
-      expressgene_num2<<-expressgene_num2/(dim(sect_output_rna.exp)[1])
+      
+      tmpdata=data.frame(count=colSums(sect_output_rna.exp>thresh)/nrow(sect_output_rna.exp),color='Remove',stringsAsFactors = F)
       value=as.numeric(value)
-      draw_x<-(max(expressgene_num2)+min(expressgene_num2))/2  
-      
-      x2<-quantile(expressgene_num2,value,type=3)
-      process_sample<-data.frame(
-        x=expressgene_num2,
-        color=as.character(c(expressgene_num2>x2)),stringsAsFactors = F
-      )
+      draw_x<-(max(tmpdata$count)+min(tmpdata$count))/2  
+      x2<-quantile(tmpdata$count,value,type=3)
+      tmpdata$color[which(tmpdata$count>x2)]='Remain'
       draw_x2<-round(x2,3)
-      liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num2>x2)]))
-      svg(filename = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),family = 'serif')
       
-      text1=paste("Thresh:",draw_x2)
+      liuxiasum<-length(which(tmpdata$count>x2))
+      text1=paste("Thresh:",round(x2,3))
       text2=paste("Remain:",liuxiasum)
       
-      p=ggplot(process_sample,aes(x=x,fill=..x..>x2))+
-        geom_histogram(color="black",bins = 100) +
-        scale_fill_manual(values=c('FALSE'="white",'TRUE'= "#9b59b6"))+
-        geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed")
+      p=ggplot()+
+        geom_histogram(data = tmpdata,mapping = aes(x=count,fill=color),color="black",bins = 100) +
+        scale_fill_manual(values=c('Remove'="white",'Remain'= "#9b59b6"))+
+        geom_vline(aes(xintercept=x2), colour="#990000", linetype="dashed",size=1.1)+
+        labs(title = "CeRNA Sample Quality Control")+xlab("Valid CeRNA Ratio")+ylab('Sample Count')+
+        theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
+              axis.text.x = element_text(family = "serif",colour = "black"), 
+              axis.text.y = element_text(family = "serif",colour = "black"), 
+              plot.title = element_text(family = "serif", hjust = 0.5,size=14), 
+              legend.text = element_text(family = "serif"),
+              legend.title = element_text(family = "serif"),
+              legend.key = element_rect(fill = NA), 
+              legend.background = element_rect(fill = NA),
+              legend.direction = "horizontal",
+              legend.position = 'bottom',
+              panel.background = element_rect(fill = NA)) +labs(fill = "If Remain")
       pp=ggplot_build(p)
       axis_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
       axis_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
       x_pianyi=(axis_x[2]-axis_x[1])*0.2
-      
-      if(var(process_sample$x)!=0){
-        if(skewness(process_sample$x)<0){
+      if(var(tmpdata$count)!=0){
+        if(skewness(tmpdata$count)<0){
           text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
-        }
-        else{
+        }else{
           text=data.frame(label=c(text1,text2),x=axis_x[2]-x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
         }
-      }
-      else{
+      }else{
         text=data.frame(label=c(text1,text2),x=axis_x[1]+x_pianyi,y=c(axis_y[2],axis_y[2]*0.95),stringsAsFactors = F)
       }
+      p=p+geom_text(data=text,mapping = aes(x = x,y = y,label=label),size=6,family='serif',inherit.aes = F)+
+        xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)
       
-      # print(p+xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)+
-      #         geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')
-      # )
-      
-      print(p+xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)+
-              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
-              labs(x="Effective sample ratio",y="Number",title = "Screening sample plot",fill = "Remain")+
-              theme(axis.title = element_text(size=12,family ='serif',colour = 'black'),axis.text.x =element_text(size=12), 
-                    axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
-                    plot.title = element_text(hjust = 0.5,size=20,colour = 'black'),
-                    legend.position = "bottom", legend.direction = "horizontal")
-      )
-      
+      svg(filename = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),family = 'serif')
+      print(p)
       dev.off()
-      #file.copy(from = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),to = paste('www/templePlot/RNASampleFilter',session$token,'.svg',sep = ""))
       if(exist=="F"){
         print(paste("#","sample_Group_",group,'_panel',sep=""))
         insertUI(
@@ -697,7 +574,6 @@ shinyServer(function(input,output,session) {
         list(src=paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),width="100%",height="100%")
       },deleteFile = F)
     }
-  
   })
   
   observeEvent(input$Sample_Slice_Signal,{
@@ -818,10 +694,19 @@ shinyServer(function(input,output,session) {
       
       print(p+xlim(draw_x[1]-x_pianyi*5/150, draw_x[2]+x_pianyi*5/150)+
               geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
-              labs(x="Effective sample ratio",y="Number",title = "Screening sample plot",fill = "remain")+
-              theme(axis.title = element_text(size=12),axis.text.x =element_text(size=12), 
-                    axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
-                    plot.title = element_text(hjust = 0.5,size = 20,colour = 'black'))
+              labs(title = "MicroRNA Filter")+
+              xlab("Sample Ratio")+ylab('Valid MicroRNA Count')+
+              theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
+                    axis.text.x = element_text(family = "serif",colour = "black"), 
+                    axis.text.y = element_text(family = "serif",colour = "black"), 
+                    plot.title = element_text(family = "serif", hjust = 0.5,size=14), 
+                    legend.text = element_text(family = "serif"),
+                    legend.title = element_text(family = "serif"),
+                    legend.key = element_rect(fill = NA), 
+                    legend.background = element_rect(fill = NA),
+                    legend.direction = "horizontal",
+                    legend.position = 'bottom',
+                    panel.background = element_rect(fill = NA)) +labs(fill = "If Remain")
       )
       
       dev.off()
@@ -914,10 +799,18 @@ shinyServer(function(input,output,session) {
       
       print(p+xlim(draw_x[1]-x_pianyi*5/150, draw_x[2]+x_pianyi*5/150)+
               geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
-              labs(x="Effective sample ratio",y="Number",title = "Screening sample plot",fill = "remain")+
-              theme(axis.title = element_text(size=12),axis.text.x =element_text(size=12), 
-                    axis.text.y=element_text(size=12),panel.background=element_rect(fill='white'),
-                    plot.title = element_text(hjust = 0.5,size = 20,colour = 'black'))
+              labs(title = paste("Group",group,"Genes Filter"))+xlab("Sample Ratio")+ylab('Valid MicroRNA Count')+
+              theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
+                    axis.text.x = element_text(family = "serif",colour = "black"), 
+                    axis.text.y = element_text(family = "serif",colour = "black"), 
+                    plot.title = element_text(family = "serif", hjust = 0.5,size=14), 
+                    legend.text = element_text(family = "serif"),
+                    legend.title = element_text(family = "serif"),
+                    legend.key = element_rect(fill = NA), 
+                    legend.background = element_rect(fill = NA),
+                    legend.direction = "horizontal",
+                    legend.position = 'bottom',
+                    panel.background = element_rect(fill = NA)) +labs(fill = "If Remain")
       )
       
       dev.off()

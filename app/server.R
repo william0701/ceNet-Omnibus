@@ -26,7 +26,7 @@ shinyServer(function(input,output,session) {
   print(paste("Templete File Dictionary:",basepath))
   visual_layout=""
   #load('C:/Users/DELL/Desktop/single-cell/ph3.RData',envir=environment())
-  load('testdata/ph1.RData',envir = environment())
+  #load('testdata/ph1.RData',envir = environment())
   # rna.exp<<-rna.exp
   # geneinfo<<-geneinfo
   # micro.exp<<-micro.exp
@@ -407,9 +407,9 @@ shinyServer(function(input,output,session) {
       #sep=msg$sep
       group=msg$group
       exist=msg$exist
-      value=msg$value
+      value=as.numeric(msg$value)
       direction=msg$direction
-      thresh=msg$thresh
+      thresh=as.numeric(msg$thresh)
     })
     
     if(group=="micro_invalid_name")
@@ -582,6 +582,8 @@ shinyServer(function(input,output,session) {
       group=msg$group
       line=msg$line
       line=as.numeric(line)
+      thresh=as.numeric(msg$thresh)
+      direction=msg$direction
     })
     
     if(group=="sample_Group_micro_invalid_name_panel"){

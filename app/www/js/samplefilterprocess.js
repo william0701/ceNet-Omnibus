@@ -106,6 +106,7 @@ slice=function(e){
     obj['stamp']=Math.random();
     obj['group']=$(e).attr("id");
     obj['line']=slider;
-    obj['direction']==$(e+">:nth-child(4)").children("div").children("input").data("from")
+    obj['direction']=$(e+">:nth-child(4)").find('select').select2('val')
+    obj['thresh']=$(e+">:nth-child(4)").children('div:nth-child(2)').find('input').val()
     Shiny.setInputValue('Sample_Slice_Signal',obj);
   }

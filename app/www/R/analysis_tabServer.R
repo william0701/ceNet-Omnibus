@@ -41,9 +41,6 @@ create_property_box=function(type,id)
   return(ui)
 }
 
-
-
-
 cluster_mcl=function(graph,expansion=2,inflation=2,allow1=F,max.iter=100)
 {
   community=mcl(as.matrix(as_adjacency_matrix(graph,type='both')),addLoops = T,expansion = expansion,inflation = inflation,allow1 = allow1,max.iter = max.iter)
@@ -305,8 +302,8 @@ create_progress=function(msg,id=paste("#",as.numeric(Sys.time()),"_progress",sep
 create_alert_box=function(header,msg,class){
   ui=div(class=paste("alert alert-info alert-dismissible",class),
          h4(tags$i(class="icon fa fa-info"),HTML(header)),
-         HTML(msg)
-         )
+         HTML(msg)         
+    )
   return(ui)
 }
 
@@ -314,9 +311,37 @@ km.analysis=function(data,time,status,factor)
 {
   surv_obj=Surv(data[,time],data[,status])
   fit=do.call(what = survfit,args = list(formula=as.formula(paste("surv_obj~",factor,sep="")), data = data))
+  p.val <-surv_pvalue(fit)$pval.txt
+  group=unique(data$group)
+  group.color=c(usedcolors[5],usedcolors[3])
+  names(group.color)=group
+  
   p=ggsurvplot(fit = fit,pval = T)
+  pp=ggplot_build(p$plot)
+  
+  coor_x=get('limits',envir = pp$layout$coord)$x
+  
+  text=data.frame(text=p.val,x=(coor_x[2]-coor_x[1])/8,y=0.25,stringsAsFactors = F)
+  p$plot$data$strata=as.character(p$plot$data$group)
+  p$plot=ggplot(data = p$plot$data)+geom_path(mapping = aes(x=time,y =surv,colour=strata),size=1.1)+
+    geom_point(mapping = aes(x=time,y = surv,fill=strata,colour=strata),size=5,shape='+')+
+    xlab('Time')+ylab('Survival probability')+ylim(0,1)+xlim(coor_x)+
+    scale_color_manual(values=group.color)+
+    geom_text(mapping = aes(x = x,y = y,label=text),data = text,size=5,inherit.aes = F)+
+    theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
+          axis.text.x = element_text(family = "serif",colour = "black"), 
+          axis.text.y = element_text(family = "serif",colour = "black"), 
+          plot.title = element_text(family = "serif", hjust = 0.5,size=14), 
+          legend.text = element_text(family = "serif"),
+          legend.title = element_text(family = "serif"),
+          legend.key = element_rect(fill = NA), 
+          legend.background = element_rect(fill = NA),
+          legend.direction = "horizontal",
+          legend.position = 'bottom',
+          panel.background = element_rect(fill = NA))
   return(p)
 }
+
 cox.analysis=function(session,clinical,exp,time,status,ifgroup,gene,external_continous,
                       external_categorical,strata_factor,single_grouped=F)
 {
@@ -449,7 +474,7 @@ create_survival_result_box=function(session,label,id,model)
   box=div(class="col-lg-6 col-md-12",
           div(class="box box-primary",id=paste(id,model,sep="_"),
               div(class="box-header with-border",
-                  h4(label)
+                  h4(label,downloadButton(outputId =paste(id,'_survival_export',sep=""),label = "Export",onclick=paste('export_survival_plot("',id,'","km_analysis")',sep="")))
               ),
               div(class="box-body",
                   div(class="box-group",id=paste(id,model,"group",sep="_"),

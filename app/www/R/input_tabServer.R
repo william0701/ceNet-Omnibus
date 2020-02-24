@@ -61,12 +61,12 @@ select.gene=""
 # ## ensemblObj：保存ensembl需要的变量
 ensembl=""#useMart(biomart='ensembl',dataset = 'hsapiens_gene_ensembl',host='www.ensembl.org',ensemblRedirect=F)
 archieves=""#listEnsemblArchives()
-specials=""#listDatasets(ensembl)
+# specials=""#listDatasets(ensembl)
 filters=""#listFilters(ensembl)
 attributions=""#listAttributes(ensembl)
 currentSpecial=""#"hsapiens_gene_ensembl"
 currentURL=""#"www.ensembl.org"
 select.gene=""#""
-specials<<-readRDS("testdata/specials.RDate")#listDatasets(ensembl)
+specials=readRDS("testdata/specials.RDate")#listDatasets(ensembl)
 
 # #Input Page Action

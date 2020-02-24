@@ -30,7 +30,7 @@ $(document).ready(function(){
   
   
   
-  creat_geneFilter("micro filter","microFilterPlot","micro");
+  creat_geneFilter("MicroRNA filter","microFilterPlot","micro");
   $("a[href='#shiny-tab-process']").on("click",function(e){
     Shiny.setInputValue("interclick",Math.random());
     Shiny.addCustomMessageHandler('Valid-Num', function(Num1) {
@@ -136,8 +136,8 @@ $(document).ready(function(){
     Shiny.setInputValue('creatFilter_request',Math.random())
   })
   
-  $('#Sample_Filter_all').append(creat_sampleFilter("Micro RNA Sample Filter","micro_invalid_name"));
-  $('#Sample_Filter_all').append(creat_sampleFilter("Ce RNA Sample Filter","ce_invalid_name"));
+  $('#Sample_Filter_all').append(creat_sampleFilter("MicroRNA Sample Filter","micro_invalid_name"));
+  $('#Sample_Filter_all').append(creat_sampleFilter("CeRNA Sample Filter","ce_invalid_name"));
 })
 create_editor=function(value)
 {

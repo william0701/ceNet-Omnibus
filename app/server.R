@@ -799,7 +799,7 @@ shinyServer(function(input,output,session) {
       
       print(p+xlim(draw_x[1]-x_pianyi*5/150, draw_x[2]+x_pianyi*5/150)+
               geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
-              labs(title = paste("Group",group,"Genes Filter"))+xlab("Sample Ratio")+ylab('Valid MicroRNA Count')+
+              labs(title = paste("Group",group,"Genes Filter"))+xlab("Sample Ratio")+ylab('Valid RNA Count')+
               theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
                     axis.text.x = element_text(family = "serif",colour = "black"), 
                     axis.text.y = element_text(family = "serif",colour = "black"), 

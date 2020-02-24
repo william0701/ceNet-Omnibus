@@ -7,7 +7,7 @@ creat_sampleFilter = function(inputId,inputName)
   var $dabiaoti=$('<h4>'+inputId+'</h4><hr style="margin-top:0px;margin-bottom:0px">')
   /*var $invalid_value=$('<div class="form-group col-lg-6" shiny-input-radiogroup shiny-input-container shiny-input-container-inline shiny-bound-input></div>')*/
   var $invalid_value=$('<div class="form-group col-lg-12"</div>')
-  var $titlevalid = $('<label class="control-label">Invalid Value</label>')
+  //var $titlevalid = $('<label class="control-label">Invalid Value</label>')
   /*var $div1=$('<div class="input-group margin"></div>')*/
   var $div1=$('<div class="row"</div>')
   /*var $shinygroup=$('<div class="shiny-options-group"></div>');*/
@@ -19,7 +19,6 @@ creat_sampleFilter = function(inputId,inputName)
   var $direction_select=$('<select name="example1_length" class="form-control input-sm shiny-bound-input"></select>')
  
   var $direction_select1=$('<option value="<"><</option>')
-  var $direction_select2=$('<option value="=">=</option>')
   var $direction_select3=$('<option value=">">></option>')
   
   var $thresh_label=$('<label class="control-label">Thresh</label>')
@@ -30,7 +29,7 @@ creat_sampleFilter = function(inputId,inputName)
   var $sample_button=$('<button type="button" class="btn btn-danger btn-flat">preview</button>')
   
   $modal.append($dabiaoti).append($invalid_value).append($div1);
-  $invalid_value.append($titlevalid).append($div1);
+  //$invalid_value.append($titlevalid).append($div1);
   //$div1.append($shinygroup).append($button_out);
   $div1.append($col_lg_3_1).append($col_lg_6).append($col_lg_3_margin);
   //$button_out.append($sample_button);
@@ -38,7 +37,7 @@ creat_sampleFilter = function(inputId,inputName)
   
   //$shinygroup.append($checkboxgroup1).append($checkboxgroup2).append($checkboxgroup3).append($checkboxgroup4);
   $col_lg_3_1.append($direction_label).append($direction_select)
-  $direction_select.append($direction_select1).append($direction_select2).append($direction_select3)
+  $direction_select.append($direction_select1).append($direction_select3)
   $direction_select.select2({
     tags:false,
     multiple:false,
@@ -107,5 +106,6 @@ slice=function(e){
     obj['stamp']=Math.random();
     obj['group']=$(e).attr("id");
     obj['line']=slider;
+    obj['direction']==$(e+">:nth-child(4)").children("div").children("input").data("from")
     Shiny.setInputValue('Sample_Slice_Signal',obj);
   }

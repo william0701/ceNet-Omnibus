@@ -75,7 +75,7 @@ process_tab=tabItem(tabName = "process",
                       box(title = "Sample Filter",status = 'danger',solidHeader = F,width = 12,id="Sample_Filter_all"
                       )
                     ),
-                    h2("Step3: Gene Filter",style='font-family:Georgia'),
+                    h2("Step3: Gene Filter(Filter ceRNA please choose group first!)",style='font-family:Georgia'),
                     fluidRow(
                       box(title = "Gene Filter",status = 'danger',solidHeader = F,width = 12,id="Gene_Filter_all"
                       )

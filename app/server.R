@@ -1272,12 +1272,31 @@ shinyServer(function(input,output,session) {
                                 ),
                                 div(class='row',
                                     div(class='col-lg-12',
-                                        textAreaInput(inputId = 'custom_condition_code',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='100%',resize='both')
+                                        div(class='col-lg-6',
+                                            textAreaInput(inputId = 'custom_condition_code',label = 'New Condition Function',rows = 20,placeholder = 'Please paste the calculate function of the new condition...',width='130%',resize='both')
+                                        ),
+                                        div(class='col-lg-6',
+                                            tags$label(class="control-label",HTML("Example")),
+                                            verbatimTextOutput("placeholder_cus", placeholder = TRUE)
+                                        )
                                     )
                                 )
                )
              )
     )
+    example_input = 'MS=function(g1,g2)
+{
+  allset=colnames(target)
+  set1=allset[target[g1,]==1];
+  set2=allset[target[g2,]==1];
+  x=length(intersect(set1,set2));
+  m=length(set2);
+  n=length(setdiff(allset,set2));
+  k=length(set1);
+  pvalue=1-phyper(x-1,m,n,k);
+  return(pvalue)
+}'
+    output$placeholder_cus <- renderText({ example_input })
     session$sendCustomMessage('conditions',condition)
   })
   observeEvent(input$choose_new_condition,{

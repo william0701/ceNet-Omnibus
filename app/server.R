@@ -674,7 +674,7 @@ shinyServer(function(input,output,session) {
       #       )
 
       text1=paste("Thresh:",ratio)
-      text2=paste("Remain:",number_after)
+      text2=paste("This group remain:",number_after)
   
       p=ggplot(xdata,aes(x=SampleRatio,fill=..x..>ratio))+
               geom_histogram(color="black",bins = 100) +
@@ -778,7 +778,7 @@ shinyServer(function(input,output,session) {
       )
       
       text1=paste("Thresh:",ratio)
-      text2=paste("Remain:",number_after)
+      text2=paste("This group remain:",number_after)
       
       p=ggplot(xdata,aes(x=SampleRatio,fill=..x..>ratio))+
         geom_histogram(color="black",bins = 100) +
@@ -868,7 +868,7 @@ shinyServer(function(input,output,session) {
 
     if(type=="micro"){
       validGene=rownames(after_slice_micro.exp)
-      validSample = rowSums(after_slice_micro.exp>=number)
+      validSample = rowSums(after_slice_micro.exp>number)
       xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_micro.exp)),stringsAsFactors = F)
       intersect_name = rownames(xdata)[which(xdata$SampleRatio>line)]
       ratio = sum(xdata$SampleRatio==line)/length(validGene)
@@ -887,7 +887,7 @@ shinyServer(function(input,output,session) {
       #append group gene to after_slice_rna.exp
       validGene = rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
       output_rna.exp = sect_output_rna.exp[validGene,colnames(after_slice_rna.exp)]
-      validSample = rowSums(output_rna.exp>=number)
+      validSample = rowSums(output_rna.exp>number)
       xdata = data.frame(SampleRatio=validSample/length(colnames(output_rna.exp)),stringsAsFactors = F)
       intersect_name = rownames(xdata)[which(xdata$SampleRatio>line)]
       ratio = sum(xdata$SampleRatio==line)/length(validGene)
@@ -899,7 +899,7 @@ shinyServer(function(input,output,session) {
         after_slice_geneinfo<<-sect_output_geneinfo[rownames(after_slice_rna.exp),]
         num1 = length(rownames(after_slice_rna.exp))
         ValidNum = data.frame(rnaNum = length(rownames(after_slice_rna.exp)),stringsAsFactors = F);
-        sendSweetAlert(session = session,title = "Success..",text = paste("Filter Success! Valid ceRNA Remain:",num1),type = 'success')
+        sendSweetAlert(session = session,title = "Success..",text = paste("Filter Success!All Valid ceRNA Remain:",num1),type = 'success')
         session$sendCustomMessage('Valid_valuebox_rna',ValidNum);
       }
       else{

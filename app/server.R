@@ -563,6 +563,7 @@ shinyServer(function(input,output,session) {
           immediate = T
         )
       }
+      
       output$downloadData_rna_sample <- downloadHandler(
         filename = function() {
           return("Rna_sample_filter.svg");

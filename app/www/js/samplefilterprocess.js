@@ -102,7 +102,7 @@ creat_sampleFilter = function(inputId,inputName)
 
 slice=function(e){
     var obj={}
-    var slider=$(e+">:nth-child(4)").children("div").children("input").data("from")
+    var slider=$(e+">:nth-child(5)").children("div").children("input").data("from")
     obj['stamp']=Math.random();
     obj['group']=$(e).attr("id");
     obj['line']=slider;

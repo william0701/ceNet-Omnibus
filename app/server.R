@@ -26,7 +26,7 @@ shinyServer(function(input,output,session) {
   print(paste("Templete File Dictionary:",basepath))
   visual_layout=""
   #load('C:/Users/DELL/Desktop/single-cell/ph3.RData',envir=environment())
-  #load('testdata/ph1.RData',envir = environment())
+  load('testdata/ph1.RData',envir = environment())
   # rna.exp<<-rna.exp
   # geneinfo<<-geneinfo
   # micro.exp<<-micro.exp
@@ -496,7 +496,8 @@ shinyServer(function(input,output,session) {
     
     else if(group=="ce_invalid_name"){
       
-      tmpdata=data.frame(count=colSums(sect_output_rna.exp>thresh)/nrow(sect_output_rna.exp),color='Remove',stringsAsFactors = F)
+      tmpdata=data.frame(count=(colSums(get(direction)(sect_output_rna.exp,thresh)))/nrow(sect_output_rna.exp),
+                         color='Remove',stringsAsFactors = F)
       value=as.numeric(value)
       draw_x<-(max(tmpdata$count)+min(tmpdata$count))/2  
       x2<-quantile(tmpdata$count,value,type=3)
@@ -586,7 +587,9 @@ shinyServer(function(input,output,session) {
       direction=msg$direction
     })
     
+    
     if(group=="sample_Group_micro_invalid_name_panel"){
+      expressgene_num=(colSums(get(direction)(sect_output_micro.exp,thresh)))/nrow(sect_output_micro.exp)
       x2<-quantile(expressgene_num,line,type=3) 
       
       liuxiasum<-length(colnames(sect_output_micro.exp[,which(expressgene_num>x2)]))
@@ -606,6 +609,7 @@ shinyServer(function(input,output,session) {
 
     }
     else{
+      expressgene_num2=(colSums(get(direction)(sect_output_rna.exp,thresh)))/nrow(sect_output_rna.exp)
       x2<-quantile(expressgene_num2,line,type=3) 
       liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num2>x2)]))
       liuxiabaifenbi<-liuxiasum/length(colnames(sect_output_rna.exp))

@@ -2945,6 +2945,7 @@ shinyServer(function(input,output,session) {
                       legend.background = element_rect(fill = NA),
                       legend.direction = "horizontal",
                       legend.position = 'bottom',
+                      legend.key.width=unit(2,'cm'),
                       panel.background = element_rect(fill = NA)) +coord_flip()
             )
           }

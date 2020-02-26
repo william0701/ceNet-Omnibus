@@ -2831,6 +2831,10 @@ shinyServer(function(input,output,session) {
     })
 
     removeUI(selector = '#all_enrichment_show>',immediate = T,multiple = T)
+    # removeUI(selector = "#module_info_box>",multiple = T,immediate = T)
+    # removeUI(selector = "#module_visualization>",multiple = T,immediate = T)
+    insertUI(selector = "#all_enrichment_show",where = 'beforeEnd',ui = create_progress(paste0("Running ",choose_analysis_tool,"...")),immediate = T)
+    
     
     if(choose_analysis_gene=="Custom_Gene"){
       gene_set=strsplit(x=Custom_input_gene,split = '\n')
@@ -2876,6 +2880,10 @@ shinyServer(function(input,output,session) {
         }
       }
     }
+    removeUI(selector = "#all_enrichment_show>",immediate = T,multiple = T)
+    # insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = create_alert_box(header="Tips",msg="The <i>Module0</i> is consisted of all isolated nodes",class="col-lg-4"),immediate = T)
+    # insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "moduleInfoTable"),immediate = T)
+    
     
     for(set_id in names(gene_set)){
       insertUI(

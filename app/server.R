@@ -272,6 +272,8 @@ shinyServer(function(input,output,session) {
     else{
       if(FLAGS[['reintersect']]){
         FLAGS[['reintersect']]=F
+        
+        
         sect_gene=intersect(rownames(rna.exp),rownames(target));
         sect_gene=intersect(sect_gene,rownames(geneinfo));
         sect_micro=intersect(rownames(micro.exp),names(target));
@@ -599,7 +601,7 @@ shinyServer(function(input,output,session) {
         after_slice_micro.exp<<-sect_output_micro.exp[,which(expressgene_num>x2)]
         intersect_sample_num<-length(intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))) 
         sendSweetAlert(session = session,title = "Success..",text =paste0("Filter Ok! Sample Remain: ",intersect_sample_num) ,type = 'success')
-        ValidNum = data.frame(sampleNum = length(colnames(after_slice_micro.exp)),stringsAsFactors = F);
+        ValidNum = data.frame(sampleNum = intersect_sample_num,stringsAsFactors = F);
         session$sendCustomMessage('Valid_valuebox_sample',ValidNum);
       }
       else{
@@ -618,7 +620,7 @@ shinyServer(function(input,output,session) {
         after_slice_rna.exp<<-sect_output_rna.exp[,which(expressgene_num2>x2)]
         intersect_sample_num<-length(intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))) 
         sendSweetAlert(session = session,title = "Success..",text =paste0("Filter Ok! Sample Remain: ",intersect_sample_num) ,type = 'success')
-        ValidNum = data.frame(sampleNum = length(colnames(after_slice_rna.exp)),stringsAsFactors = F);
+        ValidNum = data.frame(sampleNum = intersect_sample_num,stringsAsFactors = F);
         session$sendCustomMessage('Valid_valuebox_sample',ValidNum);
       }
       else{
@@ -644,7 +646,9 @@ shinyServer(function(input,output,session) {
       number=as.numeric(msg$number)
       exist=msg$exist
       line=msg$line
+      test = msg$testsome
     })
+    browser()
     #paint picture
     if(type=="micro"){  
       after_slice_micro.exp<<- sect_output_micro.exp[,colnames(after_slice_micro.exp)]
@@ -656,7 +660,7 @@ shinyServer(function(input,output,session) {
       temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
       draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2
       number_ori=length(validGene)
-      number_after=(1-ypoint)*number_ori
+      number_after=length(which(xdata$SampleRatio>ratio))
       x1 = min(xdata$SampleRatio)+0.2*max(xdata$SampleRatio)+min(xdata$SampleRatio)
       text_to_plot=data.frame(x=c(x1,x1),y=c(0.95,0.90),col=c("blue","blue"),text=c(paste("Original genes:",number_ori),paste("After seg:",number_after)))
       ypoint =round(ypoint,2)
@@ -752,7 +756,6 @@ shinyServer(function(input,output,session) {
       
     }
     else{
-      
       validGene=rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
       validSample = rowSums(sect_output_rna.exp[validGene,]>=number)
       ratio=as.numeric(line)
@@ -761,7 +764,8 @@ shinyServer(function(input,output,session) {
       temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
       draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2
       number_ori=length(validGene)
-      number_after=(1-ypoint)*number_ori
+      
+      number_after=length(which(xdata$SampleRatio>ratio))
       ypoint =round(ypoint,2)
       svg(filename = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),family = 'serif')
       x1 = min(xdata$SampleRatio)+0.2*max(xdata$SampleRatio)+min(xdata$SampleRatio)
@@ -885,6 +889,7 @@ shinyServer(function(input,output,session) {
     }
     else{
       #append group gene to after_slice_rna.exp
+      browser()
       validGene = rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
       output_rna.exp = sect_output_rna.exp[validGene,colnames(after_slice_rna.exp)]
       validSample = rowSums(output_rna.exp>number)

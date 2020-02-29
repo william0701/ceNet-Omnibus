@@ -2,21 +2,22 @@ var rna_log_transform = ""
 var rna_norm_transform = ""
 var micro_log_transform = ""
 var micro_norm_transform = ""
+var gene_slice ={}
 $(document).ready(function(){
-  creat_logtrans_button("log2","log2transform","Log2 conversion of gene expression data");
-  creat_logtrans_button("log","logtransform","Log conversion of gene expression data");
-  creat_logtrans_button("log10","log10transform","Log10 conversion of gene expression data");
-  creat_logtrans_button_micro("log2","log2transform","Log2 conversion of gene expression data");
-  creat_logtrans_button_micro("log","logtransform","Log conversion of gene expression data");
-  creat_logtrans_button_micro("log10","log10transform","Log10 conversion of gene expression data");
+  creat_logtrans_button("log2","log2_trans","Log2 conversion of gene expression data");
+  creat_logtrans_button("log","loge_trans","Loge conversion of gene expression data");
+  creat_logtrans_button("log10","log10_trans","Log10 conversion of gene expression data");
+  creat_logtrans_button_micro("log2","log2_trans","Log2 conversion of gene expression data");
+  creat_logtrans_button_micro("log","loge_trans","Loge conversion of gene expression data");
+  creat_logtrans_button_micro("log10","log10_trans","Log10 conversion of gene expression data");
   creat_normtrans_button("Min_Max_scaling","Min_Max_scaling","Do Min-max normalization By x* = (x - x_mean)/(x_max - x_min)");
   creat_normtrans_button("Zero_Mean_normalization","Zero_Mean","The processed data conforms to the standard normal distribution By x*=(x - mean)/Standard deviation");
   creat_normtrans_button_custom("Custom_input","Custom","custom input a function");
   creat_normtrans_button_micro("Min_Max_scaling","Min_Max_scaling","Do Min-max normalization By x* = (x - x_mean)/(x_max - x_min)");
   creat_normtrans_button_micro("Zero_Mean_normalization","Zero_Mean","The processed data conforms to the standard normal distribution By x*=(x - mean)/Standard deviation");
   creat_normtrans_button_micro_custom("Custom_input","Custom","custom input a function");
-  var $button_ce_action =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>Action</a>')
-  var $button_ce_cancel =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>Cancel</a>')
+  var $button_ce_action =$('<a class="btn btn-app btn-info" style="margin:5px;color:green"><i class="fa fa-play"></i>Action</a>')
+  var $button_ce_cancel =$('<a class="btn btn-app btn-info" style="margin:5px;color:red"><i class="fa fa-play"></i>Cancel</a>')
   $("#ceRNA_choose_transfunction").children(":nth-child(4)").append($button_ce_action).append($button_ce_cancel);
   $button_ce_action.on('click',function(e){
     var obj={}
@@ -38,8 +39,8 @@ $(document).ready(function(){
     }
     
   })
-  var $button_micro_action =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>Action</a>')
-  var $button_micro_cancel =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>Cancel</a>')
+  var $button_micro_action =$('<a class="btn btn-app btn-info" style="margin:5px;color:green"><i class="fa fa-play"></i>Action</a>')
+  var $button_micro_cancel =$('<a class="btn btn-app btn-info" style="margin:5px;color:red"><i class="fa fa-play"></i>Cancel</a>')
   $("#microRNA_choose_transfunction").children(":nth-child(4)").append($button_micro_action).append($button_micro_cancel);
   $button_micro_action.on('click',function(e){
     var obj={}
@@ -198,6 +199,7 @@ creat_geneFilter = function(title,inputId,type)
     obj['group']=$(e.currentTarget).parent().prev().attr("id");
     obj['exist']=$(e.currentTarget).parent().prev().attr("exist");
     obj['line']=value;
+    obj['testsome'] = person;
     Shiny.setInputValue('Gene_Filter_Signal',obj);
     $(e.currentTarget).parent().prev().attr("exist","T");
   })

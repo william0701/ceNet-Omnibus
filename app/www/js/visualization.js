@@ -2,6 +2,7 @@ var cy
 var network_group = ""
 var network_group_shape= ""
 var network_select_group=""
+
 $(document).ready(function(){
    $("a[href='#shiny-tab-visualization']").on("click",function(e){
      var obj=Math.random()

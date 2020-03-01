@@ -31,7 +31,7 @@ process_tab=tabItem(tabName = "process",
                     h2("Step1: Gene Grouping",style='font-family:Georgia'),
                     fluidRow(      
                       box(title = "Info Map",status = 'success',solidHeader = F,width = 12,id="Info_Map_all",
-                          footer = c(downloadButton("downloadData_group", "Download"),
+                          footer = div(downloadButton("downloadData_group", "Download"),
                                      tags$button(id = 'biotype_group_statics', type = "button",class = "btn btn-success action-button pull-right",HTML('Preview'),width='20')
                                    ),
                           div(class='col-lg-6',style="padding:0px",

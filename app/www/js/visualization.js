@@ -47,8 +47,8 @@ $(document).ready(function(){
 /*  $("#cy").children("div").css("height","1000px")*/
   
   var $button_change_layout=$('<div class="input-group-btn"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Which label to choose as the layout<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
-  var $button_nameChoose=$('<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Which Column as Gene Name<span class="fa fa-caret-down"></span></button>')
-  var $ul_nameChoose=$('<ul class="dropdown-menu"></ul>')
+  var $button_nameChoose=$('<div class="input-group-btn"><button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Which Column as Gene Name<span class="fa fa-caret-down"></span></button></div>')
+  var $ul_nameChoose=$('<ul class="dropdown-menu"></ul></div>')
   var $button_change_color=$('<div class="input-group-btn"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Which label to choose as the gene type<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
   var $button_change_shape=$('<div class="input-group-btn"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Which label to choose as the gene type<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
   var $network_p = $('<div class="form-group"><h4 style="font-family:Georgia;font-weight:bold">choose network color </h4></div>')
@@ -71,7 +71,8 @@ $(document).ready(function(){
     create_net_layout(layout_name[i])
   }
   $("#change_network_color").append($network_p)
-  $("#choose_differ_name").append($button_nameChoose).append($ul_nameChoose)
+  $("#choose_differ_name").append($button_nameChoose)
+  $button_nameChoose.append($ul_nameChoose)
   $("#change_network_shape").append($network_color_p)
   $network_p.append($button_change_color)
   $network_color_p.append($button_change_shape)
@@ -106,7 +107,7 @@ create_net_layout = function(name){
 creat_changeName = function(name){
   var $li =$('<li></li>')
   var $a =$('<a>'+name+'</a>')
-  $('#choose_differ_name').children('ul').append($li)
+  $('#choose_differ_name').find('ul').append($li)
   $li.append($a)
   $li.on("click",function(e){
     $('#choose_differ_name').children('button').html(name)

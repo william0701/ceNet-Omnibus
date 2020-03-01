@@ -80,8 +80,13 @@ process_tab=tabItem(tabName = "process",
                     ),
                     h2("Step3: Gene Filter(Filter ceRNA please choose group first!)",style='font-family:Georgia'),
                     fluidRow(
-                      box(title = "Gene Filter",status = 'danger',solidHeader = F,width = 12,id="Gene_Filter_all"
-                      )
+                      box(title = "Gene Filter",status = 'danger',solidHeader = F,width = 12,id="Gene_Filter_all",
+                          footer =div(
+                            downloadButton("downloadData_gene", "Download"),
+                            tags$button(id = 'gene_slice_all', type = "button",class = "btn btn-success action-button pull-right",HTML('Filter'),width='20')
+                          )
+                          
+                      ),
                     ),
                     h2("Step4: Value Transformation",style='font-family:Georgia'),
                     fluidRow(

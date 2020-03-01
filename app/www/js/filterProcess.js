@@ -2,7 +2,14 @@ var rna_log_transform = ""
 var rna_norm_transform = ""
 var micro_log_transform = ""
 var micro_norm_transform = ""
+
 $(document).ready(function(){
+  //slice button
+  $("#gene_slice_all").on('click',function(e){
+    var obj = {}
+    obj['stamp'] = Math.random();
+    Shiny.setInputValue('Gene_Slice_Signal',obj);
+  })
   creat_logtrans_button("log2","log2transform","Log2 conversion of gene expression data");
   creat_logtrans_button("log","logtransform","Log conversion of gene expression data");
   creat_logtrans_button("log10","log10transform","Log10 conversion of gene expression data");
@@ -15,8 +22,8 @@ $(document).ready(function(){
   creat_normtrans_button_micro("Min_Max_scaling","Min_Max_scaling","Do Min-max normalization By x* = (x - x_mean)/(x_max - x_min)");
   creat_normtrans_button_micro("Zero_Mean_normalization","Zero_Mean","The processed data conforms to the standard normal distribution By x*=(x - mean)/Standard deviation");
   creat_normtrans_button_micro_custom("Custom_input","Custom","custom input a function");
-  var $button_ce_action =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>Action</a>')
-  var $button_ce_cancel =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>Cancel</a>')
+  var $button_ce_action =$('<a class="btn btn-app btn-info" style="margin:5px;color:green"><i class="fa fa-play"></i>Action</a>')
+  var $button_ce_cancel =$('<a class="btn btn-app btn-info" style="margin:5px;color:red"><i class="fa fa-play"></i>Cancel</a>')
   $("#ceRNA_choose_transfunction").children(":nth-child(4)").append($button_ce_action).append($button_ce_cancel);
   $button_ce_action.on('click',function(e){
     var obj={}
@@ -38,8 +45,8 @@ $(document).ready(function(){
     }
     
   })
-  var $button_micro_action =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>Action</a>')
-  var $button_micro_cancel =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>Cancel</a>')
+  var $button_micro_action =$('<a class="btn btn-app btn-info" style="margin:5px;color:green"><i class="fa fa-play"></i>Action</a>')
+  var $button_micro_cancel =$('<a class="btn btn-app btn-info" style="margin:5px;color:red"><i class="fa fa-play"></i>Cancel</a>')
   $("#microRNA_choose_transfunction").children(":nth-child(4)").append($button_micro_action).append($button_micro_cancel);
   $button_micro_action.on('click',function(e){
     var obj={}
@@ -342,23 +349,23 @@ creat_normtrans_button_micro_custom = function(opera,input,tip){
   })
 }
 //qiefen
-
+/*
 slice_gene=function(e){
     var number=$(e).children("div").children("div").find(".form-control").val();
     var obj={}
     var slider=$(e+">:nth-child(4)").children("div").children("input").data("from")
     obj['stamp']=Math.random();
-    obj['first']=$(e).children("div").children("div").find(".form-control").attr("first");
     obj['type']=$(e).children("div").children("div").find(".form-control").attr("GeneType");
     obj['number']=number;
     obj['group']=$(e).attr("id");
     obj['line']=slider;
     Shiny.setInputValue('Gene_Slice_Signal',obj);
   }
+  */
 Shiny.addCustomMessageHandler('gene_type_infomation',function(msg){
   var len=msg.group.length;
   //$('#gene_Group_microFilterPlot_panel').nextAll().remove();
   for(var i=0;i<len;i++){
-     creat_geneFilter("ceRNA Filter--Group: "+msg.group[i],msg.group[i],"Rna");
+     creat_geneFilter("RNA Filter For Group:"+msg.group[i],msg.group[i],"Rna");
   }
 });

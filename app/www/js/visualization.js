@@ -46,11 +46,11 @@ $(document).ready(function(){
   })
 /*  $("#cy").children("div").css("height","1000px")*/
   
-  var $button_change_layout=$('<div class="input-group-btn"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Which label to choose as the layout<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
-  var $button_nameChoose=$('<div class="input-group-btn"><button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Which Column as Gene Name<span class="fa fa-caret-down"></span></button></div>')
+  var $button_change_layout=$('<div class="input-group-btn"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Select Layout<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
+  var $button_nameChoose=$('<div class="input-group-btn"><button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Name Mapping<span class="fa fa-caret-down"></span></button></div>')
   var $ul_nameChoose=$('<ul class="dropdown-menu"></ul></div>')
-  var $button_change_color=$('<div class="input-group-btn"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Which label to choose as the gene type<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
-  var $button_change_shape=$('<div class="input-group-btn"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Which label to choose as the gene type<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
+  var $button_change_color=$('<div class="input-group-btn"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Color Mapping<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
+  var $button_change_shape=$('<div class="input-group-btn"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Shape Mapping<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
   var $network_p = $('<div class="form-group"><h4 style="font-family:Georgia;font-weight:bold">choose network color </h4></div>')
   var $network_color_p =$('<div class="form-group"><h4 style="font-family:Georgia;font-weight:bold">choose network   shape</h4></div>')
   var $network_select_button=$('<div class="input-group-btn open"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Choose label<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')

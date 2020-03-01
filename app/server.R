@@ -322,11 +322,11 @@ shinyServer(function(input,output,session) {
     invalidchoice=names(choicenum)[which(choicenum>typeLimit)]
     if(biotype_map=="None")
     {
-      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Which Column is Gene Biotype?',choices = choice,selected = names(sort(choicenum))[1],inline=T,prettyOptions=list(shape='round',status='success'))
+      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Mapping Columns',choices = choice,selected = names(sort(choicenum))[1],inline=T,prettyOptions=list(shape='round',status='success'))
     }
     else
     {
-      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Which Column is Gene Biotype?',choices = choice,selected = biotype_map,inline=T,prettyOptions=list(shape='round',status='success'))
+      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Mapping Columns',choices = choice,selected = biotype_map,inline=T,prettyOptions=list(shape='round',status='success'))
     }
     session$sendCustomMessage('invalidColumn',data.frame(choice=invalidchoice,stringsAsFactors = F))
   })

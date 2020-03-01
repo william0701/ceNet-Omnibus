@@ -2984,7 +2984,7 @@ shinyServer(function(input,output,session) {
           if(choose_show=="bar_plot"){
             print(
               ggplot(plotdata,aes(x=factor(term_name,levels = plotdata$term_name),y=p_value,fill=recall))+
-                geom_bar(stat = "identity")+labs(y="-log(P)",x="Term Name",title = paste(set_id,"enriched in",ss))+
+                geom_bar(stat = "identity")+labs(y="-log(P)",x="Term Name",title = paste(set_id,"enriched in",ss),fill="Recall")+
                 theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
                       axis.text.x = element_text(family = "serif",colour = "black"), 
                       axis.text.y = element_text(family = "serif",colour = "black"), 

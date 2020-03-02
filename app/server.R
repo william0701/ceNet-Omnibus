@@ -322,11 +322,11 @@ shinyServer(function(input,output,session) {
     invalidchoice=names(choicenum)[which(choicenum>typeLimit)]
     if(biotype_map=="None")
     {
-      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Which Column is Gene Biotype?',choices = choice,selected = names(sort(choicenum))[1],inline=T,prettyOptions=list(shape='round',status='success'))
+      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Mapping Columns',choices = choice,selected = names(sort(choicenum))[1],inline=T,prettyOptions=list(shape='round',status='success'))
     }
     else
     {
-      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Which Column is Gene Biotype?',choices = choice,selected = biotype_map,inline=T,prettyOptions=list(shape='round',status='success'))
+      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Mapping Columns',choices = choice,selected = biotype_map,inline=T,prettyOptions=list(shape='round',status='success'))
     }
     session$sendCustomMessage('invalidColumn',data.frame(choice=invalidchoice,stringsAsFactors = F))
   })
@@ -732,7 +732,7 @@ shinyServer(function(input,output,session) {
       temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
       draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2
       number_ori=length(validGene)
-      number_after=(1-ypoint)*number_ori
+      number_after=length(which(xdata$SampleRatio>ratio))
       x1 = min(xdata$SampleRatio)+0.2*max(xdata$SampleRatio)+min(xdata$SampleRatio)
       text_to_plot=data.frame(x=c(x1,x1),y=c(0.95,0.90),col=c("blue","blue"),text=c(paste("Original genes:",number_ori),paste("After seg:",number_after)))
       ypoint =round(ypoint,2)
@@ -767,7 +767,22 @@ shinyServer(function(input,output,session) {
       }
       
       print(p+xlim(draw_x[1]-x_pianyi*5/150, draw_x[2]+x_pianyi*5/150)+
-              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
+              labs(title = "MicroRNA Filter")+
+              xlab("Sample Ratio")+ylab('Valid MicroRNA Count')+
+              theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
+                    axis.text.x = element_text(family = "serif",colour = "black"), 
+                    axis.text.y = element_text(family = "serif",colour = "black"), 
+                    plot.title = element_text(family = "serif", hjust = 0.5,size=14), 
+                    legend.text = element_text(family = "serif"),
+                    legend.title = element_text(family = "serif"),
+                    legend.key = element_rect(fill = NA), 
+                    legend.background = element_rect(fill = NA),
+                    legend.direction = "horizontal",
+                    legend.position = 'bottom',
+                    panel.background = element_rect(fill = NA)) +labs(fill = "If Remain")
+       
+       )
       
       dev.off()
       #file.copy(from = paste(basepath,"Plot","microStatistic.svg",sep = "/"),to = paste('www/templePlot/microStatistic',session$token,'.svg',sep = ""))
@@ -814,7 +829,7 @@ shinyServer(function(input,output,session) {
       temp.data=data.frame(x=c(0,ratio),xend=c(ratio,ratio),y=c(ypoint,0),yend=c(ypoint,ypoint),stringsAsFactors = F)
       draw_x<-(max(xdata$SampleRatio)+min(xdata$SampleRatio))/2
       number_ori=length(validGene)
-      number_after=(1-ypoint)*number_ori
+      number_after=length(which(xdata$SampleRatio>ratio))
       ypoint =round(ypoint,2)
       svg(filename = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),family = 'serif')
       x1 = min(xdata$SampleRatio)+0.2*max(xdata$SampleRatio)+min(xdata$SampleRatio)
@@ -850,7 +865,20 @@ shinyServer(function(input,output,session) {
       }
       
       print(p+xlim(draw_x[1]-x_pianyi*5/150, draw_x[2]+x_pianyi*5/150)+
-              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif'))
+              geom_text(mapping = aes(x = x,y = y,label=label),data=text,size=6,family='serif')+
+              labs(title = paste("Group",group,"Genes Filter"))+xlab("Sample Ratio")+ylab('Valid RNA Count')+
+              theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
+                    axis.text.x = element_text(family = "serif",colour = "black"), 
+                    axis.text.y = element_text(family = "serif",colour = "black"), 
+                    plot.title = element_text(family = "serif", hjust = 0.5,size=14), 
+                    legend.text = element_text(family = "serif"),
+                    legend.title = element_text(family = "serif"),
+                    legend.key = element_rect(fill = NA), 
+                    legend.background = element_rect(fill = NA),
+                    legend.direction = "horizontal",
+                    legend.position = 'bottom',
+                    panel.background = element_rect(fill = NA)) +labs(fill = "If Remain")
+      )
       
       
       dev.off()
@@ -897,7 +925,9 @@ shinyServer(function(input,output,session) {
     #   line = msg$line
     #   line = as.numeric(line)
     # })
-    browser()
+
+    finnal = TRUE
+
     if(length(gene_filter_choose)==0){
       sendSweetAlert(session = session,title = "Warning..",text = 'Please click one preview at least!..',type = 'warning')
       
@@ -921,7 +951,9 @@ shinyServer(function(input,output,session) {
             
           }
           else{
-            sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value please choose again',type = 'warning')
+            sendSweetAlert(session = session,title = "Warning..",text = 'Group micro:Invlid value please choose again',type = 'warning')
+            finnal =FALSE
+            break
           }
         }
         else{
@@ -942,23 +974,32 @@ shinyServer(function(input,output,session) {
             #sendSweetAlert(session = session,title = "Success..",text = paste("Filter Success! Valid ceRNA Remain:",num1),type = 'success')
           }
           else{
-            sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value please choose again',type = 'warning')
+            sendSweetAlert(session = session,title = "Warning..",text = paste("Group ",type,":Invlid value please choose again",sep = ""),type = 'warning')
+            finnal = FALSE
+            break
           }
         }
       }
-      num1 = length(rownames(after_slice_micro.exp))
-      num2 = length(rownames(after_slice_rna.exp))
+      if(finnal){
+        num1 = length(rownames(after_slice_micro.exp))
+        num2 = length(rownames(after_slice_rna.exp))
+        
+        sect_name = intersect(rownames(after_slice_micro.exp),rownames(after_slice_rna.exp))
+        after_slice_micro.exp <<- after_slice_micro.exp[sect_name,]
+        after_slice_rna.exp <<-after_slice_rna.exp[sect_name,]
+        sendSweetAlert(session = session,title = "Success..",text = tags$h4(HTML(paste("Filter Success!\nValid microRNA Remain:",num1,"   Valid ceRNA Remain:",num2,"   Final number after intersect is:",length(sect_name),sep = ""))),type = 'success',html = T)
+        
+        ValidNum1 = data.frame(microNum = length(sect_name),stringsAsFactors = F);
+        ValidNum2 = data.frame(rnaNum = length(sect_name),stringsAsFactors = F);
+        
+        session$sendCustomMessage('Valid_valuebox_micro',ValidNum1);
+        session$sendCustomMessage('Valid_valuebox_rna',ValidNum2);
+      }else{
+        after_slice_micro.exp <<- sect_output_micro.exp[,colnames(after_slice_micro.exp)]
+        after_slice_rna.exp <<- sect_output_rna.exp[,colnames(after_slice_rna.exp)]
+        
+      }
       
-      sect_name = intersect(rownames(after_slice_micro.exp),rownames(after_slice_rna.exp))
-      after_slice_micro.exp <<- after_slice_micro.exp[sect_name,]
-      after_slice_rna.exp <<-after_slice_rna.exp[sect_name,]
-      sendSweetAlert(session = session,title = "Success..",text = tags$h4(HTML(paste("Filter Success!\nValid microRNA Remain:",num1,"   Valid ceRNA Remain:",num2,"   Final number after intersect is:",length(sect_name),sep = ""))),type = 'success',html = T)
-      
-      ValidNum1 = data.frame(microNum = length(sect_name),stringsAsFactors = F);
-      ValidNum2 = data.frame(rnaNum = length(sect_name),stringsAsFactors = F);
-      
-      session$sendCustomMessage('Valid_valuebox_micro',ValidNum1);
-      session$sendCustomMessage('Valid_valuebox_rna',ValidNum2);
     }
     
     #   list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")),height="100%",width="100%")    

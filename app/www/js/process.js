@@ -266,7 +266,7 @@ Shiny.addCustomMessageHandler('update_candidate_biotype',function(msg){
   addGroup('Default',true);
   
   $('#candidate_biotype').empty();
-  $('#candidate_biotype').append($('<div class="header">Candidate Biotypes</div>'))
+  $('#candidate_biotype').append($('<div class="header">Candidate Items</div>'))
   $("#candidate_biotype").append($('<ul style="list-style:none;padding:0px"></ul>'));
   for(var biotype in remain)
   {

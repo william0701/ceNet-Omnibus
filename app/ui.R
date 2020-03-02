@@ -72,7 +72,11 @@ process_tab=tabItem(tabName = "process",
                     ,
                     h2("Step2: Sample Filter",style='font-family:Georgia'),
                     fluidRow(
-                      box(title = "Sample Filter",status = 'danger',solidHeader = F,width = 12,id="Sample_Filter_all"
+                      box(title = "Sample Filter",status = 'danger',solidHeader = F,width = 12,id="Sample_Filter_all",
+                          footer =div(
+                            downloadButton("downloadData_sample", "Download"),
+                            tags$button(id = 'sample_slice_all', type = "button",class = "btn btn-success action-button pull-right",HTML('Filter'),width='20')
+                          )
                       )
                     ),
                     h2("Step3: Gene Filter(Filter ceRNA please choose group first!)",style='font-family:Georgia'),

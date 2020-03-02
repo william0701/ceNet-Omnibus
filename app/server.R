@@ -926,6 +926,7 @@ shinyServer(function(input,output,session) {
         sect_name = intersect(rownames(after_slice_micro.exp),rownames(after_slice_rna.exp))
         after_slice_micro.exp <<- after_slice_micro.exp[sect_name,]
         after_slice_rna.exp <<-after_slice_rna.exp[sect_name,]
+        #after_slice_geneinfo <<-sect_output_geneinfo[sect_name,]
         sendSweetAlert(session = session,title = "Success..",text = tags$h4(HTML(paste("Filter Success!\nValid microRNA Remain:",num1,"   Valid ceRNA Remain:",num2,"   Final number after intersect is:",length(sect_name),sep = ""))),type = 'success',html = T)
         
         ValidNum1 = data.frame(microNum = length(sect_name),stringsAsFactors = F);
@@ -936,7 +937,6 @@ shinyServer(function(input,output,session) {
       }else{
         after_slice_micro.exp <<- sect_output_micro.exp[,colnames(after_slice_micro.exp)]
         after_slice_rna.exp <<- sect_output_rna.exp[,colnames(after_slice_rna.exp)]
-        
       }
       
     }
@@ -1155,7 +1155,7 @@ shinyServer(function(input,output,session) {
       gene=intersect(rownames(after_slice_rna.exp),rownames(after_slice_geneinfo))
       after_slice_geneinfo<<-after_slice_geneinfo[gene,]
       after_slice_rna.exp<<-after_slice_rna.exp[gene,samples]
-      after_slice_micro.exp<<-after_slice_micro.exp[,samples]
+      after_slice_micro.exp<<-after_slice_micro.exp[gene,samples]
     }
   })
   observeEvent(input$add_new_condition,{
@@ -1163,8 +1163,8 @@ shinyServer(function(input,output,session) {
       msg=input$add_new_condition
       core=input$use_core
     })
-    if(R.oo::equals(after_slice_geneinfo,"")){
-      sendSweetAlert(session = session,title = "Error...",text = "Please do this step after the step2",type = 'error')
+    if(dim(after_slice_geneinfo)[1]==0){
+      sendSweetAlert(session = session,title = "Error...",text = "No genetic data here!..",type = 'error')
       return()
     }
     choice=c(condition[which(!condition$used),'abbr'],'custom')
@@ -1600,7 +1600,7 @@ shinyServer(function(input,output,session) {
       do_what =msg$do_what
     })
    
-    if(R.oo::equals(after_slice_rna.exp,"")|R.oo::equals(edgeinfo,"")){
+    if((dim(after_slice_rna.exp)[1]==0) | R.oo::equals(edgeinfo,"")){
       sendSweetAlert(session = session,title = "Error",text = "Please do this step after the step2 and step3",type = 'error')
     }else{
       if(do_what=="layout"){

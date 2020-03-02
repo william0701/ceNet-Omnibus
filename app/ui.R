@@ -146,14 +146,14 @@ visual_tab=tabItem(tabName = "visualization",
                    div(class='row',
                      div(class='col-lg-2',
                       div( id="choose_differ_layout",class="form-group",
-                        h4("choose layout",style="font-family:Georgia;font-weight:bold") 
+                        h4("Choose Layout",style="font-family:Georgia;font-weight:bold") 
                   
                       ),
                       div(class="form-group",id="choose_differ_name",
-                        h4("change gene name",style="font-family:Georgia;font-weight:bold")
+                        h4("Change Gene Name",style="font-family:Georgia;font-weight:bold")
                       ),
                       div(class="form-group",id="export_network_png",
-                          h4("export network",style="font-family:Georgia;font-weight:bold")
+                          h4("Export Network",style="font-family:Georgia;font-weight:bold")
                       )
                     ),
                      div(class='col-lg-3',id='change_network_color'

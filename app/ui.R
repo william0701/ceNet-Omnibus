@@ -4,6 +4,7 @@
 source("www/R/customerUI.R",local = T)
 source('www/R/input_tabUI.R',local = T)
 source('www/R/construct_tabUI.R',local = T)
+source('www/R/visualization_tabUI.R',local = T)
 source('www/R/analysis_tabUI.R',local = T)
 includeScript('www/js/all.js')
 header=dashboardHeader(
@@ -30,15 +31,15 @@ process_tab=tabItem(tabName = "process",
                     ),
                     h2("Step1: Gene Grouping",style='font-family:Georgia'),
                     fluidRow(      
-                      box(title = "Info Map",status = 'success',solidHeader = F,width = 12,id="Info_Map_all",
-                          footer = div(downloadButton("downloadData_group", "Download"),
+                      box(title = "Gene Grouping",status = 'success',solidHeader = F,width = 12,id="Info_Map_all",
+                          footer = list(downloadButton("downloadData_group", "Download"),
                                      tags$button(id = 'biotype_group_statics', type = "button",class = "btn btn-success action-button pull-right",HTML('Preview'),width='20')
                                    ),
                           div(class='col-lg-6',style="padding:0px",
-                              prettyRadioButtons(inputId = 'biotype_map',label = 'Which Column is Gene Biotype',choices = c('None'),selected = 'None',status='success',inline=T,shape = 'round'),
+                              prettyRadioButtons(inputId = 'biotype_map',label = 'Mapping Columns',choices = c('None'),selected = 'None',status='success',inline=T,shape = 'round'),
                               #multiInput(inputId = 'valid_biotype',label = 'Select Used Biotype',choices = c('None'),selected = NULL,options = list(enable_search = T,non_selected_header = "Choose between:",selected_header = "You have selected:")),
                               div(class="form-group",style='padding:0px',
-                                  tags$label(class='control-label',HTML('Group Biotypes')),
+                                  tags$label(class='control-label',HTML('Group Setting')),
                                   div(class='multi-wrapper',
                                       div(class='input-group margin',style='display:table;margin:0px',
                                           div(style='display:table-row',
@@ -56,7 +57,7 @@ process_tab=tabItem(tabName = "process",
                                           div(class='header',HTML('Groups'))
                                       ),
                                       div(class='col-lg-6 non-selected-wrapper',style="height:350px;overflow-y:auto",id='candidate_biotype',
-                                          div(class='header',HTML('Candidate Biotypes'))
+                                          div(class='header',HTML('Candidate Items'))
                                       )
                                   )
                               )
@@ -71,14 +72,17 @@ process_tab=tabItem(tabName = "process",
                       #     downloadButton("downloadData_group", "Download"),
                       #     tags$button(id = 'biotype_group_statics', type = "button",class = "btn btn-success action-button pull-right",HTML('Preview'),width='20')
                       # )
-                    )
-                    ,
+                    ),
                     h2("Step2: Sample Filter",style='font-family:Georgia'),
                     fluidRow(
-                      box(title = "Sample Filter",status = 'danger',solidHeader = F,width = 12,id="Sample_Filter_all"
+                      box(title = "Sample Filter",status = 'danger',solidHeader = F,width = 12,id="Sample_Filter_all",
+                          footer =div(
+                            downloadButton("downloadData_sample", "Download"),
+                            tags$button(id = 'sample_slice_all', type = "button",class = "btn btn-success action-button pull-right",HTML('Filter'),width='20')
+                          )
                       )
                     ),
-                    h2("Step3: Gene Filter(Filter ceRNA please choose group first!)",style='font-family:Georgia'),
+                    h2("Step3: Gene Filter (Filter ceRNA please choose group first!)",style='font-family:Georgia'),
                     fluidRow(
                       box(title = "Gene Filter",status = 'danger',solidHeader = F,width = 12,id="Gene_Filter_all",
                           footer =div(
@@ -86,52 +90,52 @@ process_tab=tabItem(tabName = "process",
                             tags$button(id = 'gene_slice_all', type = "button",class = "btn btn-success action-button pull-right",HTML('Filter'),width='20')
                           )
                           
-                      ),
+                      )
                     ),
                     h2("Step4: Value Transformation",style='font-family:Georgia'),
                     fluidRow(
-                      box(title = "Value Transform",status = 'danger',solidHeader = F,width = 12,id="Value_Transform_all",
+                      box(title = "Value Transformation",status = 'danger',solidHeader = F,width = 12,id="Value_Transform_all",
                           tabsetPanel(
                             tabPanel(title='CeRNA',
                                      div(class="col-lg-12",id="ceRNA_choose_transfunction",
-                                         h2("1.Choose value transform operation"),
+                                         h3("Transform Operations"),
                                          div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                             h3("Logtransform Module",style="text-align:center;")
+                                             h3("Log-Transformation",style="text-align:center;")
                                              
                                              
                                          ),
                                          div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                             h3("Normalized Module",style="text-align:center;")
+                                             h3("Normalization",style="text-align:center;")
                                              
                                          ),
                                          div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                             h3("Action Module",style="text-align:center;")
+                                             h3("Execute",style="text-align:center;")
                                          )
                                      ),
                                      div(class="col-lg-12",id="ceRNA_handson_id",
-                                         h2("2.Part data show")
+                                         h3("Preview")
                                          
                                      )
                                      
                             ),
                             tabPanel(title='MicroRNA',
                                      div(class="col-lg-12",id="microRNA_choose_transfunction",
-                                         h2("1.Choose value transform operation"),
+                                         h3("Transform Operation"),
                                          div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                             h3("Logtransform Module",style="text-align:center;")
+                                             h3("Log-Transformation",style="text-align:center;")
                                              
                                              
                                          ),
                                          div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                             h3("Normalized Module",style="text-align:center;")
+                                             h3("Normalization",style="text-align:center;")
                                              
                                          ),
                                          div(class='btn-group',style="border:1px solid #ccc;margin:20px;",
-                                             h3("Action Module",style="text-align:center;")
+                                             h3("Execute",style="text-align:center;")
                                          )
                                      ),
                                      div(class="col-lg-12",id="microRNA_handson_id",
-                                         h2("2.Part data show")
+                                         h3("Preview")
                                          
                                      )
                             )

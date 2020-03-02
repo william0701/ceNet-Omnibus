@@ -322,11 +322,11 @@ shinyServer(function(input,output,session) {
     invalidchoice=names(choicenum)[which(choicenum>typeLimit)]
     if(biotype_map=="None")
     {
-      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Which Column is Gene Biotype?',choices = choice,selected = names(sort(choicenum))[1],inline=T,prettyOptions=list(shape='round',status='success'))
+      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Mapping Columns',choices = choice,selected = names(sort(choicenum))[1],inline=T,prettyOptions=list(shape='round',status='success'))
     }
     else
     {
-      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Which Column is Gene Biotype?',choices = choice,selected = biotype_map,inline=T,prettyOptions=list(shape='round',status='success'))
+      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Mapping Columns',choices = choice,selected = biotype_map,inline=T,prettyOptions=list(shape='round',status='success'))
     }
     session$sendCustomMessage('invalidColumn',data.frame(choice=invalidchoice,stringsAsFactors = F))
   })
@@ -403,6 +403,9 @@ shinyServer(function(input,output,session) {
       file.copy(from = paste(basepath,"Plot",'ph1.svg',sep="/"),to = file);
     }
   )
+  
+  
+  sample_filter_choose=list()
   observeEvent(input$Sample_Filter,{
     isolate({
       msg=input$Sample_Filter
@@ -416,6 +419,7 @@ shinyServer(function(input,output,session) {
     
     if(group=="micro_invalid_name")
     {
+      # gene_filter_choose['micro'] <<- list(c(number,line))
       tmpdata=data.frame(count=(colSums(get(direction)(sect_output_micro.exp,thresh)))/nrow(sect_output_micro.exp),
                              color='Remove',stringsAsFactors = F)
       draw_x<-(max(tmpdata$count)+min(tmpdata$count))/2  
@@ -426,6 +430,7 @@ shinyServer(function(input,output,session) {
       liuxiasum<-length(which(tmpdata$count>x2))
       text1=paste("Thresh:",round(x2,3))
       text2=paste("Remain:",liuxiasum)
+      sample_filter_choose['micro_invalid_name']<<-list(c(value,direction,thresh,liuxiasum))
       p=ggplot()+
         geom_histogram(data = tmpdata,mapping = aes(x=count,fill=color),color="black",bins = 100) +
         scale_fill_manual(values=c('Remove'="white",'Remain'= "#9b59b6"))+
@@ -472,25 +477,25 @@ shinyServer(function(input,output,session) {
           immediate = T
         )
         
-        insertUI(
-         selector = paste("#","sample_Group_",group,'_panel',sep=""),
-         where='beforeEnd',
-         ui=div(class="box-footer",
-                downloadButton("downloadData_micro_sample", "Download"),
-                tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",
-                            onclick=paste("slice('#","sample_Group_",group,"_panel')",sep=""),
-                            style="margin:5px",height = "100%",HTML("Filter"))),
-         immediate = T
-        )
+        # insertUI(
+        #  selector = paste("#","sample_Group_",group,'_panel',sep=""),
+        #  where='beforeEnd',
+        #  ui=div(class="box-footer",
+        #         downloadButton("downloadData_micro_sample", "Download"),
+        #         tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",
+        #                     onclick=paste("slice('#","sample_Group_",group,"_panel')",sep=""),
+        #                     style="margin:5px",height = "100%",HTML("Filter"))),
+        #  immediate = T
+        # )
       }
-      output$downloadData_micro_sample <- downloadHandler(
-        filename = function() {
-          return("Micro_sample_filter.svg");
-        },
-        content = function(file) {
-          file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),to = file);
-        }
-      )
+      # output$downloadData_micro_sample <- downloadHandler(
+      #   filename = function() {
+      #     return("Micro_sample_filter.svg");
+      #   },
+      #   content = function(file) {
+      #     file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),to = file);
+      #   }
+      # )
       output[[paste(group,'_plot',sep="")]]=renderImage({
         list(src=paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),width="100%",height="100%")
       },deleteFile = F)
@@ -509,6 +514,7 @@ shinyServer(function(input,output,session) {
       liuxiasum<-length(which(tmpdata$count>x2))
       text1=paste("Thresh:",round(x2,3))
       text2=paste("Remain:",liuxiasum)
+      sample_filter_choose['ce_invalid_name']<<-list(c(value,direction,thresh,liuxiasum))
       
       p=ggplot()+
         geom_histogram(data = tmpdata,mapping = aes(x=count,fill=color),color="black",bins = 100) +
@@ -554,26 +560,26 @@ shinyServer(function(input,output,session) {
           immediate = T
         )
         
-        insertUI(
-          selector = paste("#","sample_Group_",group,'_panel',sep=""),
-          where='beforeEnd',
-          ui=div(class="box-footer",
-                 downloadButton("downloadData_rna_sample", "Download"),
-                 tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",
-                             onclick=paste("slice('#","sample_Group_",group,"_panel')",sep=""),
-                             style="margin:5px",height = "100%",HTML("Filter"))),
-          immediate = T
-        )
+        # insertUI(
+        #   selector = paste("#","sample_Group_",group,'_panel',sep=""),
+        #   where='beforeEnd',
+        #   ui=div(class="box-footer",
+        #          downloadButton("downloadData_rna_sample", "Download"),
+        #          tags$button(class = "btn btn-success action-button pull-right shiny-bound-input",
+        #                      onclick=paste("slice('#","sample_Group_",group,"_panel')",sep=""),
+        #                      style="margin:5px",height = "100%",HTML("Filter"))),
+        #   immediate = T
+        # )
       }
       
-      output$downloadData_rna_sample <- downloadHandler(
-        filename = function() {
-          return("Rna_sample_filter.svg");
-        },
-        content = function(file) {
-          file.copy(from = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),to = file);
-        }
-      )
+      # output$downloadData_rna_sample <- downloadHandler(
+      #   filename = function() {
+      #     return("Rna_sample_filter.svg");
+      #   },
+      #   content = function(file) {
+      #     file.copy(from = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),to = file);
+      #   }
+      # )
       output[[paste(group,'_plot',sep="")]]=renderImage({
         list(src=paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),width="100%",height="100%")
       },deleteFile = F)
@@ -581,54 +587,118 @@ shinyServer(function(input,output,session) {
   })
   
   observeEvent(input$Sample_Slice_Signal,{
-    isolate({
-      msg=input$Sample_Slice_Signal
-      group=msg$group
-      line=msg$line
-      line=as.numeric(line)
-      thresh=as.numeric(msg$thresh)
-      direction=msg$direction
-    })
-    
-    
-    if(group=="sample_Group_micro_invalid_name_panel"){
-      expressgene_num=(colSums(get(direction)(sect_output_micro.exp,thresh)))/nrow(sect_output_micro.exp)
-      x2<-quantile(expressgene_num,line,type=3) 
-      
-      liuxiasum<-length(colnames(sect_output_micro.exp[,which(expressgene_num>x2)]))
-      liuxiabaifenbi<-liuxiasum/length(colnames(sect_output_micro.exp))
-      if(abs((1-line)-liuxiabaifenbi)<=0.05){
-        after_slice_micro.exp<<-sect_output_micro.exp[,which(expressgene_num>x2)]
-        intersect_sample_num<-length(intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))) 
-        sendSweetAlert(session = session,title = "Success..",text =paste0("Filter Ok! Sample Remain: ",intersect_sample_num) ,type = 'success')
-        ValidNum = data.frame(sampleNum = intersect_sample_num,stringsAsFactors = F);
-        session$sendCustomMessage('Valid_valuebox_sample',ValidNum);
-      }
-      else{
-        # print("tanchutishi") #tanchutishi..
-        sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value! Please choose again.',type = 'warning')
-        # after_slice_micro.exp<<-sect_output_micro.exp
-      }
-
+    # isolate({
+    #   msg=input$Sample_Slice_Signal
+    #   group=msg$group
+    #   line=msg$line
+    #   line=as.numeric(line)
+    #   thresh=as.numeric(msg$thresh)
+    #   direction=msg$direction
+    # })
+    after_slice_micro.exp<<-sect_output_micro.exp
+    after_slice_rna.exp<<-sect_output_rna.exp
+    if(length(sample_filter_choose)==0){
+      sendSweetAlert(session = session,title = "Warning..",
+                     text = 'Please click one preview at least!..',type = 'warning')
     }
     else{
-      expressgene_num2=(colSums(get(direction)(sect_output_rna.exp,thresh)))/nrow(sect_output_rna.exp)
-      x2<-quantile(expressgene_num2,line,type=3) 
-      liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num2>x2)]))
-      liuxiabaifenbi<-liuxiasum/length(colnames(sect_output_rna.exp))
-      if(abs((1-line)-liuxiabaifenbi)<=0.05){
-        after_slice_rna.exp<<-sect_output_rna.exp[,which(expressgene_num2>x2)]
-        intersect_sample_num<-length(intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))) 
-        sendSweetAlert(session = session,title = "Success..",text =paste0("Filter Ok! Sample Remain: ",intersect_sample_num) ,type = 'success')
-        ValidNum = data.frame(sampleNum = intersect_sample_num,stringsAsFactors = F);
-        session$sendCustomMessage('Valid_valuebox_sample',ValidNum);
+      num1 = length(rownames(sect_output_micro.exp))
+      num2=length(rownames(sect_output_rna.exp))
+      flag_micro=0
+      flag_ce=0
+      for(type in names(sample_filter_choose)){
+        # sample_filter_choose['micro_invalid_name']<<-list(c(value,direction,thresh))
+        line =as.numeric(sample_filter_choose[[type]][1])  
+        direction = sample_filter_choose[[type]][2]
+        thresh=as.numeric(sample_filter_choose[[type]][3]) 
+        
+        if(type=="micro_invalid_name"){
+          expressgene_num=(colSums(get(direction)(sect_output_micro.exp,thresh)))/nrow(sect_output_micro.exp)
+          x2<-quantile(expressgene_num,line,type=3) 
+          
+          liuxiasum<-length(colnames(sect_output_micro.exp[,which(expressgene_num>x2)]))
+          liuxiabaifenbi<-liuxiasum/length(colnames(sect_output_micro.exp))
+          if(abs((1-line)-liuxiabaifenbi)<=0.05){
+            after_slice_micro.exp<<-sect_output_micro.exp[,which(expressgene_num>x2)]
+            num1=liuxiasum
+            # intersect_sample_num<-length(intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))) 
+            # sendSweetAlert(session = session,title = "Success..",text =paste0("Filter Ok! Sample Remain: ",intersect_sample_num) ,type = 'success')
+            # ValidNum = data.frame(sampleNum = intersect_sample_num,stringsAsFactors = F);
+            # session$sendCustomMessage('Valid_valuebox_sample',ValidNum);
+          }
+          else{
+            # print("tanchutishi") #tanchutishi..
+            flag_micro=1
+            # sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value! Please choose again.',type = 'warning')
+            # after_slice_micro.exp<<-sect_output_micro.exp
+          }
+          
+        }
+        else{
+          expressgene_num2=(colSums(get(direction)(sect_output_rna.exp,thresh)))/nrow(sect_output_rna.exp)
+          x2<-quantile(expressgene_num2,line,type=3) 
+          liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num2>x2)]))
+          liuxiabaifenbi<-liuxiasum/length(colnames(sect_output_rna.exp))
+          if(abs((1-line)-liuxiabaifenbi)<=0.05){
+            after_slice_rna.exp<<-sect_output_rna.exp[,which(expressgene_num2>x2)]
+            num2=liuxiasum
+            # intersect_sample_num<-length(intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))) 
+            # sendSweetAlert(session = session,title = "Success..",text =paste0("Filter Ok! Sample Remain: ",intersect_sample_num) ,type = 'success')
+            # ValidNum = data.frame(sampleNum = intersect_sample_num,stringsAsFactors = F);
+            # session$sendCustomMessage('Valid_valuebox_sample',ValidNum);
+          }
+          else{
+            flag_ce=1
+            # sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value please choose again',type = 'warning')
+            # after_slice_rna.exp<<-sect_output_rna.exp  
+          }
+        }
+      }
+      
+      if(flag_micro==1){
+        sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value! Please choose micro_slice again.',type = 'warning')
+      }
+      else if(flag_ce==1){
+        sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value! Please choose ce_slice again.',type = 'warning')
       }
       else{
-        sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value please choose again',type = 'warning')
-        # after_slice_rna.exp<<-sect_output_rna.exp  
+        intersect_sample_num<-length(intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))) 
+        # sendSweetAlert(session = session,title = "Success..",text =paste0("Filter Ok! Sample Remain: ",intersect_sample_num) ,type = 'success')
+        sendSweetAlert(session = session,title = "Success..",
+                       text = tags$h4(HTML(paste("Filter OK!\nValid microRNA Remain:",num1,
+                                                 "   Valid ceRNA Remain:",num2,
+                                                 "   Final number after intersect is:",intersect_sample_num,sep = ""))),
+                       type = 'success',html = T)
+        
+        
+        
+        ValidNum = data.frame(sampleNum = intersect_sample_num,stringsAsFactors = F);
+        session$sendCustomMessage('Valid_valuebox_sample',ValidNum);
+        
       }
+      
     }
+    
+
   })
+  
+  output$downloadData_sample <- downloadHandler(
+    filename = "Sample_filter_picture.zip",
+    content = function(file) {
+      files=c()
+      for(str in names(samole_filter_choose)){
+        if(str=="micro"){
+          files = c(files,paste(basepath,"Plot","microStatistic.svg",sep = "/"))
+        }else{
+          files = c(files,paste(basepath,"/Plot/",str,"Statistic.svg",sep = ""))
+        }
+      }
+      zip(zipfile = file,files = files,flags = "-j")
+      # file.copy(from = paste(basepath,"plot","Gene_filter.zip",sep = "/"),to = file);
+    }
+  )
+  
+  
   observeEvent(input$creatFilter_request,{
     removeUI(selector = "#Gene_Filter_all>:not(:first-child)",immediate = T,multiple = T)
     level=unique(sect_output_geneinfo$.group)
@@ -672,12 +742,6 @@ shinyServer(function(input,output,session) {
                          stringsAsFactors = F
       )
       svg(filename = paste(basepath,"Plot","microStatistic.svg",sep = "/"),family = 'serif')
-      # print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
-      #         geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
-      #         geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
-      #         geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
-      #         geom_text(data = text_to_plot,aes(x = text_to_plot$x,y = text_to_plot$y,label =text_to_plot$text),size =8,colour="blue")
-      #       )
       
       text1=paste("Thresh:",ratio)
       text2=paste("Remain:",number_after)
@@ -770,12 +834,7 @@ shinyServer(function(input,output,session) {
       svg(filename = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),family = 'serif')
       x1 = min(xdata$SampleRatio)+0.2*max(xdata$SampleRatio)+min(xdata$SampleRatio)
       text_to_plot=data.frame(x=c(x1,x1),y=c(0.95,0.90),col=c("blue","blue"),text=c(paste("Original genes:",number_ori),paste("After seg:",number_after)))
-      # print(ggplot(xdata, aes(x = SampleRatio))+stat_ecdf()+
-      #         geom_hline(aes(yintercept=ypoint), colour="#990000", linetype="dashed")+
-      #         geom_vline(aes(xintercept=ratio), colour="#990000", linetype="dashed")+
-      #         geom_point(x=ratio,y=ypoint)+geom_text(label=paste0("(",ratio,",",ypoint,")"),x=draw_x ,y=0,colour = "red",family="serif",size=5)+
-      #         geom_text(data = text_to_plot,aes(x = text_to_plot$x,y = text_to_plot$y,label =text_to_plot$text),size =8,colour="blue")
-      #       )
+      
       xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_micro.exp)),
                          color=as.character(c(xdata$SampleRatio>ratio)),
                          stringsAsFactors = F
@@ -866,7 +925,9 @@ shinyServer(function(input,output,session) {
     #   line = msg$line
     #   line = as.numeric(line)
     # })
+
     finnal = TRUE
+
     if(length(gene_filter_choose)==0){
       sendSweetAlert(session = session,title = "Warning..",text = 'Please click one preview at least!..',type = 'warning')
       

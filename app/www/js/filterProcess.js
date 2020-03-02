@@ -10,20 +10,20 @@ $(document).ready(function(){
     obj['stamp'] = Math.random();
     Shiny.setInputValue('Gene_Slice_Signal',obj);
   })
-  creat_logtrans_button("log2","log2transform","Log2 conversion of gene expression data");
-  creat_logtrans_button("log","logtransform","Log conversion of gene expression data");
-  creat_logtrans_button("log10","log10transform","Log10 conversion of gene expression data");
-  creat_logtrans_button_micro("log2","log2transform","Log2 conversion of gene expression data");
-  creat_logtrans_button_micro("log","logtransform","Log conversion of gene expression data");
-  creat_logtrans_button_micro("log10","log10transform","Log10 conversion of gene expression data");
+  creat_logtrans_button("log2","Log2","Log2 conversion of gene expression data");
+  creat_logtrans_button("log","Loge","Log conversion of gene expression data");
+  creat_logtrans_button("log10","Log10","Log10 conversion of gene expression data");
+  creat_logtrans_button_micro("log2","Log2","Log2 conversion of gene expression data");
+  creat_logtrans_button_micro("log","Loge","Log conversion of gene expression data");
+  creat_logtrans_button_micro("log10","Log10","Log10 conversion of gene expression data");
   creat_normtrans_button("Min_Max_scaling","Min_Max_scaling","Do Min-max normalization By x* = (x - x_mean)/(x_max - x_min)");
   creat_normtrans_button("Zero_Mean_normalization","Zero_Mean","The processed data conforms to the standard normal distribution By x*=(x - mean)/Standard deviation");
   creat_normtrans_button_custom("Custom_input","Custom","custom input a function");
   creat_normtrans_button_micro("Min_Max_scaling","Min_Max_scaling","Do Min-max normalization By x* = (x - x_mean)/(x_max - x_min)");
   creat_normtrans_button_micro("Zero_Mean_normalization","Zero_Mean","The processed data conforms to the standard normal distribution By x*=(x - mean)/Standard deviation");
   creat_normtrans_button_micro_custom("Custom_input","Custom","custom input a function");
-  var $button_ce_action =$('<a class="btn btn-app btn-info" style="margin:5px;color:green"><i class="fa fa-play"></i>Action</a>')
-  var $button_ce_cancel =$('<a class="btn btn-app btn-info" style="margin:5px;color:red"><i class="fa fa-play"></i>Cancel</a>')
+  var $button_ce_action =$('<a class="btn btn-app btn-info" style="margin:5px;color:#00a65a"><i class="fa fa-play"></i>Action</a>')
+  var $button_ce_cancel =$('<a class="btn btn-app btn-info" style="margin:5px;color:#dd4b39"><i class="fa fa-stop"></i>Cancel</a>')
   $("#ceRNA_choose_transfunction").children(":nth-child(4)").append($button_ce_action).append($button_ce_cancel);
   $button_ce_action.on('click',function(e){
     var obj={}
@@ -45,8 +45,8 @@ $(document).ready(function(){
     }
     
   })
-  var $button_micro_action =$('<a class="btn btn-app btn-info" style="margin:5px;color:green"><i class="fa fa-play"></i>Action</a>')
-  var $button_micro_cancel =$('<a class="btn btn-app btn-info" style="margin:5px;color:red"><i class="fa fa-play"></i>Cancel</a>')
+  var $button_micro_action =$('<a class="btn btn-app btn-info" style="margin:5px;color:#00a65a"><i class="fa fa-play"></i>Action</a>')
+  var $button_micro_cancel =$('<a class="btn btn-app btn-info" style="margin:5px;color:#dd4b39"><i class="fa fa-stop"></i>Cancel</a>')
   $("#microRNA_choose_transfunction").children(":nth-child(4)").append($button_micro_action).append($button_micro_cancel);
   $button_micro_action.on('click',function(e){
     var obj={}
@@ -210,7 +210,7 @@ creat_geneFilter = function(title,inputId,type)
   })
 }
 creat_logtrans_button = function(opera,input,tip){
-  var $button =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>'+input+'</a>')
+  var $button =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-exchange"></i>'+input+'</a>')
   var $span =$('<span class="badge bg-green">step1</span>')
   var $spantip =$('<span style="visibility: hidden;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;left:10px;top:130px;z-index:1;">'+tip+'</span>')
   $("#ceRNA_choose_transfunction").children(":nth-child(2)").append($button).append($spantip);
@@ -232,7 +232,7 @@ creat_logtrans_button = function(opera,input,tip){
   })
 }
 creat_logtrans_button_micro = function(opera,input,tip){
-  var $button =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-play"></i>'+input+'</a>')
+  var $button =$('<a class="btn btn-app btn-info" style="margin:5px"><i class="fa fa-exchange"></i>'+input+'</a>')
   var $span =$('<span class="badge bg-green">step1</span>')
   var $spantip =$('<span style="visibility: hidden;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;left:10px;top:130px;z-index:1;">'+tip+'</span>')
   $("#microRNA_choose_transfunction").children(":nth-child(2)").append($button).append($spantip);
@@ -254,7 +254,7 @@ creat_logtrans_button_micro = function(opera,input,tip){
   })
 }
 creat_normtrans_button = function(opera,input,tip){
-  var $button =$('<a class="btn btn-app " style="margin:5px;"><i class="fa fa-play"></i>'+input+'</a>')
+  var $button =$('<a class="btn btn-app " style="margin:5px;"><i class="fa fa-random"></i>'+input+'</a>')
   var $spantip =$('<span style="visibility: hidden;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;left:10px;top:130px;z-index:1;">'+tip+'</span>')
   $("#ceRNA_choose_transfunction").children(":nth-child(3)").append($button).append($spantip);
   var $span=""
@@ -281,7 +281,7 @@ creat_normtrans_button = function(opera,input,tip){
   })
 }
 creat_normtrans_button_custom = function(opera,input,tip){
-  var $button =$('<a id="ce_custom_norm_button" class="btn btn-app " style="margin:5px;"><i class="fa fa-play"></i>'+input+'</a>')
+  var $button =$('<a id="ce_custom_norm_button" class="btn btn-app " style="margin:5px;"><i class="fa fa-edit"></i>'+input+'</a>')
   var $spantip =$('<span style="visibility: hidden;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;left:10px;top:130px;z-index:1;">'+tip+'</span>')
   $("#ceRNA_choose_transfunction").children(":nth-child(3)").append($button).append($spantip);
   $button.on("click",function(e){
@@ -301,7 +301,7 @@ creat_normtrans_button_custom = function(opera,input,tip){
   })
 }
 creat_normtrans_button_micro = function(opera,input,tip){
-  var $button =$('<a class="btn btn-app " style="margin:5px;"><i class="fa fa-play"></i>'+input+'</a>')
+  var $button =$('<a class="btn btn-app " style="margin:5px;"><i class="fa fa-random"></i>'+input+'</a>')
   var $spantip =$('<span style="visibility: hidden;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;left:10px;top:130px;z-index:1;">'+tip+'</span>')
   $("#microRNA_choose_transfunction").children(":nth-child(3)").append($button).append($spantip);
   var $span=""
@@ -328,7 +328,7 @@ creat_normtrans_button_micro = function(opera,input,tip){
   })
 }
 creat_normtrans_button_micro_custom = function(opera,input,tip){
-  var $button =$('<a id="micro_custom_norm_button" class="btn btn-app " style="margin:5px;"><i class="fa fa-play"></i>'+input+'</a>')
+  var $button =$('<a id="micro_custom_norm_button" class="btn btn-app " style="margin:5px;"><i class="fa fa-edit"></i>'+input+'</a>')
   var $spantip =$('<span style="visibility: hidden;background-color: black;color: #fff;text-align: center;border-radius: 6px;padding: 5px 0;position: absolute;left:10px;top:130px;z-index:1;">'+tip+'</span>')
   $("#microRNA_choose_transfunction").children(":nth-child(3)").append($button).append($spantip);
   var $span=""

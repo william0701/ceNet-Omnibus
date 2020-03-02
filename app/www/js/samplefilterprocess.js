@@ -5,12 +5,11 @@ creat_sampleFilter = function(inputId,inputName)
   
   var $modal = $('<div class="gene_filter construct col-lg-6" exist="F" style="border:1px solid #ccc" id="sample_Group_'+inputName+'_panel"></div>');
   var $dabiaoti=$('<h4>'+inputId+'</h4><hr style="margin-top:0px;margin-bottom:0px">')
-  /*var $invalid_value=$('<div class="form-group col-lg-6" shiny-input-radiogroup shiny-input-container shiny-input-container-inline shiny-bound-input></div>')*/
+
   var $invalid_value=$('<div class="form-group col-lg-12"</div>')
-  //var $titlevalid = $('<label class="control-label">Invalid Value</label>')
-  /*var $div1=$('<div class="input-group margin"></div>')*/
+
   var $div1=$('<div class="row"</div>')
-  /*var $shinygroup=$('<div class="shiny-options-group"></div>');*/
+
   var $col_lg_3_1=$('<div class="col-lg-3"></div>')
   var $col_lg_6=$('<div class="col-lg-3"></div>')
   var $col_lg_3_margin=$('<div class="col-lg-3" style="padding:0;margin-top:25px"></div>')
@@ -21,7 +20,7 @@ creat_sampleFilter = function(inputId,inputName)
   var $direction_select1=$('<option value="<"><</option>')
   var $direction_select3=$('<option value=">">></option>')
   
-  var $thresh_label=$('<label class="control-label">Thresh</label>')
+  var $thresh_label=$('<label class="control-label">Invalid Value</label>')
   var $thresh_div=$('<div class="input-group" id="thresh_sample"></div>')
   var $thresh_text=$('<input class="form-control" type="text" value="0" style="text-align:center">')
   
@@ -29,13 +28,12 @@ creat_sampleFilter = function(inputId,inputName)
   var $sample_button=$('<button type="button" class="btn btn-danger btn-flat">preview</button>')
   
   $modal.append($dabiaoti).append($invalid_value).append($div1);
-  //$invalid_value.append($titlevalid).append($div1);
-  //$div1.append($shinygroup).append($button_out);
+
   $div1.append($col_lg_3_1).append($col_lg_6).append($col_lg_3_margin);
-  //$button_out.append($sample_button);
+
   $col_lg_3_margin.append($button_out).append($sample_button)
   
-  //$shinygroup.append($checkboxgroup1).append($checkboxgroup2).append($checkboxgroup3).append($checkboxgroup4);
+
   $col_lg_3_1.append($direction_label).append($direction_select)
   $direction_select.append($direction_select1).append($direction_select3)
   $direction_select.select2({
@@ -46,10 +44,6 @@ creat_sampleFilter = function(inputId,inputName)
   $col_lg_6.append($thresh_label).append($thresh_div)
   $thresh_div.append($thresh_text)
   
-  /*$checkboxgroup1.append($input1).append($label1);
-  $checkboxgroup2.append($input2).append($label2);
-  $checkboxgroup3.append($input3).append($label3);
-  $checkboxgroup4.append($input4).append($label4);*/
 
   
   
@@ -97,10 +91,15 @@ creat_sampleFilter = function(inputId,inputName)
   })
   
   //picture
+  $("#sample_slice_all").on('click',function(e){
+    var obj = {}
+    obj['stamp'] = Math.random();
+    Shiny.setInputValue('Sample_Slice_Signal',obj);
+  })
   
 }
 
-slice=function(e){
+/*slice=function(e){
     var obj={}
     var slider=$(e+">:nth-child(5)").children("div").children("input").data("from")
     obj['stamp']=Math.random();
@@ -110,3 +109,20 @@ slice=function(e){
     obj['thresh']=$(e+">:nth-child(4)").children('div:nth-child(2)').find('input').val()
     Shiny.setInputValue('Sample_Slice_Signal',obj);
   }
+  */
+
+  
+  
+$(document).ready(function(){
+  $("#sample_slice_all").on('click',function(e){
+    var obj = {}
+    obj['stamp'] = Math.random();
+    Shiny.setInputValue('Sample_Slice_Signal',obj);
+  })
+  
+  
+})  
+  
+
+  
+  

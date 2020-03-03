@@ -404,7 +404,6 @@ shinyServer(function(input,output,session) {
     }
   )
   
-  
   sample_filter_choose=list()
   observeEvent(input$Sample_Filter,{
     isolate({
@@ -664,10 +663,11 @@ shinyServer(function(input,output,session) {
       else{
         intersect_sample_num<-length(intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))) 
         # sendSweetAlert(session = session,title = "Success..",text =paste0("Filter Ok! Sample Remain: ",intersect_sample_num) ,type = 'success')
+        msg=HTML(paste("<h4>Valid MicroRNA Sample: ",num1,"</h4>",
+                       "<h4>Valid CeRNA Sample: ",num2,"</h4>",
+                       "<h4>Valid Sample: ",intersect_sample_num,"</h4>",sep=""))
         sendSweetAlert(session = session,title = "Success..",
-                       text = tags$h4(HTML(paste("Filter OK!\nValid microRNA Remain:",num1,
-                                                 "   Valid ceRNA Remain:",num2,
-                                                 "   Final number after intersect is:",intersect_sample_num,sep = ""))),
+                       text = msg,
                        type = 'success',html = T)
         
         
@@ -984,6 +984,9 @@ shinyServer(function(input,output,session) {
         num1 = length(rownames(after_slice_micro.exp))
         num2 = length(rownames(after_slice_rna.exp))
         #after_slice_geneinfo <<-sect_output_geneinfo[sect_name,]
+        msg=HTML(paste("<h4>Valid MicroRNA Sample: ",num1,"</h4>",
+                       "<h4>Valid CeRNA Sample: ",num2,"</h4>",
+                       "<h4>Valid Sample: ",intersect_sample_num,"</h4>",sep=""))
         sendSweetAlert(session = session,title = "Success..",text = tags$h4(HTML(paste("Filter Success!\nValid microRNA Remain:",num1,"   Valid ceRNA Remain:",num2,sep = ""))),type = 'success',html = T)
         
         ValidNum1 = data.frame(microNum = num1,stringsAsFactors = F);

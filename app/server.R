@@ -661,7 +661,7 @@ shinyServer(function(input,output,session) {
         sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value! Please choose ce_slice again.',type = 'warning')
       }
       else{
-        browser()
+     
         intersect_sample_num<-length(intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))) 
         # sendSweetAlert(session = session,title = "Success..",text =paste0("Filter Ok! Sample Remain: ",intersect_sample_num) ,type = 'success')
         msg=HTML(paste("<h4>Valid MicroRNA Sample: ",num1,"</h4>",
@@ -930,7 +930,7 @@ shinyServer(function(input,output,session) {
     # })
 
     finnal = TRUE
-
+    msg_pre = ""
     if(length(gene_filter_choose)==0){
       sendSweetAlert(session = session,title = "Warning..",text = 'Please click one preview at least!..',type = 'warning')
       
@@ -948,6 +948,7 @@ shinyServer(function(input,output,session) {
           ratio = sum(xdata$SampleRatio==line)/length(validGene)
           if(ratio<0.05){
             after_slice_micro.exp<<- output_micro.exp[intersect_name,]
+            msg_pre = paste("<h4>Valid MicroRNA: ",dim(after_slice_micro.exp)[1],"</h4>",sep = "")
             # num1 = length(rownames(after_slice_micro.exp))
             
             #sendSweetAlert(session = session,title = "Success..",text = paste("Filter Success! Valid microRNA Remain:",num1),type = 'success')
@@ -972,6 +973,7 @@ shinyServer(function(input,output,session) {
             remain = sect_output_rna.exp[intersect_name,colnames(after_slice_rna.exp)]
             after_slice_rna.exp<<-after_slice_rna.exp[delete,]
             after_slice_rna.exp<<-rbind(after_slice_rna.exp,remain)
+            msg_pre = paste(msg_pre,"<h4>Valid CeRNA for group ",type,": ",length(intersect_name),"</h4>",sep = "")
            # after_slice_geneinfo<<-sect_output_geneinfo[rownames(after_slice_rna.exp),]
             #num1 = length(rownames(after_slice_rna.exp))
             #sendSweetAlert(session = session,title = "Success..",text = paste("Filter Success! Valid ceRNA Remain:",num1),type = 'success')
@@ -988,10 +990,8 @@ shinyServer(function(input,output,session) {
         num2 = length(rownames(after_slice_rna.exp))
         after_slice_geneinfo<<-sect_output_geneinfo[rownames(after_slice_rna.exp),]
         #after_slice_geneinfo <<-sect_output_geneinfo[sect_name,]
-        msg=HTML(paste("<h4>Valid MicroRNA Sample: ",num1,"</h4>",
-                       "<h4>Valid CeRNA Sample: ",num2,"</h4>",
-                       "<h4>Valid Sample: ",intersect_sample_num,"</h4>",sep=""))
-        sendSweetAlert(session = session,title = "Success..",text = tags$h4(HTML(paste("Filter Success!\nValid microRNA Remain:",num1,"   Valid ceRNA Remain:",num2,sep = ""))),type = 'success',html = T)
+        msg=HTML(msg_pre)
+        sendSweetAlert(session = session,title = "Success..",text = msg,type = 'success',html = T)
         
         ValidNum1 = data.frame(microNum = num1,stringsAsFactors = F);
         ValidNum2 = data.frame(rnaNum = num2,stringsAsFactors = F);

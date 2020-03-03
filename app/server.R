@@ -983,15 +983,11 @@ shinyServer(function(input,output,session) {
       if(finnal){
         num1 = length(rownames(after_slice_micro.exp))
         num2 = length(rownames(after_slice_rna.exp))
-        
-        sect_name = intersect(rownames(after_slice_micro.exp),rownames(after_slice_rna.exp))
-        after_slice_micro.exp <<- after_slice_micro.exp[sect_name,]
-        after_slice_rna.exp <<-after_slice_rna.exp[sect_name,]
         #after_slice_geneinfo <<-sect_output_geneinfo[sect_name,]
-        sendSweetAlert(session = session,title = "Success..",text = tags$h4(HTML(paste("Filter Success!\nValid microRNA Remain:",num1,"   Valid ceRNA Remain:",num2,"   Final number after intersect is:",length(sect_name),sep = ""))),type = 'success',html = T)
+        sendSweetAlert(session = session,title = "Success..",text = tags$h4(HTML(paste("Filter Success!\nValid microRNA Remain:",num1,"   Valid ceRNA Remain:",num2,sep = ""))),type = 'success',html = T)
         
-        ValidNum1 = data.frame(microNum = length(sect_name),stringsAsFactors = F);
-        ValidNum2 = data.frame(rnaNum = length(sect_name),stringsAsFactors = F);
+        ValidNum1 = data.frame(microNum = num1,stringsAsFactors = F);
+        ValidNum2 = data.frame(rnaNum = num2,stringsAsFactors = F);
         
         session$sendCustomMessage('Valid_valuebox_micro',ValidNum1);
         session$sendCustomMessage('Valid_valuebox_rna',ValidNum2);
@@ -1216,7 +1212,7 @@ shinyServer(function(input,output,session) {
       gene=intersect(rownames(after_slice_rna.exp),rownames(after_slice_geneinfo))
       after_slice_geneinfo<<-after_slice_geneinfo[gene,]
       after_slice_rna.exp<<-after_slice_rna.exp[gene,samples]
-      after_slice_micro.exp<<-after_slice_micro.exp[gene,samples]
+      after_slice_micro.exp<<-after_slice_micro.exp[,samples]
     }
   })
   observeEvent(input$add_new_condition,{
@@ -1224,8 +1220,12 @@ shinyServer(function(input,output,session) {
       msg=input$add_new_condition
       core=input$use_core
     })
+    if(R.oo::equals(after_slice_geneinfo,"")){
+      sendSweetAlert(session = session,title = "Error...",text = "No genetic data here!..Check the previous steps",type = 'error')
+      return()
+    }
     if(dim(after_slice_geneinfo)[1]==0){
-      sendSweetAlert(session = session,title = "Error...",text = "No genetic data here!..",type = 'error')
+      sendSweetAlert(session = session,title = "Error...",text = "No genetic data here!..Check the previous steps",type = 'error')
       return()
     }
     choice=c(condition[which(!condition$used),'abbr'],'custom')
@@ -1660,8 +1660,8 @@ shinyServer(function(input,output,session) {
       msg=input$network
       do_what =msg$do_what
     })
-   
-    if((dim(after_slice_rna.exp)[1]==0) | R.oo::equals(edgeinfo,"")){
+
+    if((dim(edgeinfo)[1]==0)){
       sendSweetAlert(session = session,title = "Error",text = "Please do this step after the step2 and step3",type = 'error')
     }else{
       if(do_what=="layout"){

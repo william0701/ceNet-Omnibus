@@ -822,7 +822,7 @@ shinyServer(function(input,output,session) {
     else{
       gene_filter_choose[group] <<- list(c(number,line))
       validGene=rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
-      validSample = rowSums(sect_output_rna.exp[validGene,]>=number)
+      validSample = rowSums(after_slice_rna.exp[validGene,]>=number)
       ratio=as.numeric(line)
       xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_rna.exp)),stringsAsFactors = F)
       ypoint=length(which(xdata$SampleRatio<=ratio))/length(validGene)
@@ -935,7 +935,7 @@ shinyServer(function(input,output,session) {
       for(type in names(gene_filter_choose)){
         number = gene_filter_choose[[type]][1]
         line = gene_filter_choose[[type]][2]
-        
+    
         if(type=="micro"){
           output_micro.exp = sect_output_micro.exp[,colnames(after_slice_micro.exp)]
           validGene=rownames(output_micro.exp)
@@ -966,10 +966,10 @@ shinyServer(function(input,output,session) {
           ratio = sum(xdata$SampleRatio==line)/length(validGene)
           if(ratio<0.05){
             delete = setdiff(rownames(after_slice_rna.exp),validGene)
-            remain = output_rna.exp[intersect_name,]
+            remain = sect_output_rna.exp[intersect_name,colnames(after_slice_rna.exp)]
             after_slice_rna.exp<<-after_slice_rna.exp[delete,]
             after_slice_rna.exp<<-rbind(after_slice_rna.exp,remain)
-            after_slice_geneinfo<<-sect_output_geneinfo[rownames(after_slice_rna.exp),]
+           # after_slice_geneinfo<<-sect_output_geneinfo[rownames(after_slice_rna.exp),]
             #num1 = length(rownames(after_slice_rna.exp))
             #sendSweetAlert(session = session,title = "Success..",text = paste("Filter Success! Valid ceRNA Remain:",num1),type = 'success')
           }
@@ -983,6 +983,7 @@ shinyServer(function(input,output,session) {
       if(finnal){
         num1 = length(rownames(after_slice_micro.exp))
         num2 = length(rownames(after_slice_rna.exp))
+        after_slice_geneinfo<<-sect_output_geneinfo[rownames(after_slice_rna.exp),]
         #after_slice_geneinfo <<-sect_output_geneinfo[sect_name,]
         sendSweetAlert(session = session,title = "Success..",text = tags$h4(HTML(paste("Filter Success!\nValid microRNA Remain:",num1,"   Valid ceRNA Remain:",num2,sep = ""))),type = 'success',html = T)
         

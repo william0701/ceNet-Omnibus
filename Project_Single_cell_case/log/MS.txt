@@ -1,4 +1,0 @@
-[{"task":"all","time":1582118685.726,"total":13}]
-.............
-Finish!
-All Finish!

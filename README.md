@@ -14,20 +14,21 @@ BiocManager::install("devtools", dependencies = TRUE)
 devtools::install_github("BioinformaticsFMRP/TCGAbiolinksGUI.data",ref = "R_3.4")
 ````
 ## Data Preparation
-CeNet Omnibus demands users to upload four files for the constrction of ceRNA network,including 
+CeNet Omnibus demands users to upload four files for the constrction of ceRNA network, including 
 - The expression profiles of candidate ceRNAs and microRNAs
 - The interaction between microRNA and candidate ceRNAs
-- Essential information of candidate ceRNAs, eg. symbals, biotypes, and etc.
+- Essential information of candidate ceRNAs, eg. symbols, biotypes, and etc.
 
 ## Get Start
 The following commands should be used to start CeNet Omnibus.
 ```r
-library(TCGAbiolinksGUI)
-TCGAbiolinksGUI()
+library(CeNetOmnibus)
+CeNetOmnibus()
 ```
 ### 1. Data Input
 **Data input** provides the interface for users to upload data for the construction of ceRNA network.
 #### 1.1 Expression Profiles
+The expression profiles of ceRNAs and microRNAs should be plain text delimited by tab, comma, space, semicolon or any other prac-ticable marks. Users can set seperators, quotes, with/without headers. In addition, to make sure the rows of final data represent ceRNAs/microRNAs, user should select if row/column is ceRNAs/microRNAs. To name the datasets, please confirm if the program should name dataset with/without the first row/column.
 
 #### 1.2 The Interaction between ceRNAs and microRNAs
 #### 1.3 Essential information

@@ -135,7 +135,7 @@ shinyServer(function(input,output,session) {
       Sys.sleep(2)
       session$sendCustomMessage('reading',list(div='target_preview_panel',status='finish'))
       output$target_preview_panel=renderTable({
-        return(head(target,n = 20))
+        return(t(head(t(head(target,n = 20)),n = 20)))
       },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
     }
     else if(msg$id=='geneinfo_preview')

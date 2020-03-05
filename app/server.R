@@ -27,11 +27,7 @@ shinyServer(function(input,output,session) {
   visual_layout=""
   #load('C:/Users/DELL/Desktop/single-cell/ph3.RData',envir=environment())
   load('testdata/ph1.RData',envir = environment())
-  # rna.exp<<-rna.exp
-  # geneinfo<<-geneinfo
-  # micro.exp<<-micro.exp
-  # target<<-target
-  # select.gene<<-select.gene
+
   ############Input Page Action##########
   observeEvent(input$onclick,{
     isolate({msg=fromJSON(input$onclick)})
@@ -135,7 +131,7 @@ shinyServer(function(input,output,session) {
       Sys.sleep(2)
       session$sendCustomMessage('reading',list(div='target_preview_panel',status='finish'))
       output$target_preview_panel=renderTable({
-        return(head(target,n = 20))
+        return(t(head(t(head(target,n = 20)),n = 20)))
       },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
     }
     else if(msg$id=='geneinfo_preview')
@@ -159,12 +155,19 @@ shinyServer(function(input,output,session) {
       {
         geneinfo<<-read.table(file = filepath,header = header,sep = sep,quote = quote,nrow=-1,stringsAsFactors = F)
       }
+      type=as.data.frame(lapply(X = geneinfo,FUN = class))
+      non_character=names(type[which(type!='character')])
+      for(col in non_character)
+      {
+        geneinfo[,col]<<-as.character(geneinfo[,col])
+      }
       Sys.sleep(2);
       session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='finish'))
       output$geneinfo_preview_panel=renderTable({
         return(head(geneinfo,n = 20))
       },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
     }
+    FLAGS[['reintersect']]<<-T
   })
   observeEvent(input$ensembl_info,{
     isolate({
@@ -271,9 +274,7 @@ shinyServer(function(input,output,session) {
     }
     else{
       if(FLAGS[['reintersect']]){
-        FLAGS[['reintersect']]=F
-        
-        
+        FLAGS[['reintersect']]<<-F
         sect_gene=intersect(rownames(rna.exp),rownames(target));
         sect_gene=intersect(sect_gene,rownames(geneinfo));
         sect_micro=intersect(rownames(micro.exp),names(target));
@@ -320,9 +321,10 @@ shinyServer(function(input,output,session) {
     names(choicenum)=choice
     choicenum=unlist(choicenum)
     invalidchoice=names(choicenum)[which(choicenum>typeLimit)]
-    if(biotype_map=="None")
+    validchoice=names(choicenum)[which(choicenum<=typeLimit)]
+    if(!is.null(biotype_map))
     {
-      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Mapping Columns',choices = choice,selected = names(sort(choicenum))[1],inline=T,prettyOptions=list(shape='round',status='success'))
+      updatePrettyRadioButtons(session = session,inputId = 'biotype_map',label = 'Mapping Columns',choices = choice,selected = head(validchoice,n=1),inline=T,prettyOptions=list(shape='round',status='success'))
     }
     else
     {
@@ -332,64 +334,85 @@ shinyServer(function(input,output,session) {
   })
   observe({
     biotype_map<<-input$biotype_map
-    
-    if(biotype_map!='None')
+    if(!is.null(biotype_map)&&biotype_map!='None')
     {
      
       choice=unique(sect_output_geneinfo[,biotype_map])
       if(length(choice)>typeLimit)
       {
-        sendSweetAlert(session = session,title = 'Warning...',text = 'Too Many Biotypes, Choose Carefully!',type = 'warning')
-        #return()
+        session$sendCustomMessage('update_candidate_biotype',list(item=sort(choice),signal='invalid'))
       }
-      session$sendCustomMessage('update_candidate_biotype',sort(choice))
+      else
+      {
+        session$sendCustomMessage('update_candidate_biotype',list(item=sort(choice),signal='valid'))
+      }
     }
   })
   observeEvent(input$show_biotype_group,{
     isolate({
-      biotype=input$biotype_map
+      #biotype=input$biotype_map
       msg=input$show_biotype_group
       data=msg$data
+      biotype=msg$biotype
     })
     sect_output_geneinfo$.group<<-NA
-    for(group in names(data))
+    if(is.null(biotype))
     {
-      subset=unlist(data[[group]])
-      sect_output_geneinfo[sect_output_geneinfo[,biotype] %in% subset,'.group']<<-group
-    }
-    output$biotype_group_statics_graph=renderImage({
-      if(length(unique(after_slice_geneinfo[,'gene_biotype']))>8)
+      sect_output_geneinfo[,'.group']<<-"Default"
+      sendSweetAlert(session = session,title = "Warning..",
+                     text = 'Group All Genes to Group "Default"!',type = 'warning')    }
+    else
+    {
+      for(group in names(data))
       {
-        p=ggplot(data =after_slice_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill='gene_biotype'))+
-          labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
-          scale_fill_manual(values = colorRampPalette(usedcolors)(length(unique(after_slice_geneinfo[,'gene_biotype']))))+
-          theme(legend.position = 'bottom',panel.background = element_rect(fill = NA))
-      }else
-      {
-        p=ggplot(data =after_slice_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill='gene_biotype'))+
-          labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
-          theme(legend.position = 'bottom',panel.background = element_rect(fill = NA))
+        subset=unlist(data[[group]])
+        sect_output_geneinfo[sect_output_geneinfo[,biotype] %in% subset,'.group']<<-group
       }
-      p=p+theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
-                axis.text.x = element_text(family = "serif",colour = "black"), 
-                axis.text.y = element_text(family = "serif",colour = "black"), 
-                plot.title = element_text(family = "serif", hjust = 0.5,size=14), 
-                legend.text = element_text(family = "serif"),
-                legend.title = element_text(family = "serif"),
-                legend.key = element_rect(fill = NA), 
-                legend.background = element_rect(fill = NA),
-                legend.direction = "horizontal",
-                legend.position = 'bottom',
-                panel.background = element_rect(fill = NA))
-      svg(filename = paste(basepath,"Plot",'ph1.svg',sep="/"),family = 'serif')
-      print(p)
-      dev.off()
-      print(normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")))
-      list(src=normalizePath(paste(basepath,"Plot",'ph1.svg',sep="/")),height="100%",width="100%")    
-    },deleteFile=F)
+    }
     after_slice_geneinfo <<- sect_output_geneinfo[which(!is.na(sect_output_geneinfo$.group)),]
     after_slice_rna.exp <<- sect_output_rna.exp[rownames(after_slice_geneinfo),]
     ValidNum = data.frame(rnaNum = length(rownames(after_slice_rna.exp)),stringsAsFactors = F);
+    
+    if(is.null(biotype))
+    {
+      p=ggplot(data =after_slice_geneinfo)+geom_bar(mapping = aes_string(x = '.group'))+
+        labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
+        theme(legend.position = 'bottom',panel.background = element_rect(fill = NA))
+    }
+    else
+    {
+      if(length(unique(after_slice_geneinfo[,biotype]))>8)
+      {
+        p=ggplot(data =after_slice_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill=biotype))+
+          labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
+          scale_fill_manual(values = colorRampPalette(usedcolors)(length(unique(after_slice_geneinfo[,biotype]))))+
+          theme(legend.position = 'bottom',panel.background = element_rect(fill = NA))
+      }else
+      {
+        p=ggplot(data =after_slice_geneinfo)+geom_bar(mapping = aes_string(x = '.group',fill=biotype))+
+          labs(title='Group Genes Statistics',x='Group',y='Gene Count')+
+          theme(legend.position = 'bottom',panel.background = element_rect(fill = NA))
+      }
+    }
+    p=p+theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
+              axis.text.x = element_text(family = "serif",colour = "black"), 
+              axis.text.y = element_text(family = "serif",colour = "black"), 
+              plot.title = element_text(family = "serif", hjust = 0.5,size=14), 
+              legend.text = element_text(family = "serif"),
+              legend.title = element_text(family = "serif"),
+              legend.key = element_rect(fill = NA), 
+              legend.background = element_rect(fill = NA),
+              legend.direction = "horizontal",
+              legend.position = 'bottom',
+              panel.background = element_rect(fill = NA))
+    svg(filename = paste(basepath,"Plot",'Gene_Group.svg',sep="/"),family = 'serif')
+    print(p)
+    dev.off()
+    
+    output$biotype_group_statics_graph=renderImage({
+      list(src=normalizePath(paste(basepath,"Plot",'Gene_Group.svg',sep="/")),height="100%",width="100%")    
+    },deleteFile=F)
+    
     session$sendCustomMessage('Valid_valuebox_rna',ValidNum);
     session$sendCustomMessage('clear_construction_task',"")
     
@@ -400,7 +423,7 @@ shinyServer(function(input,output,session) {
        return("Group_statistic.svg");
     },
     content = function(file) {
-      file.copy(from = paste(basepath,"Plot",'ph1.svg',sep="/"),to = file);
+      file.copy(from = paste(basepath,"Plot",'Gene_Group.svg',sep="/"),to = file);
     }
   )
   

@@ -132,6 +132,14 @@ $(document).ready(function(){
       t=strMapToObj(biotype_group);
     }
     obj['data']=t
+    if($('input:radio[name="biotype_map"]:checked').length>0)
+    {
+      obj['biotype']=$('input:radio[name="biotype_map"]:checked').val()
+    }
+    else
+    {
+      obj['biotype']=null
+    }
     Shiny.setInputValue('show_biotype_group',obj)
     Shiny.setInputValue('creatFilter_request',Math.random())
   })
@@ -261,20 +269,25 @@ Shiny.addCustomMessageHandler('update_candidate_biotype',function(msg){
   $('#group_biotype').empty();
   $('#group_biotype').append($('<div class="header">Groups</div>'))
   biotype_group.clear()
-  remain=msg;
+  remain=msg.item;
   $('#group_biotype').append($('<ul class="todo-list"></ul>'))
   addGroup('Default',true);
   
   $('#candidate_biotype').empty();
   $('#candidate_biotype').append($('<div class="header">Candidate Items</div>'))
   $("#candidate_biotype").append($('<ul style="list-style:none;padding:0px"></ul>'));
+  if(msg.signal=='invalid')
+  {
+    sweetAlert("error",'Error...','No Valid Mapping Columns!')
+    return
+  }
   for(var biotype in remain)
   {
     $checkbox=$('<label><input type="checkbox"></label>');
-    $checkbox.attr('id',msg[biotype]);
+    $checkbox.attr('id',msg.item[biotype]);
     $checkbox.iCheck({
       checkboxClass:'icheckbox_line-red',
-      insert:'<div class="icheck_line-icon"></div>'+msg[biotype]
+      insert:'<div class="icheck_line-icon"></div>'+msg.item[biotype]
     });
     $checkbox.on('ifChecked',function(e){
        var key=$('#group_biotype li.selected b').html()
@@ -322,12 +335,13 @@ Shiny.addCustomMessageHandler('invalidColumn',function(msg){
     {
     $('#biotype_map input[value="'+choice[i]+'"]').attr('disabled',true)
     }
+    if(choice.indexOf($('input:radio[name="biotype_map"]:checked').val())>=0)
+    {
+      $('input:radio[name="biotype_map"]:checked').prop('checked', false);
+    }
   }
   demoSleep(100)
-  
 })
-
-
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));

@@ -68,6 +68,7 @@ filter_box=function(type,tasks)
   }
   body=div(class="box-body",plot_panel)
   foot=div(class="box-footer",
+           tags$button(class="btn btn-default action-button pull-right",HTML('Cancel'),onclick="cancel_thresh(this)"),
            tags$button(class="btn btn-success action-button pull-right",HTML('Confirm'),onclick="comfirm_thresh(this)")
           )
   box=div(class="box box-primary",id=paste("density_plot_",type,sep=""),header,body,foot)

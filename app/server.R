@@ -1444,68 +1444,68 @@ shinyServer(function(input,output,session) {
     core=condition[type,'core']
     tasks=condition[type,'task']
     logpath=normalizePath(paste(basepath,'/log/',type,'.txt',sep=""))
-    # if(file.exists(logpath))
-    # {
-    #   file.remove(logpath)
-    # }
-    # if(type=="PCC")
-    # {
-    #   if(dir.exists(paths = normalizePath(paste(basepath,'/log/',sep=""))))
-    #   {
-    #     dir.create(path = normalizePath(paste(basepath,'/log/',sep="")),recursive = T)
-    #   }
-    #   print('start')
-    #   session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
-    #   filepath=paste(basepath,"/data/rna.exp.RData",sep="")
-    #   saveRDS(file=filepath,object=after_slice_rna.exp)
-    #   #system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
-    #   scriptpath="www/Program/PCC.R"
-    #   resultpath=paste(basepath,'/all.cor.RData',sep="")
-    #   system(paste("Rscript",scriptpath,filepath,logpath,resultpath),wait = F)
-    # 
-    # }
-    # else
-    # {
-    #   if(dir.exists(paths = paste(basepath,'/log/')))
-    #   {
-    #     dir.create(paths = paste(basepath,'/log/'),recursive = T)
-    #   }
-    #   file.create(logpath)
-    #   print('start')
-    #   session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
-    #   datapath=paste(basepath,"/data/tmpdatas.RData",sep="")
-    #   scriptpath="www/Program/ComputeCondition.R"
-    #   codepath=""
-    #   resultpath=paste(basepath,'/',type,'.RData',sep="")
-    #   if(file.exists(paste(basepath,'/code/',type,'.R',sep="")))
-    #   {
-    #     codepath=paste(basepath,'/code/',type,'.R',sep="")
-    #   }
-    #   else if(file.exists(paste('www/Program/',type,'.R',sep="")))
-    #   {
-    #     codepath=paste('www/Program/',type,'.R',sep="")
-    #   }
-    #   else
-    #   {
-    #     sendSweetAlert(session = session,title = "Error..",text = "No Code",type = 'error')
-    #   }
-    # 
-    #   rna.exp=after_slice_rna.exp
-    #   micro.exp=after_slice_micro.exp
-    #   target=sect_output_target[rownames(rna.exp),rownames(micro.exp)]
-    #   geneinfo=after_slice_geneinfo
-    #   save(rna.exp,micro.exp,target,geneinfo,file = datapath)
-    #   if(condition[type,'others']=="")
-    #   {
-    #     print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
-    #     system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
-    #   }
-    #   else
-    #   {
-    #     print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,condition[type,'others']))
-    #     system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath,condition[type,'others']),wait = F)
-    #   }
-    # }
+    if(file.exists(logpath))
+    {
+      file.remove(logpath)
+    }
+    if(type=="PCC")
+    {
+      if(dir.exists(paths = normalizePath(paste(basepath,'/log/',sep=""))))
+      {
+        dir.create(path = normalizePath(paste(basepath,'/log/',sep="")),recursive = T)
+      }
+      print('start')
+      session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
+      filepath=paste(basepath,"/data/rna.exp.RData",sep="")
+      saveRDS(file=filepath,object=after_slice_rna.exp)
+      #system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
+      scriptpath="www/Program/PCC.R"
+      resultpath=paste(basepath,'/all.cor.RData',sep="")
+      system(paste("Rscript",scriptpath,filepath,logpath,resultpath),wait = F)
+
+    }
+    else
+    {
+      if(dir.exists(paths = paste(basepath,'/log/')))
+      {
+        dir.create(paths = paste(basepath,'/log/'),recursive = T)
+      }
+      file.create(logpath)
+      print('start')
+      session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
+      datapath=paste(basepath,"/data/tmpdatas.RData",sep="")
+      scriptpath="www/Program/ComputeCondition.R"
+      codepath=""
+      resultpath=paste(basepath,'/',type,'.RData',sep="")
+      if(file.exists(paste(basepath,'/code/',type,'.R',sep="")))
+      {
+        codepath=paste(basepath,'/code/',type,'.R',sep="")
+      }
+      else if(file.exists(paste('www/Program/',type,'.R',sep="")))
+      {
+        codepath=paste('www/Program/',type,'.R',sep="")
+      }
+      else
+      {
+        sendSweetAlert(session = session,title = "Error..",text = "No Code",type = 'error')
+      }
+
+      rna.exp=after_slice_rna.exp
+      micro.exp=after_slice_micro.exp
+      target=sect_output_target[rownames(rna.exp),rownames(micro.exp)]
+      geneinfo=after_slice_geneinfo
+      save(rna.exp,micro.exp,target,geneinfo,file = datapath)
+      if(condition[type,'others']=="")
+      {
+        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
+        system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
+      }
+      else
+      {
+        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,condition[type,'others']))
+        system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath,condition[type,'others']),wait = F)
+      }
+    }
   })
   observeEvent(input$compute_status,{
     isolate({
@@ -1627,22 +1627,41 @@ shinyServer(function(input,output,session) {
     session$sendCustomMessage('distribution_plot',list(status='finish',value="",id=paste("density_plot",type,task,"progress",sep="_")))
     
   })
-  observeEvent(input$construct_network,{
+  observeEvent(input$add_condition_thresh,{
     isolate({
-      msg=input$construct_network
+      msg=input$add_condition_thresh
       newthresh=msg$thresh
       type=msg$type
     })
-    removeUI(selector = "#modalbody>",immediate = T)
-    insertUI(selector = "#modalbody",where = 'beforeEnd',ui = create_progress("",id="network_construction"),immediate = T)
-    session$sendCustomMessage('network_construction',list(status='update',value="Initializing Network...",id="network_construction"))
-    
-    
     thresh<<-thresh[thresh$type!=type,]
     for(name in names(newthresh))
     {
       thresh<<-rbind(thresh,data.frame(type=type,task=name,direction=newthresh[[name]][['direction']],thresh=as.numeric(newthresh[[name]][['thresh']]),stringsAsFactors = F))
     }
+    msg="Add Thresh Successfully"
+    sendSweetAlert(session = session,title = "Success...",text = msg,type = 'success',html = T)
+  })
+  observeEvent(input$construct_network,{
+    # isolate({
+    #   msg=input$construct_network
+    #   newthresh=msg$thresh
+    #   type=msg$type
+    # })
+    if(empty(thresh))
+    {
+      sendSweetAlert(session = session,title = 'Error...',text = "No Condition Setting! Plsease Set Conditions First...",type = "error")
+      return()
+    }
+    removeUI(selector = "#modalbody>",immediate = T)
+    insertUI(selector = "#modalbody",where = 'beforeEnd',ui = create_progress("",id="network_construction_progress"),immediate = T)
+    session$sendCustomMessage('network_construction',list(status='update',value="Initializing Network...",id="network_construction_progress"))
+    
+    
+    # thresh<<-thresh[thresh$type!=type,]
+    # for(name in names(newthresh))
+    # {
+    #   thresh<<-rbind(thresh,data.frame(type=type,task=name,direction=newthresh[[name]][['direction']],thresh=as.numeric(newthresh[[name]][['thresh']]),stringsAsFactors = F))
+    # }
     network_construnction(after_slice_geneinfo)
     session$sendCustomMessage('network_construction',list(status='update',value="Network Summarizing...",id="network_construction"))
     removeUI(selector = "#network_summary>",multiple = T,immediate = T)
@@ -1652,6 +1671,15 @@ shinyServer(function(input,output,session) {
     insertUI(selector = "#network_summary",where = "beforeEnd",ui = valueBox(value = sum(igraph::components(net_igraph)$csize>1),subtitle = "Components",icon = icon("connectdevelop",lib = "font-awesome"),color = "maroon",width = 3),immediate = T)
     session$sendCustomMessage('network_construction',list(status='finish',value="",id="network_construction"))
     sendSweetAlert(session = session,title = "Success",text = "Apply Conditions Successfully!",type = 'success')
+  })
+  observeEvent(input$cancel_condition_thresh,{
+    isolate({
+      msg=input$cancel_condition_thresh
+      type=msg$type
+    })
+    thresh<<-thresh[thresh$type!=type,]
+    msg1="Remove Thresh Successfully"
+    sendSweetAlert(session = session,title = "Success...",text = msg1,type = 'success',html = T)
   })
   output$export_condition_value=downloadHandler(
     filename="Condition_values.RData",

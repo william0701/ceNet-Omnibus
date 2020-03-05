@@ -1437,75 +1437,75 @@ shinyServer(function(input,output,session) {
     removeUI(selector = paste("div.col-lg-12 > #density_plot_",msg$type,sep=""),immediate = T)
   })
   observeEvent(input$compute_condition,{
-    isolate({
-      type=input$compute_condition$type
-    })
-    
-    core=condition[type,'core']
-    tasks=condition[type,'task']
-    logpath=normalizePath(paste(basepath,'/log/',type,'.txt',sep=""))
-    if(file.exists(logpath))
-    {
-      file.remove(logpath)
-    }
-    if(type=="PCC")
-    {
-      if(dir.exists(paths = normalizePath(paste(basepath,'/log/',sep=""))))
-      {
-        dir.create(path = normalizePath(paste(basepath,'/log/',sep="")),recursive = T)
-      }
-      print('start')
-      session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
-      filepath=paste(basepath,"/data/rna.exp.RData",sep="")
-      saveRDS(file=filepath,object=after_slice_rna.exp)
-      #system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
-      scriptpath="www/Program/PCC.R"
-      resultpath=paste(basepath,'/all.cor.RData',sep="")
-      system(paste("Rscript",scriptpath,filepath,logpath,resultpath),wait = F)
-
-    }
-    else
-    {
-      if(dir.exists(paths = paste(basepath,'/log/')))
-      {
-        dir.create(paths = paste(basepath,'/log/'),recursive = T)
-      }
-      file.create(logpath)
-      print('start')
-      session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
-      datapath=paste(basepath,"/data/tmpdatas.RData",sep="")
-      scriptpath="www/Program/ComputeCondition.R"
-      codepath=""
-      resultpath=paste(basepath,'/',type,'.RData',sep="")
-      if(file.exists(paste(basepath,'/code/',type,'.R',sep="")))
-      {
-        codepath=paste(basepath,'/code/',type,'.R',sep="")
-      }
-      else if(file.exists(paste('www/Program/',type,'.R',sep="")))
-      {
-        codepath=paste('www/Program/',type,'.R',sep="")
-      }
-      else
-      {
-        sendSweetAlert(session = session,title = "Error..",text = "No Code",type = 'error')
-      }
-
-      rna.exp=after_slice_rna.exp
-      micro.exp=after_slice_micro.exp
-      target=sect_output_target[rownames(rna.exp),rownames(micro.exp)]
-      geneinfo=after_slice_geneinfo
-      save(rna.exp,micro.exp,target,geneinfo,file = datapath)
-      if(condition[type,'others']=="")
-      {
-        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
-        system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
-      }
-      else
-      {
-        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,condition[type,'others']))
-        system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath,condition[type,'others']),wait = F)
-      }
-    }
+    # isolate({
+    #   type=input$compute_condition$type
+    # })
+    # 
+    # core=condition[type,'core']
+    # tasks=condition[type,'task']
+    # logpath=normalizePath(paste(basepath,'/log/',type,'.txt',sep=""))
+    # if(file.exists(logpath))
+    # {
+    #   file.remove(logpath)
+    # }
+    # if(type=="PCC")
+    # {
+    #   if(dir.exists(paths = normalizePath(paste(basepath,'/log/',sep=""))))
+    #   {
+    #     dir.create(path = normalizePath(paste(basepath,'/log/',sep="")),recursive = T)
+    #   }
+    #   print('start')
+    #   session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
+    #   filepath=paste(basepath,"/data/rna.exp.RData",sep="")
+    #   saveRDS(file=filepath,object=after_slice_rna.exp)
+    #   #system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
+    #   scriptpath="www/Program/PCC.R"
+    #   resultpath=paste(basepath,'/all.cor.RData',sep="")
+    #   system(paste("Rscript",scriptpath,filepath,logpath,resultpath),wait = F)
+    # 
+    # }
+    # else
+    # {
+    #   if(dir.exists(paths = paste(basepath,'/log/')))
+    #   {
+    #     dir.create(paths = paste(basepath,'/log/'),recursive = T)
+    #   }
+    #   file.create(logpath)
+    #   print('start')
+    #   session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
+    #   datapath=paste(basepath,"/data/tmpdatas.RData",sep="")
+    #   scriptpath="www/Program/ComputeCondition.R"
+    #   codepath=""
+    #   resultpath=paste(basepath,'/',type,'.RData',sep="")
+    #   if(file.exists(paste(basepath,'/code/',type,'.R',sep="")))
+    #   {
+    #     codepath=paste(basepath,'/code/',type,'.R',sep="")
+    #   }
+    #   else if(file.exists(paste('www/Program/',type,'.R',sep="")))
+    #   {
+    #     codepath=paste('www/Program/',type,'.R',sep="")
+    #   }
+    #   else
+    #   {
+    #     sendSweetAlert(session = session,title = "Error..",text = "No Code",type = 'error')
+    #   }
+    # 
+    #   rna.exp=after_slice_rna.exp
+    #   micro.exp=after_slice_micro.exp
+    #   target=sect_output_target[rownames(rna.exp),rownames(micro.exp)]
+    #   geneinfo=after_slice_geneinfo
+    #   save(rna.exp,micro.exp,target,geneinfo,file = datapath)
+    #   if(condition[type,'others']=="")
+    #   {
+    #     print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
+    #     system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
+    #   }
+    #   else
+    #   {
+    #     print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,condition[type,'others']))
+    #     system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath,condition[type,'others']),wait = F)
+    #   }
+    # }
   })
   observeEvent(input$compute_status,{
     isolate({
@@ -2676,9 +2676,145 @@ shinyServer(function(input,output,session) {
        
        for(m in moduleset)
        {
-         modulegene=modules[[m]]
-         modulegene=modulegene[which(modulegene%in%rownames(survival_exp))]
-         patient.cluster=kmeans(t(survival_exp[modulegene,]),centers = 2)$cluster
+         tryCatch({
+                   modulegene=modules[[m]]
+                   modulegene=modulegene[which(modulegene%in%rownames(survival_exp))]
+                   patient.cluster=kmeans(t(survival_exp[modulegene,]),centers = 2)$cluster
+                   
+                   tmpclinical=clinical_data[,c(time,status)]
+                   tmpclinical$group=""
+                   
+                   for(cl in unique(patient.cluster))
+                   {
+                     tmpclinical[names(patient.cluster)[which(patient.cluster==cl)],'group']=paste("Group",cl,sep="")
+                   }
+                   
+                   tmpclinical=tmpclinical[which(tmpclinical$group!=""),]
+                   p=km.analysis(data = tmpclinical,time = time,status = status,factor = "group")
+                   create_survival_result_box(session,label=paste("Survival Result of ",m,sep=""),id=m,model=model)
+                   
+                   imagepath=paste(basepath,"/Plot/",m,"_",model,"_survival_curve.svg",sep="")
+                   svg(imagepath,family = "serif")
+                   print(p$plot)
+                   dev.off()
+                   
+                   imagepath_heat=paste(basepath,"/Plot/",m,"_",model,"_survival_cluster.png",sep="")
+                   Heatmaps(survival_exp[modulegene,],tmpclinical,imagepath_heat)
+                   #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
+                   local({
+                     id=m
+                     table=p$data.survtable
+                     imagepe_for_heat=imagepath_heat
+                     output[[paste(id,model,"survival_curve",sep="_")]]=renderImage({
+                       imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_curve.svg",sep="")
+                       # svg(imagepath,family = "serif")
+                       # print(plot$plot)
+                       # dev.off()
+                       list(src=imagepath,width="100%",height="100%")
+                     },deleteFile = F)
+                     output[[paste(id,model,"survival_cluster",sep="_")]]=renderImage({
+                       list(src=imagepe_for_heat,width="100%",height="100%")
+                     },deleteFile = F)
+                     output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
+                       rhandsontable(table)
+                     })
+                   })
+         },error=function(e)
+         {
+           insertUI(selector = "#survival_result_panel",where = "beforeEnd",immediate = T,session = session,
+                    ui=div(class="col-lg-6 col-md-12",
+                           div(class="box box-primary",id=paste(m,model,sep="_"),
+                               div(class="box-header with-border",
+                                   h4(paste("Survival Result of ",m,sep=""))
+                               ),
+                               div(class="box-body",
+                                   h4(e)
+                               )
+                               
+                           )
+                    )
+                   )
+         })
+      }
+     }
+     else if(genesource=="single.gene")
+     {
+       research_gene=unlist(strsplit(x = singlelabel,split = "\n|\r\n"))
+       research_gene=research_gene[research_gene%in%rownames(survival_exp)]
+       for(rg in research_gene)
+       {
+         tryCatch({
+           thresh=quantile(survival_exp[rg,],probs = quantile)[1,1]
+           tmpclinical=clinical_data[,c(time,status)]
+           tmpclinical$group=""
+           high_group=colnames(survival_exp)[which(as.numeric(survival_exp[rg,])>=thresh)]
+           low_group=colnames(survival_exp)[which(as.numeric(survival_exp[rg,])<thresh)]
+           tmpclinical[high_group,"group"]="High Expressed"
+           tmpclinical[low_group,"group"]="Low Expressed"
+           p=km.analysis(data = tmpclinical,time = time,status = status,factor = "group")
+           create_survival_result_box(session,label=paste("Survival Result of ",rg,sep=""),id=rg,model=model)
+           disp=SingleExpress(survival_exp[rg,],thresh,tmpclinical)
+           
+           imagepath=paste(basepath,"/Plot/",rg,"_",model,"_survival_curve.svg",sep="")
+           svg(imagepath,family = "serif")
+           print(p$plot)
+           dev.off()
+           
+           imagepath=paste(basepath,"/Plot/",rg,"_",model,"_survival_cluster.svg",sep="")
+           svg(imagepath,family = "serif")
+           print(disp)
+           dev.off()
+           
+           local({
+             id=rg
+             table=p$data.survtable
+             output[[paste(id,model,"survival_curve",sep="_")]]=renderImage({
+               imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_curve.svg",sep="")
+               # svg(imagepath,family = "serif")
+               # print(plot1$plot)
+               # dev.off()
+               list(src=imagepath,width="100%",height="100%")
+             },deleteFile = F)
+             output[[paste(id,model,"survival_cluster",sep="_")]]=renderImage({
+               imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_cluster.svg",sep="")
+               # svg(imagepath,family = "serif")
+               # print(plot2)
+               # dev.off()
+               list(src=imagepath,width="100%",height="100%")
+             },deleteFile = F)
+             output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
+               rhandsontable(table)
+             })
+           })
+         },error=function(e)
+         {
+           insertUI(selector = "#survival_result_panel",where = "beforeEnd",immediate = T,session = session,
+                    ui=div(class="col-lg-6 col-md-12",
+                           div(class="box box-primary",id=paste(rg,model,sep="_"),
+                               div(class="box-header with-border",
+                                   h4(paste("Survival Result of ",rg,sep=""))
+                               ),
+                               div(class="box-body",
+                                   h4(e)
+                               )
+                               
+                           )
+                    )
+           )
+         })
+       }
+     }
+     else if(genesource=="custom")
+     {
+       tryCatch({
+         customgene=unlist(strsplit(x = customgene,split = "\r\n|\n"))
+         customgene=customgene[which(customgene%in%rownames(survival_exp))]
+         if(length(customgene)==1)
+         {
+           sendSweetAlert(session = session,title = "Warning...",text = "Please select Single Gene Model",type = "warning")
+           return()
+         }
+         patient.cluster=kmeans(t(survival_exp[customgene,]),centers = 2)$cluster
          
          tmpclinical=clinical_data[,c(time,status)]
          tmpclinical$group=""
@@ -2690,18 +2826,18 @@ shinyServer(function(input,output,session) {
          
          tmpclinical=tmpclinical[which(tmpclinical$group!=""),]
          p=km.analysis(data = tmpclinical,time = time,status = status,factor = "group")
-         create_survival_result_box(session,label=paste("Survival Result of ",m,sep=""),id=m,model=model)
+         create_survival_result_box(session,label=paste("Survival Result of Custom Gene Set",sep=""),id="custom",model=model)
          
-         imagepath=paste(basepath,"/Plot/",m,"_",model,"_survival_curve.svg",sep="")
+         imagepath=paste(basepath,"/Plot/",'custom',"_",model,"_survival_curve.svg",sep="")
          svg(imagepath,family = "serif")
          print(p$plot)
          dev.off()
          
-         imagepath_heat=paste(basepath,"/Plot/",m,"_",model,"_survival_cluster.png",sep="")
-         Heatmaps(survival_exp[modulegene,],tmpclinical,imagepath_heat)
+         imagepath_heat=paste(basepath,"/Plot/","custom","_",model,"_survival_cluster.png",sep="")
+         Heatmaps(survival_exp[customgene,],tmpclinical,imagepath_heat)
          #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
          local({
-           id=m
+           id="custom"
            table=p$data.survtable
            imagepe_for_heat=imagepath_heat
            output[[paste(id,model,"survival_curve",sep="_")]]=renderImage({
@@ -2718,107 +2854,21 @@ shinyServer(function(input,output,session) {
              rhandsontable(table)
            })
          })
-      }
-     }
-     else if(genesource=="single.gene")
-     {
-       research_gene=unlist(strsplit(x = singlelabel,split = "\n|\r\n"))
-       research_gene=research_gene[research_gene%in%rownames(survival_exp)]
-       for(rg in research_gene)
+       },error=function(e)
        {
-         thresh=quantile(survival_exp[rg,],probs = quantile)[1,1]
-         tmpclinical=clinical_data[,c(time,status)]
-         tmpclinical$group=""
-         high_group=colnames(survival_exp)[which(as.numeric(survival_exp[rg,])>=thresh)]
-         low_group=colnames(survival_exp)[which(as.numeric(survival_exp[rg,])<thresh)]
-         tmpclinical[high_group,"group"]="High Expressed"
-         tmpclinical[low_group,"group"]="Low Expressed"
-         p=km.analysis(data = tmpclinical,time = time,status = status,factor = "group")
-         create_survival_result_box(session,label=paste("Survival Result of ",rg,sep=""),id=rg,model=model)
-         disp=SingleExpress(survival_exp[rg,],thresh,tmpclinical)
-         
-         imagepath=paste(basepath,"/Plot/",rg,"_",model,"_survival_curve.svg",sep="")
-         svg(imagepath,family = "serif")
-         print(p$plot)
-         dev.off()
-         
-         imagepath=paste(basepath,"/Plot/",rg,"_",model,"_survival_cluster.svg",sep="")
-         svg(imagepath,family = "serif")
-         print(disp)
-         dev.off()
-         
-         local({
-           id=rg
-           table=p$data.survtable
-           output[[paste(id,model,"survival_curve",sep="_")]]=renderImage({
-             imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_curve.svg",sep="")
-             # svg(imagepath,family = "serif")
-             # print(plot1$plot)
-             # dev.off()
-             list(src=imagepath,width="100%",height="100%")
-           },deleteFile = F)
-           output[[paste(id,model,"survival_cluster",sep="_")]]=renderImage({
-             imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_cluster.svg",sep="")
-             # svg(imagepath,family = "serif")
-             # print(plot2)
-             # dev.off()
-             list(src=imagepath,width="100%",height="100%")
-           },deleteFile = F)
-           output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
-             rhandsontable(table)
-           })
-         })
-          
-       }
-     }
-     else if(genesource=="custom")
-     {
-       customgene=unlist(strsplit(x = customgene,split = "\r\n|\n"))
-       customgene=customgene[which(customgene%in%rownames(survival_exp))]
-       if(length(customgene)==1)
-       {
-         sendSweetAlert(session = session,title = "Warning...",text = "Please select Single Gene Model",type = "warning")
-         return()
-       }
-       patient.cluster=kmeans(t(survival_exp[customgene,]),centers = 2)$cluster
-       
-       tmpclinical=clinical_data[,c(time,status)]
-       tmpclinical$group=""
-       
-       for(cl in unique(patient.cluster))
-       {
-         tmpclinical[names(patient.cluster)[which(patient.cluster==cl)],'group']=paste("Group",cl,sep="")
-       }
-       
-       tmpclinical=tmpclinical[which(tmpclinical$group!=""),]
-       p=km.analysis(data = tmpclinical,time = time,status = status,factor = "group")
-       create_survival_result_box(session,label=paste("Survival Result of Custom Gene Set",sep=""),id="custom",model=model)
-       
-       imagepath=paste(basepath,"/Plot/",'custom',"_",model,"_survival_curve.svg",sep="")
-       svg(imagepath,family = "serif")
-       print(p$plot)
-       dev.off()
-       
-       imagepath_heat=paste(basepath,"/Plot/","custom","_",model,"_survival_cluster.png",sep="")
-       Heatmaps(survival_exp[customgene,],tmpclinical,imagepath_heat)
-       #plot_survival_result(output,basepath,m,model,list(p$plot,"",p$data.survtable))
-       local({
-         id="custom"
-         table=p$data.survtable
-         imagepe_for_heat=imagepath_heat
-         output[[paste(id,model,"survival_curve",sep="_")]]=renderImage({
-           imagepath=paste(basepath,"/Plot/",id,"_",model,"_survival_curve.svg",sep="")
-           # svg(imagepath,family = "serif")
-           # print(plot$plot)
-           # dev.off()
-           list(src=imagepath,width="100%",height="100%")
-         },deleteFile = F)
-         output[[paste(id,model,"survival_cluster",sep="_")]]=renderImage({
-           list(src=imagepe_for_heat,width="100%",height="100%")
-         },deleteFile = F)
-         output[[paste(id,model,"survival_table",sep="_")]]=renderRHandsontable({
-           rhandsontable(table)
-         })
+         insertUI(selector = "#survival_result_panel",where = "beforeEnd",immediate = T,session = session,
+                  ui=div(class="col-lg-6 col-md-12",
+                         div(class="box box-primary",id=paste("custom",model,sep="_"),
+                             div(class="box-header with-border",
+                                 h4(paste("Survival Result of ","custom",sep=""))
+                             ),
+                             div(class="box-body",
+                                 h4(e)
+                             )
+                             
+                         )
+                  )
+         )
        })
      }
    }
@@ -3103,7 +3153,7 @@ shinyServer(function(input,output,session) {
         immediate = T
       )
       temp_enrichment=enrichment[which(enrichment$set_id==set_id&enrichment$p_value<User_threshold),]
-      if(empty(temp_enrichment))
+      if(is.character(temp_enrichment)||empty(temp_enrichment))
       {
         insertUI(
           selector =paste('#enrichment_show_',set_id,' .row',sep = ""),

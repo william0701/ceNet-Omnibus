@@ -203,8 +203,9 @@ Shiny.addCustomMessageHandler("network",function(msg){
   height=parseInt(height.replace(/px/,""))*/
      cy.center()
      cy.fit()
+     type = msg.type.toLowerCase()
      var layout=cy.layout({
-       name:msg.type,
+       name:type,
        fit: true, // whether to fit the viewport to the graph
        padding: 30,
        animate: true,
@@ -214,7 +215,7 @@ Shiny.addCustomMessageHandler("network",function(msg){
   }
 })
 Shiny.addCustomMessageHandler("Gene_info_name_change",function(msg){
-  $("#choose_differ_name").children('ul').empty();
+  $("#choose_differ_name").find('ul').empty();
   $("#change_network_color").find('ul').empty();
   $("#change_network_shape").find('ul').empty();
   $("#select_network_node").find('ul').empty();

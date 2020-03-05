@@ -935,6 +935,7 @@ shinyServer(function(input,output,session) {
       sendSweetAlert(session = session,title = "Warning..",text = 'Please click one preview at least!..',type = 'warning')
       
     }else{
+    
       for(type in names(gene_filter_choose)){
         number = gene_filter_choose[[type]][1]
         line = gene_filter_choose[[type]][2]

@@ -519,6 +519,9 @@ analysis_tab=tabItem(tabName = "analysis",
                                                                             div(class='col-lg-12',style="padding:0px",
                                                                                 prettyRadioButtons(inputId = 'clinical_seperator',label = 'Seprator',choices = c("Tab"="\t",'Common'=',','Space'=' ','Semicolon'=';'),status='primary',inline=T)
                                                                             ),
+                                                                            div(class='col-lg-12',style="padding:0px",
+                                                                                prettyRadioButtons(inputId = 'clinical_quote',label = 'Quote',choices = c("None"="\t",'Double Qoute'='"','Single Qoute'="'"),status='primary',inline=T)
+                                                                            ),
                                                                             div(class="col-lg-12",style="padding:0px",
                                                                                 prettyRadioButtons(inputId = 'clinical_header',label = 'Header',choices = c("With header"=T,'Without header'=F),selected=T,status='primary',inline=T)
                                                                             ),
@@ -658,8 +661,8 @@ analysis_tab=tabItem(tabName = "analysis",
                                                                           )
                                                                       )
                                                              ),
-                                                             tabPanel(title="Clinical Data Preview",div(id="clinical_data_preview",style="margin:10px")),
-                                                             tabPanel(title="Expression Data Preview",div(id="survival_exp_preview",style="margin:10px"))
+                                                             tabPanel(title="Clinical Data Preview",div(id="clinical_data_preview",style="margin:10px;overflow:auto")),
+                                                             tabPanel(title="Expression Data Preview",div(id="survival_exp_preview",style="margin:10px;overflow:auto"))
                                                  )
                                              )
                                          ),

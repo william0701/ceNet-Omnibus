@@ -324,6 +324,7 @@ Shiny.addCustomMessageHandler('calculation_eta',function(msg){
   if(msg.status=='stop')
   {
     $('#body_'+msg.type).attr('class','info-box bg-green')
+    $("#progress_"+msg.type).css("width",msg.progress)
     $('#icon_'+msg.type).find('i').attr('class','fa fa-check')
     var obj={}
     obj['stamp']=Math.random()

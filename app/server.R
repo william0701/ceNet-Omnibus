@@ -25,8 +25,8 @@ shinyServer(function(input,output,session) {
   dir.create(paste(basepath,'log',sep="/"))
   print(paste("Templete File Dictionary:",basepath))
   visual_layout=""
-  #load('C:/Users/DELL/Desktop/single-cell/ph3.RData',envir=environment())
-  load('testdata/ph1.RData',envir = environment())
+  load('C:/Users/DELL/Desktop/single-cell/tmp.RData',envir=environment())
+  #load('testdata/ph1.RData',envir = environment())
 
   ############Input Page Action##########
   observeEvent(input$onclick,{
@@ -1432,68 +1432,68 @@ shinyServer(function(input,output,session) {
     core=condition[type,'core']
     tasks=condition[type,'task']
     logpath=normalizePath(paste(basepath,'/log/',type,'.txt',sep=""))
-    if(file.exists(logpath))
-    {
-      file.remove(logpath)
-    }
-    if(type=="PCC")
-    {
-      if(dir.exists(paths = normalizePath(paste(basepath,'/log/',sep=""))))
-      {
-        dir.create(path = normalizePath(paste(basepath,'/log/',sep="")),recursive = T)
-      }
-      print('start')
-      session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
-      filepath=paste(basepath,"/data/rna.exp.RData",sep="")
-      saveRDS(file=filepath,object=after_slice_rna.exp)
-      #system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
-      scriptpath="www/Program/PCC.R"
-      resultpath=paste(basepath,'/all.cor.RData',sep="")
-      system(paste("Rscript",scriptpath,filepath,logpath,resultpath),wait = F)
-
-    }
-    else
-    {
-      if(dir.exists(paths = paste(basepath,'/log/')))
-      {
-        dir.create(paths = paste(basepath,'/log/'),recursive = T)
-      }
-      file.create(logpath)
-      print('start')
-      session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
-      datapath=paste(basepath,"/data/tmpdatas.RData",sep="")
-      scriptpath="www/Program/ComputeCondition.R"
-      codepath=""
-      resultpath=paste(basepath,'/',type,'.RData',sep="")
-      if(file.exists(paste(basepath,'/code/',type,'.R',sep="")))
-      {
-        codepath=paste(basepath,'/code/',type,'.R',sep="")
-      }
-      else if(file.exists(paste('www/Program/',type,'.R',sep="")))
-      {
-        codepath=paste('www/Program/',type,'.R',sep="")
-      }
-      else
-      {
-        sendSweetAlert(session = session,title = "Error..",text = "No Code",type = 'error')
-      }
-
-      rna.exp=after_slice_rna.exp
-      micro.exp=after_slice_micro.exp
-      target=sect_output_target[rownames(rna.exp),rownames(micro.exp)]
-      geneinfo=after_slice_geneinfo
-      save(rna.exp,micro.exp,target,geneinfo,file = datapath)
-      if(condition[type,'others']=="")
-      {
-        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
-        system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
-      }
-      else
-      {
-        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,condition[type,'others']))
-        system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath,condition[type,'others']),wait = F)
-      }
-    }
+    # if(file.exists(logpath))
+    # {
+    #   file.remove(logpath)
+    # }
+    # if(type=="PCC")
+    # {
+    #   if(dir.exists(paths = normalizePath(paste(basepath,'/log/',sep=""))))
+    #   {
+    #     dir.create(path = normalizePath(paste(basepath,'/log/',sep="")),recursive = T)
+    #   }
+    #   print('start')
+    #   session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
+    #   filepath=paste(basepath,"/data/rna.exp.RData",sep="")
+    #   saveRDS(file=filepath,object=after_slice_rna.exp)
+    #   #system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
+    #   scriptpath="www/Program/PCC.R"
+    #   resultpath=paste(basepath,'/all.cor.RData',sep="")
+    #   system(paste("Rscript",scriptpath,filepath,logpath,resultpath),wait = F)
+    # 
+    # }
+    # else
+    # {
+    #   if(dir.exists(paths = paste(basepath,'/log/')))
+    #   {
+    #     dir.create(paths = paste(basepath,'/log/'),recursive = T)
+    #   }
+    #   file.create(logpath)
+    #   print('start')
+    #   session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
+    #   datapath=paste(basepath,"/data/tmpdatas.RData",sep="")
+    #   scriptpath="www/Program/ComputeCondition.R"
+    #   codepath=""
+    #   resultpath=paste(basepath,'/',type,'.RData',sep="")
+    #   if(file.exists(paste(basepath,'/code/',type,'.R',sep="")))
+    #   {
+    #     codepath=paste(basepath,'/code/',type,'.R',sep="")
+    #   }
+    #   else if(file.exists(paste('www/Program/',type,'.R',sep="")))
+    #   {
+    #     codepath=paste('www/Program/',type,'.R',sep="")
+    #   }
+    #   else
+    #   {
+    #     sendSweetAlert(session = session,title = "Error..",text = "No Code",type = 'error')
+    #   }
+    # 
+    #   rna.exp=after_slice_rna.exp
+    #   micro.exp=after_slice_micro.exp
+    #   target=sect_output_target[rownames(rna.exp),rownames(micro.exp)]
+    #   geneinfo=after_slice_geneinfo
+    #   save(rna.exp,micro.exp,target,geneinfo,file = datapath)
+    #   if(condition[type,'others']=="")
+    #   {
+    #     print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
+    #     system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
+    #   }
+    #   else
+    #   {
+    #     print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,condition[type,'others']))
+    #     system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath,condition[type,'others']),wait = F)
+    #   }
+    # }
   })
   observeEvent(input$compute_status,{
     isolate({
@@ -1532,11 +1532,10 @@ shinyServer(function(input,output,session) {
         content=readLines(logpath)
         lastline=content[length(content)]
         progress=min(length(content),3)/3*100
-        
         if(grepl(pattern = "^All Finish.$",x = lastline))
         {
           session$sendCustomMessage('calculation_eta',
-                                    list(type=type,msg=lastline,status='stop',progress=paste(progress,"%",sep=""),complete=paste(length(tasks),"/",length(tasks),sep="")))
+                                    list(type=type,msg=lastline,status='stop',progress=paste(100,"%",sep=""),complete=paste(length(tasks),"/",length(tasks),sep="")))
         }
         else
         {
@@ -1565,6 +1564,7 @@ shinyServer(function(input,output,session) {
           {
             msg="All Finish."
             status='stop'
+            progress=100
           }
           session$sendCustomMessage('calculation_eta',
                                     list(type=type,msg=msg,progress=paste(progress,"%",sep=""),status=status,complete=paste(finish.task,"/",length(tasks),sep="")))
@@ -2389,58 +2389,64 @@ shinyServer(function(input,output,session) {
     module.configure[[id]]$shape.attr<<-shape_map
   })
   
-  observeEvent(list(input$clinical_file,input$clinical_seperator,input$clinical_header,input$clinical_first_col),{
+  observeEvent(list(input$clinical_file,input$clinical_seperator,input$clinical_header,input$clinical_first_col,input$clinical_quote),{
     isolate({
       file=input$clinical_file
       seperator=input$clinical_seperator
       header=as.logical(input$clinical_header)
       first_column=as.logical(input$clinical_first_col)
+      quote=input$clinical_quote
     })
     if(!is.null(file))
     {
-      # if(!is.null(after_slice_rna.exp))
-      # {
-      #   survival_exp<<-after_slice_rna.exp
-      # }
-      removeUI(selector = "#clinical_data_preview>",multiple = T,immediate = T)
-      insertUI(selector = "#clinical_data_preview",where = 'beforeEnd',ui = div(class="overlay",id="icon",tags$i(class="fa fa-spinner fa-spin",style="font-size:50px")))
-      insertUI(selector = "#clinical_data_preview",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "clinical_data_table"))
-      clinical_data<<-read.table(file = file$datapath,header = header,sep = seperator,stringsAsFactors = F,check.names = F)
-      if(first_column)
+      tryCatch(
       {
-        clinical_data[,1]<<-gsub(pattern = "-",replacement = ".",x = clinical_data[,1])
-        rownames(clinical_data)<<-clinical_data[,1]
-        clinical_data<<-clinical_data[,-1]
-      }
-      output[['clinical_data_table']]=renderRHandsontable({
-        rhandsontable(head(clinical_data,n=20),readOnly = T)
-      })
-      removeUI(selector = "#icon")
-      column=colnames(clinical_data)
-      names(column)=column
-      updatePickerInput(session = session,inputId = 'clinical_survival_time',choices = column)
-      updatePickerInput(session = session,inputId = 'clinical_survival_status',choices = column)
-      updatePickerInput(session = session,inputId = 'survival_extern_factor_continous',choices = column)
-      updatePickerInput(session = session,inputId = 'survival_extern_factor_categorical',choices = column)
-      updatePickerInput(session = session,inputId = 'survival_stratified_factor',choices = column)
-      
-      output$clinical_patient_count=renderUI({
-        div(class="external-event bg-light-blue",style="font-size:16px",
-            list(tags$span("Patients in Clinical Data"),
-                 tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(dim(clinical_data)[1])))
-        )
-      })
-      
-      if(survival_exp!="")
-      {
-        valid_patient<<-intersect(rownames(clinical_data),colnames(survival_exp))
-        output$clinical_valid_patient_count=renderUI({
+        removeUI(selector = "#clinical_data_preview>",multiple = T,immediate = T)
+        insertUI(selector = "#clinical_data_preview",where = 'beforeEnd',ui = div(class="overlay",id="icon",tags$i(class="fa fa-spinner fa-spin",style="font-size:50px")))
+        insertUI(selector = "#clinical_data_preview",where = 'beforeEnd',ui = dataTableOutput(outputId = "clinical_data_table"))
+        clinical_data<<-read.table(file = file$datapath,header = header,sep = seperator,stringsAsFactors = F,check.names = F,quote = quote)
+        if(first_column)
+        {
+          #clinical_data[,1]<<-gsub(pattern = "-",replacement = ".",x = clinical_data[,1])
+          rownames(clinical_data)<<-clinical_data[,1]
+          clinical_data<<-clinical_data[,-1]
+        }
+        output[['clinical_data_table']]=renderDataTable({
+          head(clinical_data,n=20)
+        })
+        removeUI(selector = "#icon")
+        column=colnames(clinical_data)
+        names(column)=column
+        updatePickerInput(session = session,inputId = 'clinical_survival_time',choices = column)
+        updatePickerInput(session = session,inputId = 'clinical_survival_status',choices = column)
+        updatePickerInput(session = session,inputId = 'survival_extern_factor_continous',choices = column)
+        updatePickerInput(session = session,inputId = 'survival_extern_factor_categorical',choices = column)
+        updatePickerInput(session = session,inputId = 'survival_stratified_factor',choices = column)
+        
+        output$clinical_patient_count=renderUI({
           div(class="external-event bg-light-blue",style="font-size:16px",
-              list(tags$span("Valid Patients"),
-                   tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(length(valid_patient))))
+              list(tags$span("Patients in Clinical Data"),
+                   tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(dim(clinical_data)[1])))
           )
         })
+        
+        if(survival_exp!="")
+        {
+          valid_patient<<-intersect(rownames(clinical_data),colnames(survival_exp))
+          output$clinical_valid_patient_count=renderUI({
+            div(class="external-event bg-light-blue",style="font-size:16px",
+                list(tags$span("Valid Patients"),
+                     tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(length(valid_patient))))
+            )
+          })
+        }
+      },
+      error=function(e){
+        sendSweetAlert(session = session,title = "Error...",text = e,type = 'error')
+        removeUI(selector = "#clinical_patient_count>",multiple = T,immediate = T)
+        removeUI(selector = "#clinical_valid_patient_count>",multiple = T,immediate = T)
       }
+    )
       
     }
     
@@ -2455,42 +2461,51 @@ shinyServer(function(input,output,session) {
     })
     if(!is.null(file))
     {
-      removeUI(selector = "#survival_exp_preview>",multiple = T,immediate = T)
-      insertUI(selector = "#survival_exp_preview",where = 'beforeEnd',ui = div(class="overlay",id="icon",tags$i(class="fa fa-spinner fa-spin",style="font-size:50px")))
-      insertUI(selector = "#survival_exp_preview",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "survival_exp_data_table"))
-      survival_exp<<-read.table(file = file$datapath,header = header,sep = seperator,stringsAsFactors = F,check.names = F)
-      if(first_column)
+      tryCatch(
       {
-        survival_exp[,1]<<-gsub(pattern = "-",replacement = ".",x = survival_exp[,1])
-        rownames(survival_exp)<<-survival_exp[,1]
-        survival_exp<<-survival_exp[,-1]
-      }
-      output[['survival_exp_data_table']]=renderRHandsontable({
-        rhandsontable(head(survival_exp,n=20),readOnly = T)
-      })
-      removeUI(selector = "#icon")
-      column=colnames(clinical_data)
-      names(column)=column
-      updatePickerInput(session = session,inputId = 'clinical_survival_time',choices = column)
-      updatePickerInput(session = session,inputId = 'clinical_survival_status',choices = column)
-      
-      output$exp_patient_count=renderUI({
-        div(class="external-event bg-light-blue",style="font-size:16px",
-            list(tags$span("Patients in Expression Data"),
-                 tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(dim(survival_exp)[2])))
-        )
-      })
-      
-      if(clinical_data!="")
-      {
-        valid_patient<<-intersect(rownames(clinical_data),colnames(survival_exp))
-        output$clinical_valid_patient_count=renderUI({
+        removeUI(selector = "#survival_exp_preview>",multiple = T,immediate = T)
+        insertUI(selector = "#survival_exp_preview",where = 'beforeEnd',ui = div(class="overlay",id="icon",tags$i(class="fa fa-spinner fa-spin",style="font-size:50px")))
+        insertUI(selector = "#survival_exp_preview",where = 'beforeEnd',ui = dataTableOutput(outputId = "survival_exp_data_table"))
+        survival_exp<<-read.table(file = file$datapath,header = header,sep = seperator,stringsAsFactors = F,check.names = F)
+        if(first_column)
+        {
+          #srvival_exp[,1]<<-gsub(pattern = "-",replacement = ".",x = survival_exp[,1])
+          rownames(survival_exp)<<-survival_exp[,1]
+          survival_exp<<-survival_exp[,-1]
+        }
+        output[['survival_exp_data_table']]=renderDataTable({
+          head(survival_exp,n=20)
+        })
+        removeUI(selector = "#icon")
+        column=colnames(clinical_data)
+        names(column)=column
+        updatePickerInput(session = session,inputId = 'clinical_survival_time',choices = column)
+        updatePickerInput(session = session,inputId = 'clinical_survival_status',choices = column)
+        
+        output$exp_patient_count=renderUI({
           div(class="external-event bg-light-blue",style="font-size:16px",
-              list(tags$span("Valid Patients"),
-                   tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(length(valid_patient))))
+              list(tags$span("Patients in Expression Data"),
+                   tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(dim(survival_exp)[2])))
           )
         })
+        
+        if(clinical_data!="")
+        {
+          valid_patient<<-intersect(rownames(clinical_data),colnames(survival_exp))
+          output$clinical_valid_patient_count=renderUI({
+            div(class="external-event bg-light-blue",style="font-size:16px",
+                list(tags$span("Valid Patients"),
+                     tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(length(valid_patient))))
+            )
+          })
+        }
+      },
+      error=function(e){
+        sendSweetAlert(session = session,title = "Error...",text = e,type = 'error')
+        removeUI(selector = "#exp_patient_count>",multiple = T,immediate = T)
+        removeUI(selector = "#clinical_valid_patient_count>",multiple = T,immediate = T)
       }
+      )
     }
   })
   

@@ -25,8 +25,8 @@ shinyServer(function(input,output,session) {
   dir.create(paste(basepath,'log',sep="/"))
   print(paste("Templete File Dictionary:",basepath))
   visual_layout=""
-  load('C:/Users/DELL/Desktop/single-cell/tmp.RData',envir=environment())
-  #load('testdata/ph1.RData',envir = environment())
+  #load('C:/Users/DELL/Desktop/single-cell/tmp.RData',envir=environment())
+  load('testdata/ph1.RData',envir = environment())
 
   ############Input Page Action##########
   observeEvent(input$onclick,{
@@ -40,8 +40,8 @@ shinyServer(function(input,output,session) {
         sep=input$ceRNA_seperator;
         filepath=input$ceRNA$datapath;
         header=as.logical(input$ceRNA_header);
-        quote=input$ceRNA_quote
-        row=as.logical(input$ceRNA_row_col)
+        #quote=input$ceRNA_quote
+        #row=as.logical(input$ceRNA_row_col)
         rowname=as.logical(input$ceRNA_first_col)
       })
       if(sep_cus!="")
@@ -53,12 +53,12 @@ shinyServer(function(input,output,session) {
         rna.exp<<-'No Data'
       }else
       {
-        rna.exp<<-read.table(file = filepath,header = header,sep = sep,quote = quote,nrow=-1,stringsAsFactors = F,check.names = F)
+        rna.exp<<-read.table(file = filepath,header = header,sep = sep,quote = "",nrow=-1,stringsAsFactors = F,check.names = F)
       }
-      if(!row)
-      {
-        rna.exp<<-t(rna.exp)
-      }
+      # if(!row)
+      # {
+      #   rna.exp<<-t(rna.exp)
+      # }
       if(rowname)
       {
         rownames(rna.exp)<<-rna.exp[,1];
@@ -77,8 +77,8 @@ shinyServer(function(input,output,session) {
         sep=input$micro_seperator;
         filepath=input$micro$datapath;
         header=as.logical(input$micro_header);
-        quote=input$micro_quote
-        row=as.logical(input$micro_row_col)
+        #quote=input$micro_quote
+        #row=as.logical(input$micro_row_col)
         rowname=as.logical(input$micro_first_col)
       })
       if(sep_cus!="")
@@ -90,12 +90,12 @@ shinyServer(function(input,output,session) {
         micro.ex<<-'No Data'
       }else
       {
-        micro.exp<<-read.table(file = filepath,header = header,sep = sep,quote = quote,nrow=-1,stringsAsFactors = F,check.names = F)
+        micro.exp<<-read.table(file = filepath,header = header,sep = sep,quote = "",nrow=-1,stringsAsFactors = F,check.names = F)
       }
-      if(!row)
-      {
-        micro.exp<<-t(micro.exp)
-      }
+      # if(!row)
+      # {
+      #   micro.exp<<-t(micro.exp)
+      # }
       if(rowname)
       {
         rownames(micro.exp)<<-micro.exp[,1]
@@ -115,7 +115,8 @@ shinyServer(function(input,output,session) {
         sep=input$target_seperator;
         filepath=input$target$datapath;
         header=as.logical(input$target_header);
-        quote=input$target_quote
+        #quote=input$target_quote
+        rowname=as.logical(input$target_first_col)
       })
       if(sep_cus!="")
       {
@@ -126,7 +127,12 @@ shinyServer(function(input,output,session) {
         target<<-'No Data'
       }else
       {
-        target<<-read.table(file = filepath,header = header,sep = sep,quote = quote,stringsAsFactors = F,check.names = F)
+        target<<-read.table(file = filepath,header = header,sep = sep,quote = "",stringsAsFactors = F,check.names = F)
+      }
+      if(rowname)
+      {
+        rownames(target)<<-target[,1]
+        target<<-target[,-1]
       }
       Sys.sleep(2)
       session$sendCustomMessage('reading',list(div='target_preview_panel',status='finish'))
@@ -142,7 +148,8 @@ shinyServer(function(input,output,session) {
         sep=input$geneinfo_seperator;
         filepath=input$geneinfo$datapath;
         header=as.logical(input$geneinfo_header);
-        quote=input$geneinfo_quote
+        #quote=input$geneinfo_quote
+        rowname=as.logical(input$geneinfo_first_col)
       })
       if(sep_cus!="")
       {
@@ -153,7 +160,11 @@ shinyServer(function(input,output,session) {
         geneinfo<<-'No Data'
       }else
       {
-        geneinfo<<-read.table(file = filepath,header = header,sep = sep,quote = quote,nrow=-1,stringsAsFactors = F)
+        geneinfo<<-read.table(file = filepath,header = header,sep = sep,quote = "",nrow=-1,stringsAsFactors = F)
+      }
+      if(rowname)
+      {
+        rownames(geneinfo)<<-geneinfo[,1]
       }
       type=as.data.frame(lapply(X = geneinfo,FUN = class))
       non_character=names(type[which(type!='character')])

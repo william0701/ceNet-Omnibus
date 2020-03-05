@@ -48,3 +48,4 @@ Super <- function(run = TRUE,maxRequestSize=5*1024^2,workpath=tempdir(),projectN
 
 #Super(run = T,workpath = "D://Test/",projectName = "Single_cell_case")
 Super(workpath = "D:/Test/",projectName ="Single cell case" ,typeLimit = 20)
+#Super(typeLimit = 10,host="192.168.0.10")

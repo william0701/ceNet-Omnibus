@@ -147,6 +147,12 @@ process_tab=tabItem(tabName = "process",
 visual_tab=tabItem(tabName = "visualization",
 
                    h2("Network Visualization"),
+                   # dropdownButton(
+                   # 
+                   #   
+                   #   circle = TRUE, status = "danger", icon = icon("gear"), width = "300px",
+                   #   tooltip = tooltipOptions(title = "Click to see inputs !")
+                   # ),
                    div(class='row',
                      div(class='col-lg-2',
                       div( id="choose_differ_layout",class="form-group",

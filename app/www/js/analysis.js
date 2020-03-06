@@ -3,7 +3,7 @@ $(document).ready(function(){
     Shiny.setInputValue("initialization_enrichment",Math.random());
     
   });
-   $("#custom_preview_panel").parent().css({'overflow':'auto','height':'530'});
+   $("#custom_preview_panel").parent().css({'overflow':'auto','height':'370px'});
 })
 
 function showNodeCentrality(box)

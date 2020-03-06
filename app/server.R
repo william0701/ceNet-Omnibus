@@ -26,7 +26,7 @@ shinyServer(function(input,output,session) {
   print(paste("Templete File Dictionary:",basepath))
   visual_layout=""
   #load('D:/Test/ph3.RData',envir=environment())
-  #load('C:/Users/DELL/Desktop/single-cell/tmp.RData',envir=environment())
+  load('C:/Users/DELL/Desktop/single-cell/tmp.RData',envir=environment())
   #load('testdata/ph1.RData',envir = environment())
 
   ############Input Page Action##########
@@ -3080,7 +3080,7 @@ shinyServer(function(input,output,session) {
     removeUI(selector = '#all_enrichment_show>',immediate = T,multiple = T)
     # removeUI(selector = "#module_info_box>",multiple = T,immediate = T)
     # removeUI(selector = "#module_visualization>",multiple = T,immediate = T)
-    insertUI(selector = "#all_enrichment_show",where = 'beforeEnd',ui = create_progress(paste0("Running ",choose_analysis_tool,"...")),immediate = T)
+    insertUI(selector = "#all_enrichment_show",where = 'beforeEnd',ui = create_progress(paste0("Running ",choose_analysis_tool,"..."),id="enrichment_progress"),immediate = T)
     
     
     if(choose_analysis_gene=="Custom_Gene"){
@@ -3098,6 +3098,7 @@ shinyServer(function(input,output,session) {
     enrichment=data.frame()
     if(choose_analysis_tool=='gProfile'){
       for(i in names(gene_set)){
+        session$sendCustomMessage('update_progress_state',list(status='update',value=paste("Analyzing ",i,"...",sep=""),id="enrichment_progress"))
         enrichment_result=gost(modules[[i]], organism = Organism,sources = Data_Sources,
                                custom_bg=rownames(after_slice_geneinfo),user_threshold =User_threshold,
                                correction_method = Significance_threshold)$result
@@ -3110,6 +3111,7 @@ shinyServer(function(input,output,session) {
     }
     else{
       for(set_id in names(gene_set)){
+        session$sendCustomMessage('update_progress_state',list(status='update',value=paste("Analyzing ",set_id,"...",sep=""),id="enrichment_progress"))
         for(func_id in names(custom_gene_set)){
           background_set=as.character(unique(after_slice_geneinfo[,Numeric_IDs_treated_as]))
           singl_func_gene=interaction(custom_gene_set[[func_id]],background_set)

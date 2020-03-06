@@ -178,5 +178,8 @@ function showCustomGeneDetails(obj){
   temp['stamp']=Math.random()
   temp['id']=name
   Shiny.setInputValue("showCustomDetails",temp)
-  
 }
+
+Shiny.addCustomMessageHandler("update_progress_state",function(msg){
+  $('#'+msg.id).find('span').html(msg.value)
+})

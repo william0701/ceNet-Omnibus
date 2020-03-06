@@ -208,7 +208,7 @@ Shiny.addCustomMessageHandler("network",function(msg){
        name:type,
        fit: true, // whether to fit the viewport to the graph
        padding: 30,
-       animate: true,
+       animate: false,
        animationDuration: 2000// padding used on fit
      })
      layout.run()

@@ -9,7 +9,7 @@ construction_tab=tabItem(tabName = "construction",
                          fluidRow(
                            div(id='condition_panel')
                          ),
-                         h2("Step2: Condition Filter",style='font-family:Georgia',downloadButton(outputId = 'export_condition_plot',label = "Export Plots")),
+                         h2("Step2: Condition Setting",style='font-family:Georgia',downloadButton(outputId = 'export_condition_plot',label = "Export Plots")),
                          div(class='col-lg-12 callout callout-info',
                              tags$p(style="font-size:14px;font-family:sans-serif",
                                     HTML("Please choose threshold for every condition and every task.")
@@ -18,13 +18,15 @@ construction_tab=tabItem(tabName = "construction",
                          fluidRow(
                            div(id="condition_preview")
                          ),
-                         h2("Network Summary",downloadButton(outputId = "network_export",label = "Export Network"),style='font-family:Georgia'),
-                         # div(class='col-lg-12 callout callout-info',
-                         #     tags$p(style="font-size:14px;font-family:sans-serif",
-                         #            HTML("If you are constructing Human ceRNA network, you can evaluate this network with Experimental Validated ceRNA pairs by integrating LncCeRBase, LncACTdb and miRSponge!")
-                         #     )
-                         # ),
+                         h2("Step3: Network Construction",downloadButton(outputId = "network_export",label = "Export Network"),style='font-family:Georgia'),
+                         div(class='col-lg-12 callout callout-info',
+                             tags$p(style="font-size:14px;font-family:sans-serif",
+                                    HTML("Click to Construct CeRNA Network"),
+                                    tags$button(tags$i(class='fa fa-plus-square'),HTML('Construct Network'),class='btn btn-default',id='network_construction'))
+                             
+                         ),
                          fluidRow(
-                           div(id="network_summary")
+                           div(id="network_summary"
+                           )
                          )
 )

@@ -68,6 +68,7 @@ filter_box=function(type,tasks)
   }
   body=div(class="box-body",plot_panel)
   foot=div(class="box-footer",
+           tags$button(class="btn btn-default action-button pull-right",HTML('Cancel'),onclick="cancel_thresh(this)"),
            tags$button(class="btn btn-success action-button pull-right",HTML('Confirm'),onclick="comfirm_thresh(this)")
           )
   box=div(class="box box-primary",id=paste("density_plot_",type,sep=""),header,body,foot)
@@ -309,7 +310,7 @@ network_construnction=function(after_slice_geneinfo)
   tasks=unique(thresh$task)
   for(type in unique(thresh$type))
   {    
-    session$sendCustomMessage('network_construction',list(status='update',value=paste("Applying Condition ",type,"...",sep=""),id="network_construction"))
+    session$sendCustomMessage('network_construction',list(status='update',value=paste("Applying Condition ",type,"...",sep=""),id="network_construction_progress"))
     tmpedges=data.frame()
     type.thresh=thresh[which(thresh$type==type),]
     datalist=readData(type,unlist(strsplit(condition[type,'task'],split = ";")))

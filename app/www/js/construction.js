@@ -123,6 +123,11 @@ $(document).ready(function(){
       $('#infolist').modal({backdrop: 'static', keyboard: false});
     }
   })
+  $("#network_construction").on('click',function(e){
+    var obj={}
+    obj['stamp']=Math.random()
+    Shiny.setInputValue('construct_network',obj)
+  })
   $("a[href='#shiny-tab-construction']").on('click',function(e){
     Shiny.setInputValue("construction_data_confirm",Math.random())
   })
@@ -324,6 +329,7 @@ Shiny.addCustomMessageHandler('calculation_eta',function(msg){
   if(msg.status=='stop')
   {
     $('#body_'+msg.type).attr('class','info-box bg-green')
+    $("#progress_"+msg.type).css("width",msg.progress)
     $('#icon_'+msg.type).find('i').attr('class','fa fa-check')
     var obj={}
     obj['stamp']=Math.random()
@@ -363,6 +369,10 @@ Shiny.addCustomMessageHandler('network_construction',function(msg){
 comfirm_thresh=function(e)
 {
   var $thresh_panel=$(e).parent().prev()
+  if($(e).parent().parent().children(":first").find('h4>small').length==0)
+  {
+    $(e).parent().parent().children(":first").find('h4').append($("<small class='badge bg-green'>Added</small>"))
+  }
   var threshs={}
   var type=""
   $thresh_panel.children().each(function(i,ele){
@@ -379,9 +389,18 @@ comfirm_thresh=function(e)
   obj['stamp']=Math.random()
   obj['type']=type
   obj['thresh']=threshs
-  Shiny.setInputValue("construct_network",obj)
+  Shiny.setInputValue("add_condition_thresh",obj)
 }
-
+cancel_thresh=function(e)
+{
+  var $thresh_panel=$(e).parent().prev()
+  $(e).parent().parent().children(":first").find('h4>small').remove()
+  var type=$thresh_panel.children(":first").attr('type')
+  var obj={}
+  obj['stamp']=Math.random()
+  obj['type']=type
+  Shiny.setInputValue("cancel_condition_thresh",obj)
+}
 async function updateState(type)
 {
   var obj={}

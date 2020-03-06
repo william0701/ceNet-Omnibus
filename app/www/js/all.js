@@ -10,7 +10,7 @@ $(document).ready(function(){
   $('#filter').attr('readonly','readonly');
   $('#select\\.gene').attr('readonly','readonly');
   $('#attribution').select2();
-  $("div[data-value=CeRNA]").parent().css({'overflow':'auto','height':'685'});
+  $("div[data-value=CeRNA]").parent().css({'overflow':'auto','height':'510'});
   $("#target_preview_panel").parent().css({'overflow':'auto','height':'300'});
   $("#geneinfo_preview_panel").parent().css({'overflow':'auto','height':'400'});
   $('button.action-button[id*=preview]').attr('count',0);

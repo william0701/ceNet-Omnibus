@@ -26,7 +26,7 @@ shinyServer(function(input,output,session) {
   print(paste("Templete File Dictionary:",basepath))
   visual_layout=""
   #load('D:/Test/ph3.RData',envir=environment())
-  load('C:/Users/DELL/Desktop/single-cell/tmp.RData',envir=environment())
+  #load('C:/Users/DELL/Desktop/single-cell/tmp.RData',envir=environment())
   #load('testdata/ph1.RData',envir = environment())
 
   ############Input Page Action##########
@@ -721,14 +721,14 @@ shinyServer(function(input,output,session) {
   })
   
   output$downloadData_sample <- downloadHandler(
-    filename = "Sample_filter_picture.zip",
+    filename = "Sample_Filter_Plot.zip",
     content = function(file) {
       files=c()
-      for(str in names(samole_filter_choose)){
-        if(str=="micro"){
-          files = c(files,paste(basepath,"Plot","microStatistic.svg",sep = "/"))
+      for(str in names(sample_filter_choose)){
+        if(str=="micro_invalid_name"){
+          files = c(files,paste(basepath,"Plot","microSampleFilter.svg",sep = "/"))
         }else{
-          files = c(files,paste(basepath,"/Plot/",str,"Statistic.svg",sep = ""))
+          files = c(files,paste(basepath,"/Plot/RNASampleFilter.svg",sep = ""))
         }
       }
       zip(zipfile = file,files = files,flags = "-j")
@@ -1046,7 +1046,7 @@ shinyServer(function(input,output,session) {
     # session$sendCustomMessage('clear_construction_task',"")
   })
   output$downloadData_gene <- downloadHandler(
-    filename = "Gene_filter_picture.zip",
+    filename = "Gene_Filter_Plot.zip",
     content = function(file) {
       files=c()
       for(str in names(gene_filter_choose)){

@@ -46,6 +46,5 @@ Super <- function(run = TRUE,maxRequestSize=5*1024^2,workpath=tempdir(),projectN
   # runApp(appDir = "D:\\software\\code\\R_code\\final_web_git\\ceNet-Omnibus\\app",...)
 }
 
-#Super(run = T,workpath = "D://Test/",projectName = "Single_cell_case")
 Super(workpath = "D:/Test/",projectName ="Single cell case" ,typeLimit = 20)
 #Super(typeLimit = 10)

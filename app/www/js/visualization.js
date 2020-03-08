@@ -63,12 +63,12 @@ $(document).ready(function(){
 /*  $("#cy").children("div").css("height","1000px")*/
   
   var $button_change_layout=$('<div class="input-group-btn"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Select Layout<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
-  var $button_nameChoose=$('<div class="input-group-btn"><button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Name Mapping<span class="fa fa-caret-down"></span></button></div>')
+  var $button_nameChoose=$('<div class="input-group-btn"><button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Displayed Symbols<span class="fa fa-caret-down"></span></button></div>')
   var $ul_nameChoose=$('<ul class="dropdown-menu"></ul></div>')
-  var $button_change_color=$('<div class="input-group-btn"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Which label to choose as the gene type<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
-  var $button_change_shape=$('<div class="input-group-btn"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Which label to choose as the gene type<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
-  var $network_p = $('<div class="form-group"><h4 style="font-family:Georgia;font-weight:bold">Choose Network Color </h4></div>')
-  var $network_color_p =$('<div class="form-group"><h4 style="font-family:Georgia;font-weight:bold">Choose Network Shape</h4></div>')
+  var $button_change_color=$('<div class="input-group-btn"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Mapping Colors<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
+  var $button_change_shape=$('<div class="input-group-btn">Mapping Shapes<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false"Mapping Shapes<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
+  var $network_p = $('<div class="form-group"><h4 style="font-family:Georgia;font-weight:bold">Choose Node Color </h4></div>')
+  var $network_color_p =$('<div class="form-group"><h4 style="font-family:Georgia;font-weight:bold">Choose Node Shape</h4></div>')
   var $network_select_button=$('<div class="input-group-btn open"><button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Choose label<span class="fa fa-caret-down"></span></button><ul class="dropdown-menu"></ul></div>')
   var $network_select_input = $('<input type="text" class="form-control">')
   var $network_select_span = $('<span class="input-group-btn"><button type="button" class="btn btn-info btn-flat">Go!</button></span>')
@@ -97,7 +97,7 @@ $(document).ready(function(){
   $("#change_network_color").children('div.form-group').append($table_color)
   $("#change_network_shape").children('div.form-group').append($table_shape)
   //network export as png
-  var $network_png = $('<span class="input-group-btn"><button type="button" class="btn btn-info btn-flat">Download network</button></span>')
+  var $network_png = $('<span class="input-group-btn"><button type="button" class="btn btn-info btn-flat">Export</button></span>')
   $("#export_network_png").append($network_png)
   $network_png.on('click',function(e){
     var b64key = 'base64';

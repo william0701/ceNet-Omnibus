@@ -25,8 +25,9 @@ shinyServer(function(input,output,session) {
   dir.create(paste(basepath,'log',sep="/"))
   print(paste("Templete File Dictionary:",basepath))
   visual_layout=""
+  #load('D:/Test/ph3.RData',envir=environment())
   #load('C:/Users/DELL/Desktop/single-cell/tmp.RData',envir=environment())
-  load('testdata/ph1.RData',envir = environment())
+  #load('testdata/ph1.RData',envir = environment())
 
   ############Input Page Action##########
   observeEvent(input$onclick,{
@@ -449,7 +450,6 @@ shinyServer(function(input,output,session) {
       direction=msg$direction
       thresh=as.numeric(msg$thresh)
     })
-    
     if(group=="micro_invalid_name")
     {
       # gene_filter_choose['micro'] <<- list(c(number,line))
@@ -720,14 +720,14 @@ shinyServer(function(input,output,session) {
   })
   
   output$downloadData_sample <- downloadHandler(
-    filename = "Sample_filter_picture.zip",
+    filename = "Sample_Filter_Plot.zip",
     content = function(file) {
       files=c()
-      for(str in names(samole_filter_choose)){
-        if(str=="micro"){
-          files = c(files,paste(basepath,"Plot","microStatistic.svg",sep = "/"))
+      for(str in names(sample_filter_choose)){
+        if(str=="micro_invalid_name"){
+          files = c(files,paste(basepath,"Plot","microSampleFilter.svg",sep = "/"))
         }else{
-          files = c(files,paste(basepath,"/Plot/",str,"Statistic.svg",sep = ""))
+          files = c(files,paste(basepath,"/Plot/RNASampleFilter.svg",sep = ""))
         }
       }
       zip(zipfile = file,files = files,flags = "-j")
@@ -1045,7 +1045,7 @@ shinyServer(function(input,output,session) {
     # session$sendCustomMessage('clear_construction_task',"")
   })
   output$downloadData_gene <- downloadHandler(
-    filename = "Gene_filter_picture.zip",
+    filename = "Gene_Filter_Plot.zip",
     content = function(file) {
       files=c()
       for(str in names(gene_filter_choose)){
@@ -1724,7 +1724,7 @@ shinyServer(function(input,output,session) {
       }
     }
   )
-  ##########Visualization Page Action#########
+  ##########Visualization Page Action############
   observeEvent(input$network,{
     isolate({
       msg=input$network
@@ -3078,14 +3078,14 @@ shinyServer(function(input,output,session) {
       Numeric_IDs_treated_as=input$enrichment_Numeric_IDs_treated_as
       Data_Sources=input$enrichment_Data_Sources
       choose_show=input$enrichment_choose_show
-      filepath=input$enrichment_Custom_input_function_gene$datapath;
-      
+      filepath=input$enrichment_Custom_input_function_gene$datapath
+      custom_significance_threshold_type=input$enrichment_Significance_threshold_custom
     })
 
     removeUI(selector = '#all_enrichment_show>',immediate = T,multiple = T)
     # removeUI(selector = "#module_info_box>",multiple = T,immediate = T)
     # removeUI(selector = "#module_visualization>",multiple = T,immediate = T)
-    insertUI(selector = "#all_enrichment_show",where = 'beforeEnd',ui = create_progress(paste0("Running ",choose_analysis_tool,"...")),immediate = T)
+    insertUI(selector = "#all_enrichment_show",where = 'beforeEnd',ui = create_progress(paste0("Running ",choose_analysis_tool,"..."),id="enrichment_progress"),immediate = T)
     
     
     if(choose_analysis_gene=="Custom_Gene"){
@@ -3103,6 +3103,7 @@ shinyServer(function(input,output,session) {
     enrichment=data.frame()
     if(choose_analysis_tool=='gProfile'){
       for(i in names(gene_set)){
+        session$sendCustomMessage('update_progress_state',list(status='update',value=paste("Analyzing ",i,"...",sep=""),id="enrichment_progress"))
         enrichment_result=gost(modules[[i]], organism = Organism,sources = Data_Sources,
                                custom_bg=rownames(after_slice_geneinfo),user_threshold =User_threshold,
                                correction_method = Significance_threshold)$result
@@ -3115,6 +3116,7 @@ shinyServer(function(input,output,session) {
     }
     else{
       for(set_id in names(gene_set)){
+        session$sendCustomMessage('update_progress_state',list(status='update',value=paste("Analyzing ",set_id,"...",sep=""),id="enrichment_progress"))
         for(func_id in names(custom_gene_set)){
           background_set=as.character(unique(after_slice_geneinfo[,Numeric_IDs_treated_as]))
           singl_func_gene=interaction(custom_gene_set[[func_id]],background_set)
@@ -3130,6 +3132,10 @@ shinyServer(function(input,output,session) {
                                                  p_value=temp_pvalue,intersection_size=x,recall=temp_recall,source="custom",stringsAsFactors = F))
           
         }
+      }
+      if(custom_significance_threshold_type!="")
+      {
+        enrichment$p_value=p.adjust(enrichment$p_value,method = custom_significance_threshold_type)
       }
     }
     removeUI(selector = "#all_enrichment_show>",immediate = T,multiple = T)

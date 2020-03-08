@@ -272,7 +272,7 @@ enrichment_panel=tabPanel(title="Enrichment Analysis",
                                                         ),
                                                         div(class='col-lg-6',
                                                             pickerInput(inputId = 'enrichment_Significance_threshold_custom',label = 'Significance threshold',
-                                                                        choices = c("Benjamini-Hochberg FDR"="fdr","Bonferroni Correction"="bonferroni")
+                                                                        choices = c("Original P-value"="","Benjamini-Hochberg FDR"="fdr","Bonferroni Correction"="bonferroni")
                                                             )
                                                         )
                                        ),

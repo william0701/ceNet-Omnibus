@@ -4,6 +4,22 @@ var network_group_shape= ""
 var network_select_group=""
 
 $(document).ready(function(){
+   $("#dropdown_action").on('click',function(e){
+     if($(e.currentTarget).next().hasClass("dropdown-menu")){
+       $(e.currentTarget).next().removeClass();
+     }else{
+       $(e.currentTarget).next().addClass("dropdown-menu");
+     }
+   })
+   $("#dropdown_action").mouseover(function(){
+        $("#dropdown_action").prev().css("visibility","");
+   })
+   $("#dropdown_action").mouseout(function(){
+         $("#dropdown_action").prev().css("visibility","hidden");
+   })
+   $("#reset_network").on('click',function(){
+     cy.reset();
+   })
    $("a[href='#shiny-tab-visualization']").on("click",function(e){
      var obj=Math.random()
      Shiny.setInputValue("change_network_name",obj)
@@ -212,6 +228,9 @@ Shiny.addCustomMessageHandler("network",function(msg){
        animationDuration: 2000// padding used on fit
      })
      layout.run()
+     var obj={}
+     obj['stamp'] = Math.random();
+     Shiny.setInputValue("Network_con_finish",obj)
   }
 })
 Shiny.addCustomMessageHandler("Gene_info_name_change",function(msg){

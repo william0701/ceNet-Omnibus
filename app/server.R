@@ -1437,75 +1437,75 @@ shinyServer(function(input,output,session) {
     removeUI(selector = paste("div.col-lg-12 > #density_plot_",msg$type,sep=""),immediate = T)
   })
   observeEvent(input$compute_condition,{
-    # isolate({
-    #   type=input$compute_condition$type
-    # })
-    # 
-    # core=condition[type,'core']
-    # tasks=condition[type,'task']
-    # logpath=normalizePath(paste(basepath,'/log/',type,'.txt',sep=""))
-    # if(file.exists(logpath))
-    # {
-    #   file.remove(logpath)
-    # }
-    # if(type=="PCC")
-    # {
-    #   if(dir.exists(paths = normalizePath(paste(basepath,'/log/',sep=""))))
-    #   {
-    #     dir.create(path = normalizePath(paste(basepath,'/log/',sep="")),recursive = T)
-    #   }
-    #   print('start')
-    #   session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
-    #   filepath=paste(basepath,"/data/rna.exp.RData",sep="")
-    #   saveRDS(file=filepath,object=after_slice_rna.exp)
-    #   #system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
-    #   scriptpath="www/Program/PCC.R"
-    #   resultpath=paste(basepath,'/all.cor.RData',sep="")
-    #   system(paste("Rscript",scriptpath,filepath,logpath,resultpath),wait = F)
-    # 
-    # }
-    # else
-    # {
-    #   if(dir.exists(paths = paste(basepath,'/log/')))
-    #   {
-    #     dir.create(paths = paste(basepath,'/log/'),recursive = T)
-    #   }
-    #   file.create(logpath)
-    #   print('start')
-    #   session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
-    #   datapath=paste(basepath,"/data/tmpdatas.RData",sep="")
-    #   scriptpath="www/Program/ComputeCondition.R"
-    #   codepath=""
-    #   resultpath=paste(basepath,'/',type,'.RData',sep="")
-    #   if(file.exists(paste(basepath,'/code/',type,'.R',sep="")))
-    #   {
-    #     codepath=paste(basepath,'/code/',type,'.R',sep="")
-    #   }
-    #   else if(file.exists(paste('www/Program/',type,'.R',sep="")))
-    #   {
-    #     codepath=paste('www/Program/',type,'.R',sep="")
-    #   }
-    #   else
-    #   {
-    #     sendSweetAlert(session = session,title = "Error..",text = "No Code",type = 'error')
-    #   }
-    # 
-    #   rna.exp=after_slice_rna.exp
-    #   micro.exp=after_slice_micro.exp
-    #   target=sect_output_target[rownames(rna.exp),rownames(micro.exp)]
-    #   geneinfo=after_slice_geneinfo
-    #   save(rna.exp,micro.exp,target,geneinfo,file = datapath)
-    #   if(condition[type,'others']=="")
-    #   {
-    #     print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
-    #     system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
-    #   }
-    #   else
-    #   {
-    #     print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,condition[type,'others']))
-    #     system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath,condition[type,'others']),wait = F)
-    #   }
-    # }
+    isolate({
+      type=input$compute_condition$type
+    })
+
+    core=condition[type,'core']
+    tasks=condition[type,'task']
+    logpath=normalizePath(paste(basepath,'/log/',type,'.txt',sep=""))
+    if(file.exists(logpath))
+    {
+      file.remove(logpath)
+    }
+    if(type=="PCC")
+    {
+      if(dir.exists(paths = normalizePath(paste(basepath,'/log/',sep=""))))
+      {
+        dir.create(path = normalizePath(paste(basepath,'/log/',sep="")),recursive = T)
+      }
+      print('start')
+      session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
+      filepath=paste(basepath,"/data/rna.exp.RData",sep="")
+      saveRDS(file=filepath,object=after_slice_rna.exp)
+      #system(paste("www/Program/COR.exe",filepath,basepath,"all",sep=" "),wait = F)
+      scriptpath="www/Program/PCC.R"
+      resultpath=paste(basepath,'/all.cor.RData',sep="")
+      system(paste("Rscript",scriptpath,filepath,logpath,resultpath),wait = F)
+
+    }
+    else
+    {
+      if(dir.exists(paths = paste(basepath,'/log/')))
+      {
+        dir.create(paths = paste(basepath,'/log/'),recursive = T)
+      }
+      file.create(logpath)
+      print('start')
+      session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
+      datapath=paste(basepath,"/data/tmpdatas.RData",sep="")
+      scriptpath="www/Program/ComputeCondition.R"
+      codepath=""
+      resultpath=paste(basepath,'/',type,'.RData',sep="")
+      if(file.exists(paste(basepath,'/code/',type,'.R',sep="")))
+      {
+        codepath=paste(basepath,'/code/',type,'.R',sep="")
+      }
+      else if(file.exists(paste('www/Program/',type,'.R',sep="")))
+      {
+        codepath=paste('www/Program/',type,'.R',sep="")
+      }
+      else
+      {
+        sendSweetAlert(session = session,title = "Error..",text = "No Code",type = 'error')
+      }
+
+      rna.exp=after_slice_rna.exp
+      micro.exp=after_slice_micro.exp
+      target=sect_output_target[rownames(rna.exp),rownames(micro.exp)]
+      geneinfo=after_slice_geneinfo
+      save(rna.exp,micro.exp,target,geneinfo,file = datapath)
+      if(condition[type,'others']=="")
+      {
+        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
+        system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
+      }
+      else
+      {
+        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,condition[type,'others']))
+        system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath,condition[type,'others']),wait = F)
+      }
+    }
   })
   observeEvent(input$compute_status,{
     isolate({
@@ -1755,9 +1755,15 @@ shinyServer(function(input,output,session) {
         nodes=data.frame(id=nodes,new_after_geneinfo[nodes,],stringsAsFactors = F)
         node=tibble(group="nodes",data=apply(X = nodes,MARGIN = 1,as.list))
         edge=tibble(group="edges",data=apply(X = edge,MARGIN = 1,FUN = as.list))
+        session$sendCustomMessage('network_construction',list(status='update',value="Initializing Network...",id="network_construction_progress"))
         session$sendCustomMessage('network',toJSON(list(nodes=node,edge=edge,type=type,do_what=do_what),auto_unbox = T))
       }
     }
+  })
+  observeEvent(input$Network_con_finish,{
+    
+    session$sendCustomMessage('network_construction',list(status='finish',value="",id="Construction_finish"))
+    
   })
   observeEvent(input$change_network_name,{
     

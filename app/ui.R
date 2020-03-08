@@ -148,34 +148,58 @@ visual_tab=tabItem(tabName = "visualization",
 
                    h2("Network Visualization"),
                    # dropdownButton(
-                   # 
                    #   
-                   #   circle = TRUE, status = "danger", icon = icon("gear"), width = "300px",
+                   # 
+                   #   circle = TRUE, status = "danger", icon = icon("gear"), width = "100%",
                    #   tooltip = tooltipOptions(title = "Click to see inputs !")
                    # ),
-                   div(class='row',
-                     div(class='col-lg-2',
-                      div( id="choose_differ_layout",class="form-group",
-                        h4("Choose Layout",style="font-family:Georgia;font-weight:bold") 
-                  
-                      ),
-                      div(class="form-group",id="choose_differ_name",
-                        h4("Change Gene Name",style="font-family:Georgia;font-weight:bold")
-                      ),
-                      div(class="form-group",id="export_network_png",
-                          h4("Export Network",style="font-family:Georgia;font-weight:bold")
-                      )
+                   div(class ="dropdown btn-dropdown-input",
+                       tags$span(style="visibility: hidden; background-color: black; color: rgb(255, 255, 255); text-align: center; border-radius: 6px; padding: 5px 0px; position: absolute; left: 50px; top: 5px; z-index: 1;",
+                                 HTML("Click button to display operation options")       
+                       ),
+                       tags$button(class="btn btn-danger",id="dropdown_action",type="button",
+                                   tags$span(tags$i(class="fa fa-gear"))
+                                   ),
+                       tags$ul(class="dropdown-menu",style="width:100%;background-color:white",
+                               tags$li(style="margin-left:10px;margin-right:10px;list-style:none",
+                                       div(class='row',
+                                           div(class='col-lg-2',
+                                               div( id="choose_differ_layout",class="form-group",
+                                                    h4("Choose Layout",style="font-family:Georgia;font-weight:bold") 
+                                                    
+                                               ),
+                                               div(class="form-group",id="choose_differ_name",
+                                                   h4("Change Gene Name",style="font-family:Georgia;font-weight:bold")
+                                               ),
+                                               div(class="form-group",id="export_network_png",
+                                                   h4("Export Network",style="font-family:Georgia;font-weight:bold")
+                                               )
+                                           ),
+                                           div(class='col-lg-3',id='change_network_color'
+                                               
+                                           ),
+                                           div(class='col-lg-3',id='change_network_shape'),
+                                           div(class='col-lg-3',
+                                               div(id='select_network_node',
+                                                   h4("Select node",style="font-family:Georgia;font-weight:bold"),
+                                                   div(class='input-group margin',style="margin:0px"
+                                                   ) 
+                                               ),
+                                               div(
+                                                 h4("Reset network",style="font-family:Georgia;font-weight:bold"),
+                                                 actionBttn(
+                                                   inputId = "reset_network",
+                                                   label = "Reset",
+                                                   style = "jelly", 
+                                                   color = "danger"
+                                                 )
+                                               )
+                                            )
+                                           
+                                       )     
+                                )
+                          )
                     ),
-                     div(class='col-lg-3',id='change_network_color'
-                       
-                      ),
-                     div(class='col-lg-3',id='change_network_shape'),
-                     div(class='col-lg-3',id='select_network_node',
-                         h4("Select node",style="font-family:Georgia;font-weight:bold"),
-                         div(class='input-group margin',style="margin:0px"
-                         ) 
-                      )
-                   ),
                    div(id='cy')
                   
 )

@@ -6,6 +6,8 @@ The ceRNA regulation is a newly discovered post-transcriptional regulation mecha
 
 CeNet Omnibus consists of five components, including **Data Input**, **Data Processing**, **Network Construction**, **Network Visualization** and **Netwoek Analysis**. The framework of CeNet Omnibus is shown below.
 
+![](https://github.com/william0701/Figures/blob/master/CeNet%20Omnibus/Valid_Gene.png)
+
 ## Installation
 
 To install the package from the github repository please use the following code.
@@ -112,7 +114,7 @@ For **Custom Upload** method, the uploaded file should be plain text delimited b
 
 > NOTE: Please Remeber to Click **Preview** Button on the right-bottom corner of the panel once set parameters properly.
 
-> WARNING: The Biomart Download may take relative long time, especially for the users on the mainland of China.
+> WARNING: The Biomart Download may take relatively longer time, especially for the users on the Chinese Mainland.
 
 ### 2. Data Processing
 
@@ -120,12 +122,42 @@ For **Custom Upload** method, the uploaded file should be plain text delimited b
 
 When enter the **Data Processing** tab, the program will obtains the common ceRNAs, microRNAs and samples in the uploaded  files.
 
-![](https://github.com/william0701/Figures/blob/master/CeNet%20Omnibus/Valid%20Gene.png)
+![](https://github.com/william0701/Figures/blob/master/CeNet%20Omnibus/Valid_Gene.png)
+
+#### 2.1 Gene Grouping
+
+Users are allowed to group ceRNAs into different groups to set different paramenters for the ceRNA filter and network construction. For example, the non-coding RNAs, especially long non-coding RNAs (lncRNAs)  usually have relatively lower expression levels. The thresh of non-expressed lncRNAs may be lower than that of mRNAs.
+
+Users can group ceRNAs according to the essential ceRNA information uploaded in step 1.3.  Validated columns are listed.
+
+![](https://github.com/william0701/Figures/blob/master/CeNet%20Omnibus/Gene_Mapping_1.jpg)
+
+> NOTE: Please Remeber to Click **Preview** Button on the right-bottom corner of the panel once set parameters properly.
+
+![](https://github.com/william0701/Figures/blob/master/CeNet%20Omnibus/Group_statistic.svg)
+
+#### 2.2 Sample Filter
+
+#### 2.3 RNA Filter
+
+#### 2.4 Value Transformation
 
 ### 3. Network Construction
+
+#### 3.1 Choose Measurement
+
+#### 3.2 Measurement Setting
+
+#### 3.3 Network Construction
 
 ### 4. Network Visualization
 
 ### 5. Network Analysis
 
+#### 5.1 Network Topological Property
 
+#### 5.2 Network Module
+
+#### 5.3 Enrichment Analysis
+
+#### 5.4 Survival Analysis

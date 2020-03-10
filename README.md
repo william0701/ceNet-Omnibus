@@ -133,8 +133,7 @@ Users can group ceRNAs according to the essential ceRNA information uploaded in 
 ![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/Gene_Mapping_1.jpg)
 
 > NOTE: Click **Preview** Button on the right-bottom corner of the panel once set parameters properly.
-
-The ceRNAs of non-selected items will be removed in the next processing.
+> The ceRNAs of non-selected items will be removed in the next processing.
 
 ![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/Group_statistic.svg)
 
@@ -146,7 +145,9 @@ Firstly, users should set the thresh of a good microRNA/ceRNA in samples. For ex
 
 ![](http://https://github.com/william0701/Figures/blob/master/CeNetOmnibus/Sample_Filter1.jpg)
 
+
 ![](http://https://github.com/william0701/Figures/blob/master/CeNetOmnibus/microSampleFilter.svg)
+
 
 ![](http://https://github.com/william0701/Figures/blob/master/CeNetOmnibus/RNASampleFilter.svg)
 
@@ -160,9 +161,13 @@ Because the expressions of ceRNAs and microRNAs have tissue-specificity, non-exp
 
 Firstly, users should set the minimal expression thresh of a expressed microRNA or ceRNA . For example, we think the CPM of a microRNA larger than 100 is expressed, while the RPKM of a noncoding ceRNA larger than 0.5 is expressed and 1 for a coding ceRNA. Then, the program will calculate the expressed sample ratio of each RNA, and create the distribution plot. Finally, users need to decide how many samples a RNA  should express in by sliding the Minimal Sample Ratio bar.
 ![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/RNA_Filter1.jpg)
+
 ![](http://https://github.com/william0701/Figures/blob/master/CeNetOmnibus/microStatistic.svg)
+
 ![](http://https://github.com/william0701/Figures/blob/master/CeNetOmnibus/NoncodingStatistic.svg)
+
 ![](http://https://github.com/william0701/Figures/blob/master/CeNetOmnibus/CodingStatistic.svg)
+
 
 #### 2.4 Value Transformation
 

@@ -27,7 +27,7 @@ shinyServer(function(input,output,session) {
   visual_layout=""
   #load('D:/Test/ph3.RData',envir=environment())
   #load('C:/Users/DELL/Desktop/single-cell/tmp.RData',envir=environment())
-  #load('testdata/ph1.RData',envir = environment())
+  # load('testdata/ph1.RData',envir = environment())
 
   ############Input Page Action##########
   observeEvent(input$onclick,{
@@ -689,10 +689,12 @@ shinyServer(function(input,output,session) {
       }
       
       if(flag_micro==1){
-        sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value! Please choose micro_slice again.',type = 'warning')
+        msg=HTML("<h4>Invalid Slice! </h4><h4>You will delete more than 5% of the selection ratio.</h4><h4>Please choose micro_slice again.</h4>")
+        sendSweetAlert(session = session,title = "Warning..",text = msg,type = 'warning',html = T)
       }
       else if(flag_ce==1){
-        sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value! Please choose ce_slice again.',type = 'warning')
+        msg=HTML("<h4>Invalid Slice!</h4><h4>You will delete more than 5% of the selection ratio.</h4><h4>Please choose ce_slice again.</h4>")
+        sendSweetAlert(session = session,title = "Warning..",text = msg,type = 'warning',html = T)
       }
       else{
      

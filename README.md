@@ -11,7 +11,10 @@ CeNet Omnibus consists of five components, including **Data Input**, **Data Proc
 To install the package from the github repository please use the following code.
 
 ```r
-if (!requireNamespace("BiocManager", quietly=TRUE))    install.packages("BiocManager")deps <- c("devtools")BiocManager::install("devtools", dependencies = TRUE)devtools::install_github("BioinformaticsFMRP/TCGAbiolinksGUI.data",ref = "R_3.4")
+if (!requireNamespace("BiocManager", quietly=TRUE))    install.packages("BiocManager")
+deps <- c("devtools")
+BiocManager::install("devtools", dependencies = TRUE)
+devtools::install_github("BioinformaticsFMRP/TCGAbiolinksGUI.data",ref = "R_3.4")
 ```
 
 ## Data Preparation
@@ -27,7 +30,8 @@ CeNet Omnibus demands users to upload four files for the constrction of ceRNA ne
 The following commands should be used to start CeNet Omnibus.
 
 ```r
-library(CeNetOmnibus)CeNetOmnibus()
+library(CeNetOmnibus)
+CeNetOmnibus()
 ```
 
 ### 1. Data Input
@@ -62,7 +66,7 @@ The expression profiles of ceRNAs and microRNAs should be plain text delimited b
 | MIMAT0021121  | 0                  | 0                  | 0                  | 0                  | 0                  |
 
 <div background-color=#123456>
-Please Remeber to Click <mark><b><font color=red>Preview</font></b></mark> Button on the right-bottom corner of the panel once set parameters properly.
+<h3>Please Remeber to Click <mark><b><font color=red>Preview</font></b></mark> Button on the right-bottom corner of the panel once set parameters properly.</h3>
 </div>
 
 #### 1.2 The Interaction between ceRNAs and microRNAs
@@ -82,7 +86,7 @@ The interactions file between ceRNAs and microRNAs should be 0-1 matrix to repre
 | ENSG00000235142 | 1            | 1            | 1            | 1            | 1            | 1            | 1            | 1            | 1            |
 
 <div background-color=#123456>
-Please Remeber to Click <mark><b><font color=red>Preview</font></b></mark> Button on the right-bottom corner of the panel once set parameters properly.
+<h3>Please Remeber to Click <mark><b><font color=red>Preview</font></b></mark> Button on the right-bottom corner of the panel once set parameters properly.</h3>
 </div>
 
 #### 1.3 Essential ceRNA Information
@@ -111,8 +115,10 @@ For **Custom Upload** method, the uploaded file should be plain text delimited b
 | ENSG00000056998 | ENSG00000056998   | glycogenin 2 \[Source:HGNC Symbol;Acc:HGNC:4700\]                          | 1      | GYG2                 | protein\_coding |
 
 <div background-color=#123456>
-Please Remeber to Click <mark><b><font color=red>Preview</font></b></mark> Button on the right-bottom corner of the panel once set parameters properly.
+<h3>Please Remeber to Click <mark><b><font color=red>Preview</font></b></mark> Button on the right-bottom corner of the panel once set parameters properly.</h3>
 </div>
+
+<h3>Warning: The Biomart Download may take relative long time, especially for the users on the mainland of China.</h3>
 
 ### 2. Data Processing
 

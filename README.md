@@ -5,23 +5,18 @@
 The ceRNA regulation is a newly discovered post-transcriptional regulation mechanism and plays significant roles in physiological and pathological progress. The analysis of ceRNAs and ceRNA network has been widely used to detect survival biomarkers, select candidate regulators of disease genes, and pre-dict long noncoding RNA functions. However, there is no software platform to provide overall functions from construction to analysis of ceRNA networks. To solve this problem, we introduce CeNet Omnibus, a R/Shiny application, which provides a unified framework of ceRNA network construction and analysis. CeNet Omnibus is characterized by comprehensiveness, high efficiency, high expandability and user customizability, and it also offers the web-based user-friendly interface for users to obtain the output intuitionally in time.
 
 CeNet Omnibus consists of five components, including **Data Input**, **Data Processing**, **Network Construction**, **Network Visualization** and **Netwoek Analysis**. The framework of CeNet Omnibus is shown below.
-![Framework of CeNet Ominbus](https://github.com/william0701/Figures/blob/master/CeNet%20Omnibus/framework.svg "Framework of CeNet Ominbus")
 
 ## Installation
 
 To install the package from the github repository please use the following code.
 
 ```r
-if (!requireNamespace("BiocManager", quietly=TRUE))
-    install.packages("BiocManager")
-deps <- c("devtools")
-BiocManager::install("devtools", dependencies = TRUE)
-devtools::install_github("BioinformaticsFMRP/TCGAbiolinksGUI.data",ref = "R_3.4")
+if (!requireNamespace("BiocManager", quietly=TRUE))    install.packages("BiocManager")deps <- c("devtools")BiocManager::install("devtools", dependencies = TRUE)devtools::install_github("BioinformaticsFMRP/TCGAbiolinksGUI.data",ref = "R_3.4")
 ```
 
 ## Data Preparation
 
-CeNet Omnibus demands users to upload four files for the constrction of ceRNA network, including 
+CeNet Omnibus demands users to upload four files for the constrction of ceRNA network, including
 
 - The expression profiles of candidate ceRNAs and microRNAs
 - The interaction between microRNA and candidate ceRNAs
@@ -32,8 +27,7 @@ CeNet Omnibus demands users to upload four files for the constrction of ceRNA ne
 The following commands should be used to start CeNet Omnibus.
 
 ```r
-library(CeNetOmnibus)
-CeNetOmnibus()
+library(CeNetOmnibus)CeNetOmnibus()
 ```
 
 ### 1. Data Input
@@ -42,7 +36,7 @@ CeNetOmnibus()
 
 #### 1.1 Expression Profiles
 
-The expression profiles of ceRNAs and microRNAs should be plain text delimited by tab, comma, space, semicolon or any other prac-ticable marks. Users can set seperators, quotes, with/without headers. To name the datasets, please confirm if the program should name dataset with/without the first row/column. The rows of uploaded files should represent ceRNAs/microRNAs, while the columns should represent samples.
+The expression profiles of ceRNAs and microRNAs should be plain text delimited by tab, comma, space, semicolon or any other prac-ticable marks. Users can set seperators, quotes, with/without headers. To name the datasets, please confirm if the program should name dataset with/without the first column. The rows of uploaded files should represent ceRNAs/microRNAs, while the columns should represent samples.
 
 <center><b>CeRNA Expression Profile Samples</b></center>
 
@@ -68,12 +62,12 @@ The expression profiles of ceRNAs and microRNAs should be plain text delimited b
 | MIMAT0021121  | 0                  | 0                  | 0                  | 0                  | 0                  |
 
 <div background-color=#123456>
-Please Remeber to Click <mark><b><font color=red>Preview</font></b></mark> Button on the right-bottom cornor of the panel once set parameters properly.
+Please Remeber to Click <mark><b><font color=red>Preview</font></b></mark> Button on the right-bottom corner of the panel once set parameters properly.
 </div>
 
 #### 1.2 The Interaction between ceRNAs and microRNAs
 
-The interactions file between ceRNAs and microRNAs should be 0-1 matrix to represent if there are interactions between ceRNAs and microRNAs. The file should be plain text delimited by tab, comma, space, semicolon or any other prac-ticable marks. Users can set seperators, quotes, with/without headers. To name the datasets, please confirm if the program should name dataset with/without the first row/column. The rows of uploaded files should represent ceRNAs, while the columns should represent microRNAs.
+The interactions file between ceRNAs and microRNAs should be 0-1 matrix to represent if there are interactions between ceRNAs and microRNAs. The file should be plain text delimited by tab, comma, space, semicolon or any other prac-ticable marks. Users can set seperators, quotes, with/without headers. To name the datasets, please confirm if the program should name dataset with/without the first column. The rows of uploaded files should represent ceRNAs, while the columns should represent microRNAs.
 
 <center><b>CeRNA Expression Profile Samples</b></center>
 
@@ -88,10 +82,37 @@ The interactions file between ceRNAs and microRNAs should be 0-1 matrix to repre
 | ENSG00000235142 | 1            | 1            | 1            | 1            | 1            | 1            | 1            | 1            | 1            |
 
 <div background-color=#123456>
-Please Remeber to Click <mark><b><font color=red>Preview</font></b></mark> Button on the right-bottom cornor of the panel once set parameters properly.
+Please Remeber to Click <mark><b><font color=red>Preview</font></b></mark> Button on the right-bottom corner of the panel once set parameters properly.
 </div>
 
-#### 1.3 Essential information
+#### 1.3 Essential ceRNA Information
+
+The Enssential ceRNA Information will be used to group ceRNAs and set network/module visualization
+
+The Essential ceRNA Information can be supplied by two ways:
+
+- **Biomart Download**
+
+- **Custom Upload**
+
+For **Biomart Download** method, users can select Ensembl Archieve, Species, Gene ID Type, and search items in the Ensembl Database. Users are able to select a part of ceRNAs in the input datasets.
+
+For **Custom Upload** method, the uploaded file should be plain text delimited by tab, comma, space, semicolon or any other prac-ticable marks. Users can set seperators, quotes, with/without headers. To name the datasets, please confirm if the program should name dataset with/without the first column. The rows of uploaded files should represent ceRNAs, while the columns should represent the information of ceRNAs. The first column of the uploaded file should be the ceRNA identifiers.
+
+<center><b>CeRNA Information Samples</b></center>
+
+|                 | ensembl\_gene\_id | description                                                                | strand | external\_gene\_name | gene\_biotype   |
+| --------------- | ----------------- | -------------------------------------------------------------------------- | ------ | -------------------- | --------------- |
+| ENSG00000006377 | ENSG00000006377   | distal\-less homeobox 6 \[Source:HGNC Symbol;Acc:HGNC:2919\]               | 1      | DLX6                 | protein\_coding |
+| ENSG00000010361 | ENSG00000010361   | fuzzy planar cell polarity protein \[Source:HGNC Symbol;Acc:HGNC:26219\]   | \-1    | FUZ                  | protein\_coding |
+| ENSG00000010438 | ENSG00000010438   | serine protease 3 \[Source:HGNC Symbol;Acc:HGNC:9486\]                     | 1      | PRSS3                | protein\_coding |
+| ENSG00000036054 | ENSG00000036054   | TBC1 domain family member 23 \[Source:HGNC Symbol;Acc:HGNC:25622\]         | 1      | TBC1D23              | protein\_coding |
+| ENSG00000047249 | ENSG00000047249   | ATPase H\+ transporting V1 subunit H \[Source:HGNC Symbol;Acc:HGNC:18303\] | \-1    | ATP6V1H              | protein\_coding |
+| ENSG00000056998 | ENSG00000056998   | glycogenin 2 \[Source:HGNC Symbol;Acc:HGNC:4700\]                          | 1      | GYG2                 | protein\_coding |
+
+<div background-color=#123456>
+Please Remeber to Click <mark><b><font color=red>Preview</font></b></mark> Button on the right-bottom corner of the panel once set parameters properly.
+</div>
 
 ### 2. Data Processing
 

@@ -982,6 +982,7 @@ shinyServer(function(input,output,session) {
             
           }
           else{
+            
             sendSweetAlert(session = session,title = "Warning..",text = 'Group micro:Invlid value please choose again',type = 'warning')
             finnal =FALSE
             break
@@ -1772,6 +1773,11 @@ shinyServer(function(input,output,session) {
       if(type=="group"){
           type='.group'
       }
+      if(type == "All_node"){
+        vec = "All_node"
+        session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+        return()
+      }
       vec = after_slice_geneinfo[,type]
       #vec = vec[[1]]
       vec = unique(vec)
@@ -1784,6 +1790,11 @@ shinyServer(function(input,output,session) {
     if(func=="shape"){
       if(type=="group"){
         type = ".group"
+      }
+      if(type == "All_node"){
+        vec = "All_node"
+        session$sendCustomMessage('Gene_network_shape_change',data.frame(type=vec,stringsAsFactors = F))
+        return()
       }
       vec = after_slice_geneinfo[,type]
       vec = unique(vec)

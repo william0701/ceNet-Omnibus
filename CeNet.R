@@ -44,7 +44,7 @@ Super <- function(run = TRUE,maxRequestSize=5*1024^2,workpath=tempdir(),projectN
   #if(run) suppressMessages(shiny::runApp(system.file("app", package = "shinyAppDemo"),launch.browser=TRUE,...))
 
 
-  runApp(appDir = "app",...)
+  runApp(appDir = "D:\\ceNet-Omnibus1\\app",...)
   # runApp(appDir = "D:\\software\\code\\R_code\\new_git\\ceNet-Omnibus\\app",...)
 
 }

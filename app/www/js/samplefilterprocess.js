@@ -20,7 +20,7 @@ creat_sampleFilter = function(inputId,inputName)
   var $direction_select1=$('<option value="<"><</option>')
   var $direction_select3=$('<option value=">">></option>')
   
-  var $thresh_label=$('<label class="control-label">Invalid Value</label>')
+  var $thresh_label=$('<label class="control-label">Thresh</label>')
   var $thresh_div=$('<div class="input-group" id="thresh_sample"></div>')
   var $thresh_text=$('<input class="form-control" type="text" value="0" style="text-align:center">')
   
@@ -50,7 +50,7 @@ creat_sampleFilter = function(inputId,inputName)
   $('#Sample_Filter_all').append($modal);
   
   //choose a percent filter value modal
-  var $labelRight = $('<label class="control-label">Minimal Sample Ratio</label>')
+  var $labelRight = $('<label class="control-label">Percentile</label>')
   var $bodyGroup = $('<div class="input-group "></div>');
   var $bodyRight = $('<div class="form-group col-lg-12" style=""></div>');
   var $spanInner = $('<span class="input-group-btn" style="padding-left:10px"></span>');

@@ -27,7 +27,7 @@ shinyServer(function(input,output,session) {
   visual_layout=""
   #load('D:/Test/ph3.RData',envir=environment())
   #load('C:/Users/DELL/Desktop/single-cell/tmp.RData',envir=environment())
-  # load('testdata/ph1.RData',envir = environment())
+  load('testdata/ph1.RData',envir = environment())
 
   ############Input Page Action##########
   observeEvent(input$onclick,{
@@ -461,7 +461,7 @@ shinyServer(function(input,output,session) {
       tmpdata$color[which(tmpdata$count>x2)]='Remain'
     
       liuxiasum<-length(which(tmpdata$count>x2))
-      text1=paste("Thresh:",round(x2,3))
+      text1=paste("Valid Sample Ratio=",round(x2,3))
       text2=paste("Remain:",liuxiasum)
       sample_filter_choose['micro_invalid_name']<<-list(c(value,direction,thresh,liuxiasum))
       p=ggplot()+
@@ -521,14 +521,7 @@ shinyServer(function(input,output,session) {
         #  immediate = T
         # )
       }
-      # output$downloadData_micro_sample <- downloadHandler(
-      #   filename = function() {
-      #     return("Micro_sample_filter.svg");
-      #   },
-      #   content = function(file) {
-      #     file.copy(from = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),to = file);
-      #   }
-      # )
+      
       output[[paste(group,'_plot',sep="")]]=renderImage({
         list(src=paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),width="100%",height="100%")
       },deleteFile = F)
@@ -545,7 +538,7 @@ shinyServer(function(input,output,session) {
       draw_x2<-round(x2,3)
       
       liuxiasum<-length(which(tmpdata$count>x2))
-      text1=paste("Thresh:",round(x2,3))
+      text1=paste("Valid Sample Ratio=",round(x2,3))
       text2=paste("Remain:",liuxiasum)
       sample_filter_choose['ce_invalid_name']<<-list(c(value,direction,thresh,liuxiasum))
       
@@ -605,14 +598,7 @@ shinyServer(function(input,output,session) {
         # )
       }
       
-      # output$downloadData_rna_sample <- downloadHandler(
-      #   filename = function() {
-      #     return("Rna_sample_filter.svg");
-      #   },
-      #   content = function(file) {
-      #     file.copy(from = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),to = file);
-      #   }
-      # )
+     
       output[[paste(group,'_plot',sep="")]]=renderImage({
         list(src=paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),width="100%",height="100%")
       },deleteFile = F)
@@ -650,8 +636,8 @@ shinyServer(function(input,output,session) {
           x2<-quantile(expressgene_num,line,type=3) 
           
           liuxiasum<-length(colnames(sect_output_micro.exp[,which(expressgene_num>x2)]))
-          liuxiabaifenbi<-liuxiasum/length(colnames(sect_output_micro.exp))
-          if(abs((1-line)-liuxiabaifenbi)<=0.05){
+          remain_ratio_micro<-liuxiasum/length(colnames(sect_output_micro.exp))
+          if(abs((1-line)-remain_ratio_micro)<=0.05){
             after_slice_micro.exp<<-sect_output_micro.exp[,which(expressgene_num>x2)]
             num1=liuxiasum
             # intersect_sample_num<-length(intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))) 
@@ -671,29 +657,33 @@ shinyServer(function(input,output,session) {
           expressgene_num2=(colSums(get(direction)(sect_output_rna.exp,thresh)))/nrow(sect_output_rna.exp)
           x2<-quantile(expressgene_num2,line,type=3) 
           liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num2>x2)]))
-          liuxiabaifenbi<-liuxiasum/length(colnames(sect_output_rna.exp))
-          if(abs((1-line)-liuxiabaifenbi)<=0.05){
+          remain_ratio_ce<-liuxiasum/length(colnames(sect_output_rna.exp))
+          if(abs((1-line)-remain_ratio_ce)<=0.05){
             after_slice_rna.exp<<-sect_output_rna.exp[,which(expressgene_num2>x2)]
             num2=liuxiasum
-            # intersect_sample_num<-length(intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))) 
-            # sendSweetAlert(session = session,title = "Success..",text =paste0("Filter Ok! Sample Remain: ",intersect_sample_num) ,type = 'success')
-            # ValidNum = data.frame(sampleNum = intersect_sample_num,stringsAsFactors = F);
-            # session$sendCustomMessage('Valid_valuebox_sample',ValidNum);
           }
           else{
             flag_ce=1
-            # sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value please choose again',type = 'warning')
-            # after_slice_rna.exp<<-sect_output_rna.exp  
           }
         }
       }
-      
       if(flag_micro==1){
-        msg=HTML("<h4>Invalid Slice! </h4><h4>You will delete more than 5% of the selection ratio.</h4><h4>Please choose micro_slice again.</h4>")
+        delete_ratio_micro=round(remain_ratio_micro,3)*100
+        msg=HTML(paste("<h4>Invalid Slice!</h4>",
+                       "<h4>This parameter will delete",delete_ratio_micro,"% sample.Excessive deviation</h4>",
+                       "<h4>Please choose micro_slice again.</h4>",sep="")) 
+        # msg=HTML("<h4>Invalid Slice! </h4><h4>You will delete more than 5% of the selection ratio.</h4><h4>Please choose micro_slice again.</h4>")
         sendSweetAlert(session = session,title = "Warning..",text = msg,type = 'warning',html = T)
       }
       else if(flag_ce==1){
-        msg=HTML("<h4>Invalid Slice!</h4><h4>You will delete more than 5% of the selection ratio.</h4><h4>Please choose ce_slice again.</h4>")
+        delete_ratio_ce=round(remain_ratio_ce,3)*100
+        msg=HTML(paste("<h4>Invalid Slice!</h4>",
+                       "<h4>This parameter will delete",delete_ratio_ce,"% sample.Excessive deviation</h4>",
+                       "<h4>Please choose ce_slice again.</h4>",sep=""))
+        
+        
+        
+        # msg=HTML("<h4>Invalid Slice!</h4><h4>You will delete more than 5% of the selection ratio.</h4><h4>Please choose ce_slice again.</h4>")
         sendSweetAlert(session = session,title = "Warning..",text = msg,type = 'warning',html = T)
       }
       else{

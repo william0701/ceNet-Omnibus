@@ -128,15 +128,23 @@ When enter the **Data Processing** tab, the program will obtains the common ceRN
 
 Users are allowed to group ceRNAs into different groups to set different paramenters for the ceRNA filter and network construction. For example, the non-coding RNAs, especially long non-coding RNAs (lncRNAs)  usually have relatively lower expression levels. The thresh of non-expressed lncRNAs may be lower than that of mRNAs.
 
-Users can group ceRNAs according to the essential ceRNA information uploaded in step 1.3.  Validated columns are listed.
+Users can group ceRNAs according to the essential ceRNA information uploaded in step 1.3.  Validated columns are listed. 
 
 ![](https://github.com/william0701/Figures/blob/master/CeNet%20Omnibus/Gene_Mapping_1.jpg)
 
 > NOTE: Please Remeber to Click **Preview** Button on the right-bottom corner of the panel once set parameters properly.
 
+The ceRNAs of non-selected items will be removed in the next processing.
+
 ![](https://github.com/william0701/Figures/blob/master/CeNet%20Omnibus/Group_statistic.svg)
 
 #### 2.2 Sample Filter
+
+There may be some bad samples in the ceRNA/microRNA expression profiles. This section allows users to remove these bad samples.
+
+Firstly, users should set the thresh of a good microRNA/ceRNA in samples. For example, we think the CPM of a microRNA larger than 50 is good, while the RPKM of a ceRNA larger than 0.1 is good. Then, the program will calculate the ratio of good microRNAs/ceRNAs for every samples, and create the distribution plot. Finally, users need to decide how many samples should be remained by sliding the percentile bar.
+
+
 
 #### 2.3 RNA Filter
 

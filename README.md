@@ -6,7 +6,7 @@ The ceRNA regulation is a newly discovered post-transcriptional regulation mecha
 
 CeNet Omnibus consists of five components, including **Data Input**, **Data Processing**, **Network Construction**, **Network Visualization** and **Netwoek Analysis**. The framework of CeNet Omnibus is shown below.
 
-![](https://raw.githubusercontent.com/william0701/Figures/master/CeNet%20Omnibus/framework.svg)
+![](https://raw.githubusercontent.com/william0701/Figures/master/CeNetOmnibus/framework.svg)
 
 ## Installation
 
@@ -130,23 +130,39 @@ Users are allowed to group ceRNAs into different groups to set different paramen
 
 Users can group ceRNAs according to the essential ceRNA information uploaded in step 1.3.  Validated columns are listed. 
 
-![](https://github.com/william0701/Figures/blob/master/CeNet%20Omnibus/Gene_Mapping_1.jpg)
+![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/Gene_Mapping_1.jpg)
 
-> NOTE: Please Remeber to Click **Preview** Button on the right-bottom corner of the panel once set parameters properly.
+> NOTE: Click **Preview** Button on the right-bottom corner of the panel once set parameters properly.
 
 The ceRNAs of non-selected items will be removed in the next processing.
 
-![](https://github.com/william0701/Figures/blob/master/CeNet%20Omnibus/Group_statistic.svg)
+![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/Group_statistic.svg)
 
 #### 2.2 Sample Filter
 
 There may be some bad samples in the ceRNA/microRNA expression profiles. This section allows users to remove these bad samples.
 
-Firstly, users should set the thresh of a good microRNA/ceRNA in samples. For example, we think the CPM of a microRNA larger than 50 is good, while the RPKM of a ceRNA larger than 0.1 is good. Then, the program will calculate the ratio of good microRNAs/ceRNAs for every samples, and create the distribution plot. Finally, users need to decide how many samples should be remained by sliding the percentile bar.
+Firstly, users should set the thresh of a good microRNA/ceRNA in samples. For example, we think the CPM of a microRNA larger than 50 is good, while the RPKM of a ceRNA larger than 0.1 is good. Then, the program will calculate the good microRNAs/ceRNAs ratio each sample, and create the distribution plot. Finally, users need to decide how many samples should be remained by sliding the percentile bar.
 
+![](http://https://github.com/william0701/Figures/blob/master/CeNet%20Omnibus/Sample_Filter1.jpg)
 
+![](http://https://github.com/william0701/Figures/blob/master/CeNet%20Omnibus/microSampleFilter.svg)
+
+![](http://https://github.com/william0701/Figures/blob/master/CeNetOmnibus/RNASampleFilter.svg)
+
+> NOTE: Click **Preview** to create the plot, and the change of Percentile bar will update the plot.
+
+> NOTE: Please Remeber to Click **Filter** Button on the right-bottom corner of the panel once set parameters properly to execute the Sample Filter.
 
 #### 2.3 RNA Filter
+
+Because the expressions of ceRNAs and microRNAs have tissue-specificity, non-expressed microRNAs and ceRNAs should not appear in the ceRNA networks. This section allow users to remove non-expressed microRNAs and ceRNAs.
+
+Firstly, users should set the minimal expression thresh of a expressed microRNA or ceRNA . For example, we think the CPM of a microRNA larger than 100 is expressed, while the RPKM of a noncoding ceRNA larger than 0.5 is expressed and 1 for a coding ceRNA. Then, the program will calculate the expressed sample ratio of each RNA, and create the distribution plot. Finally, users need to decide how many samples a RNA  should express in by sliding the Minimal Sample Ratio bar.
+![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/RNA_Filter1.jpg)
+![](http://https://github.com/william0701/Figures/blob/master/CeNetOmnibus/microStatistic.svg)
+![](http://https://github.com/william0701/Figures/blob/master/CeNetOmnibus/NoncodingStatistic.svg)
+![](http://https://github.com/william0701/Figures/blob/master/CeNetOmnibus/CodingStatistic.svg)
 
 #### 2.4 Value Transformation
 

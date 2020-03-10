@@ -6,7 +6,7 @@ The ceRNA regulation is a newly discovered post-transcriptional regulation mecha
 
 CeNet Omnibus consists of five components, including **Data Input**, **Data Processing**, **Network Construction**, **Network Visualization** and **Netwoek Analysis**. The framework of CeNet Omnibus is shown below.
 
-![](https://github.com/william0701/Figures/blob/master/CeNet%20Omnibus/Valid_Gene.png)
+![](https://raw.githubusercontent.com/william0701/Figures/master/CeNet%20Omnibus/framework.svg)
 
 ## Installation
 

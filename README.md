@@ -122,7 +122,7 @@ For **Custom Upload** method, the uploaded file should be plain text delimited b
 
 When enter the **Data Processing** tab, the program will obtains the common ceRNAs, microRNAs and samples in the uploaded  files.
 
-![](https://github.com/william0701/Figures/blob/master/CeNet%20Omnibus/Valid_Gene.png)
+![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/Valid_Gene.png)
 
 #### 2.1 Gene Grouping
 

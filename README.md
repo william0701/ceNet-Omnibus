@@ -143,13 +143,12 @@ There may be some bad samples in the ceRNA/microRNA expression profiles. This se
 
 Firstly, users should set the thresh of a good microRNA/ceRNA in samples. For example, we think the CPM of a microRNA larger than 50 is good, while the RPKM of a ceRNA larger than 0.1 is good. Then, the program will calculate the good microRNAs/ceRNAs ratio each sample, and create the distribution plot. Finally, users need to decide how many samples should be remained by sliding the percentile bar.
 
-![](http://https://github.com/william0701/Figures/blob/master/CeNetOmnibus/Sample_Filter1.jpg)
+![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/Sample_Filter1.jpg)
 
 
-![](http://https://github.com/william0701/Figures/blob/master/CeNetOmnibus/microSampleFilter.svg)
+![](http:////github.com/william0701/Figures/blob/master/CeNetOmnibus/microSampleFilter.svg)
 
-
-![](http://https://github.com/william0701/Figures/blob/master/CeNetOmnibus/RNASampleFilter.svg)
+![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/RNASampleFilter.svg)
 
 > NOTE: Click **Preview** to create the plot, and the change of Percentile bar will update the plot.
 
@@ -162,11 +161,15 @@ Because the expressions of ceRNAs and microRNAs have tissue-specificity, non-exp
 Firstly, users should set the minimal expression thresh of a expressed microRNA or ceRNA . For example, we think the CPM of a microRNA larger than 100 is expressed, while the RPKM of a noncoding ceRNA larger than 0.5 is expressed and 1 for a coding ceRNA. Then, the program will calculate the expressed sample ratio of each RNA, and create the distribution plot. Finally, users need to decide how many samples a RNA  should express in by sliding the Minimal Sample Ratio bar.
 ![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/RNA_Filter1.jpg)
 
-![](http://https://github.com/william0701/Figures/blob/master/CeNetOmnibus/microStatistic.svg)
+![](http:////github.com/william0701/Figures/blob/master/CeNetOmnibus/microStatistic.svg)
 
-![](http://https://github.com/william0701/Figures/blob/master/CeNetOmnibus/NoncodingStatistic.svg)
+![](http:////github.com/william0701/Figures/blob/master/CeNetOmnibus/NoncodingStatistic.svg)
 
-![](http://https://github.com/william0701/Figures/blob/master/CeNetOmnibus/CodingStatistic.svg)
+![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/CodingStatistic.svg)
+
+> NOTE: Click **Preview** to create the plot, and the change of Percentile bar will update the plot.
+
+> NOTE: Please Remeber to Click **Filter** Button on the right-bottom corner of the panel once set parameters properly to execute the RNA Filter.
 
 
 #### 2.4 Value Transformation

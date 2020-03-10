@@ -15,7 +15,7 @@ sidebar=dashboardSidebar(
   sidebarMenu(
     menuItem("1st Step: Data Input", tabName = "input", icon = icon("table",class = 'far'),badgeLabel = 3),
     menuItem("2nd Step: Data Preprocess", tabName = "process", icon = icon("cog"),badgeLabel = 4),
-    menuItem("3rd Step: Network Construction", tabName = "construction", icon = icon("connectdevelop"),badgeLabel = 2),
+    menuItem("3rd Step: Network Construction", tabName = "construction", icon = icon("connectdevelop"),badgeLabel = 3),
     menuItem("4th Step: Network Visualization", tabName = "visualization", icon = icon("project-diagram"),badgeLabel = 1),
     menuItem("5th Step: Network Analysis", tabName = "analysis", icon = icon("chart-line"),badgeLabel = 4)
   ),width=280
@@ -145,14 +145,7 @@ process_tab=tabItem(tabName = "process",
 )
 
 visual_tab=tabItem(tabName = "visualization",
-
-                   h2("Network Visualization"),
-                   # dropdownButton(
-                   #   
-                   # 
-                   #   circle = TRUE, status = "danger", icon = icon("gear"), width = "100%",
-                   #   tooltip = tooltipOptions(title = "Click to see inputs !")
-                   # ),
+                   h2("Network Visualization",style='font-family:Georgia'),
                    div(class ="dropdown btn-dropdown-input",
                        tags$span(style="visibility: hidden; background-color: black; color: rgb(255, 255, 255); text-align: center; border-radius: 6px; padding: 5px 0px; position: absolute; left: 50px; top: 5px; z-index: 1;",
                                  HTML("Click button to display operation options")       

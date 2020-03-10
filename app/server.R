@@ -669,17 +669,17 @@ shinyServer(function(input,output,session) {
       }
       if(flag_micro==1){
         delete_ratio_micro=(1-round(remain_ratio_micro,3))*100
-        msg=HTML(paste("<h4>Invalid Slice!</h4>",
-                       "<h4>This parameter will delete ",delete_ratio_micro,"% sample.Excessive deviation</h4>",
-                       "<h4>Please choose micro_slice again.</h4>",sep="")) 
+        msg=HTML(paste("<h4>Large Error!</h4>",
+                       "<h4>This parameter will delete ",delete_ratio_micro,"% samples.</h4>",
+                       "<h4>Please choose Percentile of MicroRNA again.</h4>",sep="")) 
         # msg=HTML("<h4>Invalid Slice! </h4><h4>You will delete more than 5% of the selection ratio.</h4><h4>Please choose micro_slice again.</h4>")
         sendSweetAlert(session = session,title = "Warning..",text = msg,type = 'warning',html = T)
       }
       else if(flag_ce==1){
         delete_ratio_ce=(1-round(remain_ratio_ce,3))*100
-        msg=HTML(paste("<h4>Invalid Slice!</h4>",
-                       "<h4>This parameter will delete ",delete_ratio_ce,"% sample.Excessive deviation</h4>",
-                       "<h4>Please choose ce_slice again.</h4>",sep=""))
+        msg=HTML(paste("<h4>Large Error!</h4>",
+                       "<h4>This parameter will delete ",delete_ratio_ce,"% samples.</h4>",
+                       "<h4>Please choose Percentile of CeRNA again.</h4>",sep=""))
         
         
         

@@ -65,9 +65,7 @@ The expression profiles of ceRNAs and microRNAs should be plain text delimited b
 | MIMAT0021120  | 0                  | 0                  | 0                  | 0                  | 0                  |
 | MIMAT0021121  | 0                  | 0                  | 0                  | 0                  | 0                  |
 
-<div background-color=#123456>
-<h3>Please Remeber to Click <mark><b><font color=red>Preview</font></b></mark> Button on the right-bottom corner of the panel once set parameters properly.</h3>
-</div>
+> NOTE: Please Remeber to Click **Preview** Button on the right-bottom corner of the panel once set parameters properly.
 
 #### 1.2 The Interaction between ceRNAs and microRNAs
 
@@ -85,9 +83,7 @@ The interactions file between ceRNAs and microRNAs should be 0-1 matrix to repre
 | ENSG00000177272 | 1            | 1            | 1            | 1            | 1            | 1            | 1            | 0            | 1            |
 | ENSG00000235142 | 1            | 1            | 1            | 1            | 1            | 1            | 1            | 1            | 1            |
 
-<div background-color=#123456>
-<h3>Please Remeber to Click <mark><b><font color=red>Preview</font></b></mark> Button on the right-bottom corner of the panel once set parameters properly.</h3>
-</div>
+> NOTE: Please Remeber to Click **Preview** Button on the right-bottom corner of the panel once set parameters properly.
 
 #### 1.3 Essential ceRNA Information
 
@@ -105,25 +101,31 @@ For **Custom Upload** method, the uploaded file should be plain text delimited b
 
 <center><b>CeRNA Information Samples</b></center>
 
-|                 | ensembl\_gene\_id | description                                                                | strand | external\_gene\_name | gene\_biotype   |
-| --------------- | ----------------- | -------------------------------------------------------------------------- | ------ | -------------------- | --------------- |
-| ENSG00000006377 | ENSG00000006377   | distal\-less homeobox 6 \[Source:HGNC Symbol;Acc:HGNC:2919\]               | 1      | DLX6                 | protein\_coding |
-| ENSG00000010361 | ENSG00000010361   | fuzzy planar cell polarity protein \[Source:HGNC Symbol;Acc:HGNC:26219\]   | \-1    | FUZ                  | protein\_coding |
-| ENSG00000010438 | ENSG00000010438   | serine protease 3 \[Source:HGNC Symbol;Acc:HGNC:9486\]                     | 1      | PRSS3                | protein\_coding |
-| ENSG00000036054 | ENSG00000036054   | TBC1 domain family member 23 \[Source:HGNC Symbol;Acc:HGNC:25622\]         | 1      | TBC1D23              | protein\_coding |
-| ENSG00000047249 | ENSG00000047249   | ATPase H\+ transporting V1 subunit H \[Source:HGNC Symbol;Acc:HGNC:18303\] | \-1    | ATP6V1H              | protein\_coding |
-| ENSG00000056998 | ENSG00000056998   | glycogenin 2 \[Source:HGNC Symbol;Acc:HGNC:4700\]                          | 1      | GYG2                 | protein\_coding |
+|                 | ensembl\_gene\_id | description                                                                | strand | external\_gene\_name | gene\_biotype    |
+| --------------- | ----------------- | -------------------------------------------------------------------------- | ------ | -------------------- | ---------------- |
+| ENSG00000006377 | ENSG00000006377   | distal\-less homeobox 6 \[Source:HGNC Symbol;Acc:HGNC:2919\]               | 1      | DLX6                 | protein\_coding  |
+| ENSG00000010361 | ENSG00000010361   | fuzzy planar cell polarity protein \[Source:HGNC Symbol;Acc:HGNC:26219\]   | \-1    | FUZ                  | protein\_coding  |
+| ENSG00000010438 | ENSG00000010438   | serine protease 3 \[Source:HGNC Symbol;Acc:HGNC:9486\]                     | 1      | PRSS3                | protein\_coding  |
+| ENSG00000036054 | ENSG00000036054   | TBC1 domain family member 23 \[Source:HGNC Symbol;Acc:HGNC:25622\]         | 1      | TBC1D23              | protein\_coding  |
+| ENSG00000047249 | ENSG00000047249   | ATPase H\+ transporting V1 subunit H \[Source:HGNC Symbol;Acc:HGNC:18303\] | \-1    | ATP6V1H              | protein\_coding  |
+| ENSG00000056998 | ENSG00000056998   | glycogenin 2 \[Source:HGNC Symbol;Acc:HGNC:4700\]                          | 1      | GYG2                 | protein\_coding. |
 
-<div background-color=#123456>
-<h3>Please Remeber to Click <mark><b><font color=red>Preview</font></b></mark> Button on the right-bottom corner of the panel once set parameters properly.</h3>
-</div>
+> NOTE: Please Remeber to Click **Preview** Button on the right-bottom corner of the panel once set parameters properly.
 
-<h3>Warning: The Biomart Download may take relative long time, especially for the users on the mainland of China.</h3>
+> WARNING: The Biomart Download may take relative long time, especially for the users on the mainland of China.
 
 ### 2. Data Processing
+
+**Data Processing**  provide the interface to *Group CeRNAs*, *Filter Bad Samples*, *Filter Non-Expressed MicroRNAs/CeRNAs* and *Value Transformation*. 
+
+When enter the **Data Processing** tab, the program will obtains the common ceRNAs, microRNAs and samples in the uploaded  files.
+
+![](https://github.com/william0701/Figures/blob/master/CeNet%20Omnibus/Valid%20Gene.png)
 
 ### 3. Network Construction
 
 ### 4. Network Visualization
 
 ### 5. Network Analysis
+
+

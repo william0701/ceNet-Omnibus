@@ -145,8 +145,7 @@ Firstly, users should set the thresh of a good microRNA/ceRNA in samples. For ex
 
 ![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/Sample_Filter1.jpg)
 
-
-![](http:////github.com/william0701/Figures/blob/master/CeNetOmnibus/microSampleFilter.svg)
+![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/microSampleFilter.svg)
 
 ![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/RNASampleFilter.svg)
 

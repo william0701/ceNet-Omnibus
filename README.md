@@ -160,9 +160,9 @@ Because the expressions of ceRNAs and microRNAs have tissue-specificity, non-exp
 Firstly, users should set the minimal expression thresh of a expressed microRNA or ceRNA . For example, we think the CPM of a microRNA larger than 100 is expressed, while the RPKM of a noncoding ceRNA larger than 0.5 is expressed and 1 for a coding ceRNA. Then, the program will calculate the expressed sample ratio of each RNA, and create the distribution plot. Finally, users need to decide how many samples a RNA  should express in by sliding the Minimal Sample Ratio bar.
 ![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/RNA_Filter1.jpg)
 
-![](http:////github.com/william0701/Figures/blob/master/CeNetOmnibus/microStatistic.svg)
+![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/microStatistic.svg)
 
-![](http:////github.com/william0701/Figures/blob/master/CeNetOmnibus/NoncodingStatistic.svg)
+![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/NoncodingStatistic.svg)
 
 ![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/CodingStatistic.svg)
 

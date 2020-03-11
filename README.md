@@ -133,7 +133,8 @@ Users can group ceRNAs according to the essential ceRNA information uploaded in 
 ![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/Gene_Mapping_1.jpg)
 
 > NOTE: Click **Preview** Button on the right-bottom corner of the panel once set parameters properly.
-> The ceRNAs of non-selected items will be removed in the next processing.
+
+> NOTE: The ceRNAs of non-selected items will be removed in the next processing.
 
 ![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/Group_statistic.svg)
 
@@ -166,18 +167,21 @@ Firstly, users should set the minimal expression thresh of a expressed microRNA 
 
 ![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/CodingStatistic.svg)
 
-> NOTE: Click **Preview** to create the plot, and the change of Percentile bar will update the plot.
+> Tips: Click **Preview** to create the plot, and the change of Percentile bar will update the plot.
 
 > NOTE: Please Remeber to Click **Filter** Button on the right-bottom corner of the panel once set parameters properly to execute the RNA Filter.
-
 
 #### 2.4 Value Transformation
 
 ### 3. Network Construction
 
+CeNet Omnibus  provides a set measurements for users to identify ceRNA pairs and construct ceRNA networks. Current version integrated 5 measurements, including Pearson Correlation Coefficient, liquid association,  microRNA significance, mutual information, conditional mutual information. CeNet Omnibus also allows users to defined new measurements. 
+
+**Network Construction** provide the interface to *Choose Measurements*, *Set Parameters* and *Construct Network*.
+
 #### 3.1 Choose Measurement
 
-#### 3.2 Measurement Setting
+#### 3.2 Set Parameters
 
 #### 3.3 Network Construction
 

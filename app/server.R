@@ -1310,7 +1310,7 @@ shinyServer(function(input,output,session) {
              ui=div(
                div(class='row',
                    div(class='col-lg-6',
-                       selectInput(inputId = 'condition_type',label = 'Choose New Condition',choices = choice,multiple = F,selected = type)
+                       selectInput(inputId = 'condition_type',label = 'Choose New Measurement',choices = choice,multiple = F,selected = type)
                    ),
                    div(class='col-lg-6',
                        selectInput(inputId = 'use_core',label = 'Choose Parallel Cores',choices = cores ,multiple = F,selected = as.character(core))

@@ -122,7 +122,7 @@ create_module_info=function()
     node_count=length(module_genes)
     edge_count=gsize(subgraph)
     density=edge_count/(node_count*(node_count-1)/2)
-   
+    browser()
     node_type_count=data.frame(count=rep(0,times=length(unique(after_slice_geneinfo$.group))),row.names = unique(after_slice_geneinfo$.group))
     nodetype=table(after_slice_geneinfo[module_genes,'.group'])
     node_type_count[names(nodetype),'count']=nodetype

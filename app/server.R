@@ -881,7 +881,7 @@ shinyServer(function(input,output,session) {
       draw_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
       draw_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
       x_pianyi=(draw_x[2]-draw_x[1])*0.2
-      #browser()
+    
       if(var(xdata$SampleRatio)!=0){
         if(skewness(xdata$SampleRatio)<0){
           text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
@@ -958,7 +958,7 @@ shinyServer(function(input,output,session) {
 
     finnal = TRUE
     msg_pre = ""
-    remain_ceRNA_gene = ""
+
     if(length(gene_filter_choose)==0){
       sendSweetAlert(session = session,title = "Warning..",text = 'Please click one preview at least!..',type = 'warning')
       
@@ -993,7 +993,6 @@ shinyServer(function(input,output,session) {
         else{
           #append group gene to after_slice_rna.exp
           validGene = rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==type),])
-          remain_ceRNA_gene = c(remain_ceRNA_gene,validGene)
           output_rna.exp = sect_output_rna.exp[validGene,colnames(after_slice_rna.exp)]
           validSample = rowSums(output_rna.exp>=number)
           xdata = data.frame(SampleRatio=validSample/length(colnames(output_rna.exp)),stringsAsFactors = F)

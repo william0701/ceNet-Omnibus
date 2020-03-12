@@ -144,6 +144,8 @@ There may be some bad samples in the ceRNA/microRNA expression profiles. This se
 
 Firstly, users should set the thresh of a good microRNA/ceRNA in samples. For example, we think the CPM of a microRNA larger than 50 is good, while the RPKM of a ceRNA larger than 0.1 is good. Then, the program will calculate the good microRNAs/ceRNAs ratio each sample, and create the distribution plot. Finally, users need to decide how many samples should be remained by sliding the percentile bar.
 
+
+
 ![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/Sample_Filter1.jpg)
 
 

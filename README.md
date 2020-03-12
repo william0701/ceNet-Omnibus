@@ -144,11 +144,11 @@ There may be some bad samples in the ceRNA/microRNA expression profiles. This se
 
 Firstly, users should set the thresh of a good microRNA/ceRNA in samples. For example, we think the CPM of a microRNA larger than 50 is good, while the RPKM of a ceRNA larger than 0.1 is good. Then, the program will calculate the good microRNAs/ceRNAs ratio each sample, and create the distribution plot. Finally, users need to decide how many samples should be remained by sliding the percentile bar.
 
-![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/Sample_Filter1.jpg)
+![](Figures/Sample_Filter1.jpg)
 
-![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/microSampleFilter.svg)
+![](Figures/microSampleFilter.svg)
 
-![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/RNASampleFilter.svg)
+![](Figures/RNASampleFilter.svg)
 
 > NOTE: Click **Preview** to create the plot, and the change of Percentile bar will update the plot.
 
@@ -162,11 +162,11 @@ Firstly, users should set the minimal expression thresh of a expressed microRNA 
 
 ![](Figures/RNA_Filter1.jpg)
 
-![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/microStatistic.svg)
+![](Figures/microStatistic.svg)
 
-![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/NoncodingStatistic.svg)
+![](Figures/NoncodingStatistic.svg)
 
-![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/CodingStatistic.svg)
+![](Figures/CodingStatistic.svg)
 
 > Tips: Click **Preview** to create the plot, and the change of Percentile bar will update the plot.
 

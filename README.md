@@ -181,9 +181,37 @@ CeNet Omnibus  provides a set measurements for users to identify ceRNA pairs and
 
 #### 3.1 Choose Measurement
 
-#### 3.2 Set Parameters
+Click **Add New** Button to add a new measurement. Users need to set how many CPU cores ared needed to compute this measurement. Additionally, users can select if they want to compute the measurement of all pairs or a part of pairs according to the ceRNA groups defined in section 2.1. 
+
+![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/add_measurement.jpg)
+
+![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/measure_panel.jpg)
+
+Click Start Btn to  start calculation. When the calculation is finished, the background color will be Green
+
+![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/measure_finish.jpg)
+
+> TIPS: PCC only need one core to compute. 
+
+
+
+#### 3.2 Set Threshold
+
+When the calculation is finished, the program will create the distribution plot of every task.
+
+![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/thresh_1.jpg)
+
+**Direction** can set which part of pairs should be remained. **+** and **-** can be used to tune the thresh value with step in **Step**
+
+After all settings, click **Confirm** button to save the threshes.
+
+> Tips: If you want all pairs to share the common thresh, please select **All** in section 3.1. While you want to set every group pair with different threshes,   please select the group pairs seperately.
 
 #### 3.3 Network Construction
+
+After save all the threshes, Click **Construct Network** button to create the ceRNA network. The program will apply all the threshold setted in section 3.2. The program will summary the network after the  constrction.
+
+![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/network_summary.jpg)
 
 ### 4. Network Visualization
 

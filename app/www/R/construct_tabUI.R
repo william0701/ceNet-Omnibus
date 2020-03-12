@@ -9,7 +9,7 @@ construction_tab=tabItem(tabName = "construction",
                          fluidRow(
                            div(id='condition_panel')
                          ),
-                         h2("Step2: Set Measurement",style='font-family:Georgia',downloadButton(outputId = 'export_condition_plot',label = "Export Plots")),
+                         h2("Step2: Set Threshold",style='font-family:Georgia',downloadButton(outputId = 'export_condition_plot',label = "Export Plots")),
                          div(class='col-lg-12 callout callout-info',
                              tags$p(style="font-size:14px;font-family:sans-serif",
                                     HTML("Please choose threshold for every measurement and every task.")

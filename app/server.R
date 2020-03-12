@@ -614,8 +614,10 @@ shinyServer(function(input,output,session) {
     #   thresh=as.numeric(msg$thresh)
     #   direction=msg$direction
     # })
-    after_slice_micro.exp<<-sect_output_micro.exp
-    after_slice_rna.exp<<-sect_output_rna.exp
+    after_slice_geneinfo <<- sect_output_geneinfo[which(!is.na(sect_output_geneinfo$.group)),]
+    
+    after_slice_micro.exp<<-sect_output_micro.exp[rownames(after_slice_geneinfo),]
+    after_slice_rna.exp<<-sect_output_rna.exp[rownames(after_slice_geneinfo),]
     if(length(sample_filter_choose)==0){
       sendSweetAlert(session = session,title = "Warning..",
                      text = 'Please click one preview at least!..',type = 'warning')
@@ -638,18 +640,12 @@ shinyServer(function(input,output,session) {
           liuxiasum<-length(colnames(sect_output_micro.exp[,which(expressgene_num>x2)]))
           remain_ratio_micro<-liuxiasum/length(colnames(sect_output_micro.exp))
           if(abs((1-line)-remain_ratio_micro)<=0.05){
-            after_slice_micro.exp<<-sect_output_micro.exp[,which(expressgene_num>x2)]
+            after_slice_micro.exp<<-sect_output_micro.exp[rownames(after_slice_geneinfo),which(expressgene_num>x2)]
             num1=liuxiasum
-            # intersect_sample_num<-length(intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))) 
-            # sendSweetAlert(session = session,title = "Success..",text =paste0("Filter Ok! Sample Remain: ",intersect_sample_num) ,type = 'success')
-            # ValidNum = data.frame(sampleNum = intersect_sample_num,stringsAsFactors = F);
-            # session$sendCustomMessage('Valid_valuebox_sample',ValidNum);
+           
           }
           else{
-            # print("tanchutishi") #tanchutishi..
             flag_micro=1
-            # sendSweetAlert(session = session,title = "Warning..",text = 'Invlid value! Please choose again.',type = 'warning')
-            # after_slice_micro.exp<<-sect_output_micro.exp
           }
           
         }
@@ -659,7 +655,7 @@ shinyServer(function(input,output,session) {
           liuxiasum<-length(colnames(sect_output_rna.exp[,which(expressgene_num2>x2)]))
           remain_ratio_ce<-liuxiasum/length(colnames(sect_output_rna.exp))
           if(abs((1-line)-remain_ratio_ce)<=0.05){
-            after_slice_rna.exp<<-sect_output_rna.exp[,which(expressgene_num2>x2)]
+            after_slice_rna.exp<<-sect_output_rna.exp[rownames(after_slice_geneinfo),which(expressgene_num2>x2)]
             num2=liuxiasum
           }
           else{
@@ -680,10 +676,6 @@ shinyServer(function(input,output,session) {
         msg=HTML(paste("<h4>Large Error!</h4>",
                        "<h4>This parameter will delete ",delete_ratio_ce,"% samples.</h4>",
                        "<h4>Please choose Percentile of CeRNA again.</h4>",sep=""))
-        
-        
-        
-        # msg=HTML("<h4>Invalid Slice!</h4><h4>You will delete more than 5% of the selection ratio.</h4><h4>Please choose ce_slice again.</h4>")
         sendSweetAlert(session = session,title = "Warning..",text = msg,type = 'warning',html = T)
       }
       else{
@@ -698,8 +690,8 @@ shinyServer(function(input,output,session) {
                        type = 'success',html = T)
         
         a=intersect(colnames(after_slice_micro.exp),colnames(after_slice_rna.exp))
-        after_slice_micro.exp<<-after_slice_micro.exp[,a]
-        after_slice_rna.exp<<-after_slice_rna.exp[,a]
+        after_slice_micro.exp<<-after_slice_micro.exp[rownames(after_slice_geneinfo),a]
+        after_slice_rna.exp<<-after_slice_rna.exp[rownames(after_slice_geneinfo),a]
         
         ValidNum = data.frame(sampleNum = intersect_sample_num,stringsAsFactors = F);
         session$sendCustomMessage('Valid_valuebox_sample',ValidNum);

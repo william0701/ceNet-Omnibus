@@ -73,7 +73,6 @@ cluster_cograph=function(netpath,outpath)
   # .jaddClassPath(path = "Program/Cograph.jar")
   # cograph=.jnew(class = 'com/xidian/Cograph/CographMining',normalizePath(netpath),normalizePath(outpath))
   # .jcall(obj = cograph,returnSig = 'V',method = 'run')
-  system(command = "ls",intern = T)
   if(Sys.info()['sysname']=="Windows")
   {
     cmd=paste("cd www/Program & java -cp .;Cograph.jar RunCograph",normalizePath(netpath),normalizePath(outpath))

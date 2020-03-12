@@ -18,7 +18,6 @@ Super <- function(run = TRUE,maxRequestSize=5*1024^2,workpath=tempdir(),projectN
   library(scales)
   library(rhandsontable)
   library(PerformanceAnalytics)
-  #library(rJava)
   library(linkcomm)
   library(MCL)
   library(visNetwork)

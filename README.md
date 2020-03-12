@@ -259,3 +259,23 @@ You should confirm all parameter Meet your requirements.Finally click **Perform*
 > NOTE: You need to make sure that there are values at the top of the 2nd Step and **Network Modules** on 5th Step have been completed.Otherwise,**Gene ID Map** and **Module analysis** will be empty.
 
 #### 5.4 Survival Analysis
+
+CeNet Omnibus provides the interface to perform survival analysis. There are two models, including Kaplan-Meier survival estimate model and Cox proportional hazards regression model. 
+
+![](Figures/survival.jpg)
+
+Users need to upload the clinical information and corresponding expression profiles. Alternatively, the expression profiles can be the expreesion profiles used to construct ceRNA network. The program will obtain the patients that appear in both data sets. Therefore, please make sure the patient ids are in the same format in two data sets.
+
+Users need to set parameters for the estimation models. CeNet Omnibus can analyze survival hazard of gene set or single gene.
+
+![](Figures/km_curve.svg)
+
+![](Figures/km_group.png)
+
+![](Figures/cox_table.jpg)
+
+### Download
+
+CeNet Omnibus allows users to download every plot. But, for the plots of enrichment analysis and survival analysis, users should click the Download or Export button **Twice** to download the plots (we have not found the solution to solve this problem). In addition, users need to ensure that the system supports **zip/unzip** command.
+
+

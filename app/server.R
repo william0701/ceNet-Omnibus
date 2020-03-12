@@ -843,7 +843,8 @@ shinyServer(function(input,output,session) {
     else{
       gene_filter_choose[group] <<- list(c(number,line))
       validGene=rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==group),])
-      validSample = rowSums(after_slice_rna.exp[validGene,]>=number)
+      temp_data = sect_output_rna.exp[validGene,colnames(after_slice_rna.exp)]
+      validSample = rowSums(temp_data>=number)
       ratio=as.numeric(line)
       xdata = data.frame(SampleRatio=validSample/length(colnames(after_slice_rna.exp)),stringsAsFactors = F)
       ypoint=length(which(xdata$SampleRatio<=ratio))/length(validGene)
@@ -872,7 +873,7 @@ shinyServer(function(input,output,session) {
       draw_y<-get(x = "range",envir = pp$layout$panel_scales_y[[1]]$range)
       draw_x<-get(x = "range",envir = pp$layout$panel_scales_x[[1]]$range)
       x_pianyi=(draw_x[2]-draw_x[1])*0.2
-      
+    
       if(var(xdata$SampleRatio)!=0){
         if(skewness(xdata$SampleRatio)<0){
           text=data.frame(label=c(text1,text2),x=draw_x[1]+x_pianyi,y=c(draw_y[2],draw_y[2]*0.95),stringsAsFactors = F)
@@ -949,6 +950,7 @@ shinyServer(function(input,output,session) {
 
     finnal = TRUE
     msg_pre = ""
+
     if(length(gene_filter_choose)==0){
       sendSweetAlert(session = session,title = "Warning..",text = 'Please click one preview at least!..',type = 'warning')
       
@@ -967,13 +969,14 @@ shinyServer(function(input,output,session) {
           ratio = sum(xdata$SampleRatio==line)/length(validGene)
           if(ratio<0.05){
             after_slice_micro.exp<<- output_micro.exp[intersect_name,]
-            msg_pre = paste("<h4>Valid MicroRNA: ",dim(after_slice_micro.exp)[1],"</h4>",sep = "")
+            msg_pre = paste(msg_pre,"<h4>Valid MicroRNA: ",dim(after_slice_micro.exp)[1],"</h4>",sep = "")
             # num1 = length(rownames(after_slice_micro.exp))
             
             #sendSweetAlert(session = session,title = "Success..",text = paste("Filter Success! Valid microRNA Remain:",num1),type = 'success')
             
           }
           else{
+            
             sendSweetAlert(session = session,title = "Warning..",text = 'Group micro:Invlid value please choose again',type = 'warning')
             finnal =FALSE
             break
@@ -1019,8 +1022,7 @@ shinyServer(function(input,output,session) {
         session$sendCustomMessage('Valid_valuebox_rna',ValidNum2);
       }else{
         after_slice_micro.exp <<- sect_output_micro.exp[,colnames(after_slice_micro.exp)]
-        after_slice_rna.exp <<- sect_output_rna.exp[,colnames(after_slice_rna.exp)]
-      }
+        after_slice_rna.exp <<- sect_output_rna.exp[rownames(after_slice_geneinfo),]      }
       
     }
     
@@ -1299,7 +1301,7 @@ shinyServer(function(input,output,session) {
              ui=div(
                div(class='row',
                    div(class='col-lg-6',
-                       selectInput(inputId = 'condition_type',label = 'Choose New Condition',choices = choice,multiple = F,selected = type)
+                       selectInput(inputId = 'condition_type',label = 'Choose New Measurement',choices = choice,multiple = F,selected = type)
                    ),
                    div(class='col-lg-6',
                        selectInput(inputId = 'use_core',label = 'Choose Parallel Cores',choices = cores ,multiple = F,selected = as.character(core))
@@ -1764,6 +1766,11 @@ shinyServer(function(input,output,session) {
       if(type=="group"){
           type='.group'
       }
+      if(type == "All_node"){
+        vec = "All_node"
+        session$sendCustomMessage('Gene_network_color_change',data.frame(type=vec,stringsAsFactors = F))
+        return()
+      }
       vec = after_slice_geneinfo[,type]
       #vec = vec[[1]]
       vec = unique(vec)
@@ -1776,6 +1783,11 @@ shinyServer(function(input,output,session) {
     if(func=="shape"){
       if(type=="group"){
         type = ".group"
+      }
+      if(type == "All_node"){
+        vec = "All_node"
+        session$sendCustomMessage('Gene_network_shape_change',data.frame(type=vec,stringsAsFactors = F))
+        return()
       }
       vec = after_slice_geneinfo[,type]
       vec = unique(vec)

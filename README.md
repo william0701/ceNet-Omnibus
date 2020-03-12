@@ -274,8 +274,6 @@ Users need to set parameters for the estimation models. CeNet Omnibus can analyz
 
 ![](Figures/cox_table.jpg)
 
-### Download
+## Download
 
 CeNet Omnibus allows users to download every plot. But, for the plots of enrichment analysis and survival analysis, users should click the Download or Export button **Twice** to download the plots (we have not found the solution to solve this problem). In addition, users need to ensure that the system supports **zip/unzip** command.
-
-

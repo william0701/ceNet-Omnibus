@@ -144,15 +144,9 @@ There may be some bad samples in the ceRNA/microRNA expression profiles. This se
 
 Firstly, users should set the thresh of a good microRNA/ceRNA in samples. For example, we think the CPM of a microRNA larger than 50 is good, while the RPKM of a ceRNA larger than 0.1 is good. Then, the program will calculate the good microRNAs/ceRNAs ratio each sample, and create the distribution plot. Finally, users need to decide how many samples should be remained by sliding the percentile bar.
 
-
-
 ![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/Sample_Filter1.jpg)
 
-
-
 ![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/microSampleFilter.svg)
-
-
 
 ![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/RNASampleFilter.svg)
 
@@ -166,18 +160,11 @@ Because the expressions of ceRNAs and microRNAs have tissue-specificity, non-exp
 
 Firstly, users should set the minimal expression thresh of a expressed microRNA or ceRNA . For example, we think the CPM of a microRNA larger than 100 is expressed, while the RPKM of a noncoding ceRNA larger than 0.5 is expressed and 1 for a coding ceRNA. Then, the program will calculate the expressed sample ratio of each RNA, and create the distribution plot. Finally, users need to decide how many samples a RNA  should express in by sliding the Minimal Sample Ratio bar.
 
-
 ![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/RNA_Filter1.jpg)
-
-
 
 ![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/microStatistic.svg)
 
-
-
 ![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/NoncodingStatistic.svg)
-
-
 
 ![](http://github.com/william0701/Figures/blob/master/CeNetOmnibus/CodingStatistic.svg)
 
@@ -199,8 +186,6 @@ Click **Add New** Button to add a new measurement. Users need to set how many CP
 
 ![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/add_measurement.jpg)
 
-
-
 ![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/measure_panel.jpg)
 
 Click Start Btn to  start calculation. When the calculation is finished, the background color will be Green
@@ -208,8 +193,6 @@ Click Start Btn to  start calculation. When the calculation is finished, the bac
 ![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/measure_finish.jpg)
 
 > TIPS: PCC only need one core to compute. 
-
-
 
 #### 3.2 Set Threshold
 
@@ -225,7 +208,7 @@ After all settings, click **Confirm** button to save the threshes.
 
 #### 3.3 Network Construction
 
-After save all the threshes, Click **Construct Network** button to create the ceRNA network. The program will apply all the threshold setted in section 3.2. The program will summary the network after the  constrction.
+After save all the threshes, Click **Construct Network** button to create the ceRNA network. The program will apply all the threshold setted in section 3.2. The program will summarize the network after the  constrction.
 
 ![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/network_summary.jpg)
 
@@ -247,7 +230,20 @@ CeNet Omnibus can calculate four node centralities and one edge centrality to ev
 
 #### 5.2 Network Module
 
+CeNet Omnibus integrated a set of network module detection algorithms to identify ceRNA modules, including Louvain Method, MCL, MCODE, etc.
+
+CeNet Omnibus will summarize the communities in a table. Users can select modules to visualize and set node properties with the similar way in section 4.
+
+![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/module_summary.png)
+
+![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/module1.png)
+
+![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/module2.png)
+
+![](https://github.com/william0701/Figures/blob/master/CeNetOmnibus/module3.png)
+
 #### 5.3 Enrichment Analysis
+
 After **Network Module** we get some modules.Here we can perform enrichment analysis on these modules.Sure, you can also analyze other genes, by choosing **Gene Set Source** as **Custom Gene**.Then,input data as required.
 Then,choose **Enrichment Source**, **g:profiles** or **custom input**.If you choose **custom input**,you should upload a genes set file.Then you must Click **preview** to preview your uploaded file,It will show on the **Custom Gene Preview** panel.You can click **Details** to view genes.
 The following is the parameter introduction:
@@ -259,6 +255,7 @@ The following is the parameter introduction:
 **Module analysis**:Choose which modules to analyze.
 **Plot Type**:Select the type of picture to display.
 You should confirm all parameter Meet your requirements.Finally click **Perform** Button.You will see pictures.
+
 > NOTE: You need to make sure that there are values at the top of the 2nd Step and **Network Modules** on 5th Step have been completed.Otherwise,**Gene ID Map** and **Module analysis** will be empty.
 
 #### 5.4 Survival Analysis

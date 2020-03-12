@@ -994,6 +994,7 @@ shinyServer(function(input,output,session) {
           #append group gene to after_slice_rna.exp
           validGene = rownames(sect_output_geneinfo[which(sect_output_geneinfo$.group==type),])
           output_rna.exp = sect_output_rna.exp[validGene,colnames(after_slice_rna.exp)]
+          
           validSample = rowSums(output_rna.exp>=number)
           xdata = data.frame(SampleRatio=validSample/length(colnames(output_rna.exp)),stringsAsFactors = F)
           intersect_name = rownames(xdata)[which(xdata$SampleRatio>line)]
@@ -1016,9 +1017,10 @@ shinyServer(function(input,output,session) {
         }
       }
       if(finnal){
+       
         num1 = length(rownames(after_slice_micro.exp))
         num2 = length(rownames(after_slice_rna.exp))
-        after_slice_geneinfo<<-sect_output_geneinfo[rownames(after_slice_rna.exp),]
+        after_slice_geneinfo <<- after_slice_geneinfo[rownames(after_slice_rna.exp),]
         #after_slice_geneinfo <<-sect_output_geneinfo[sect_name,]
         msg=HTML(msg_pre)
         sendSweetAlert(session = session,title = "Success..",text = msg,type = 'success',html = T)
@@ -1030,7 +1032,8 @@ shinyServer(function(input,output,session) {
         session$sendCustomMessage('Valid_valuebox_rna',ValidNum2);
       }else{
         after_slice_micro.exp <<- sect_output_micro.exp[,colnames(after_slice_micro.exp)]
-        after_slice_rna.exp <<- sect_output_rna.exp[rownames(after_slice_geneinfo),]      }
+        after_slice_geneinfo <<- sect_output_geneinfo[which(!is.na(sect_output_geneinfo$.group)),]
+        after_slice_rna.exp <<- sect_output_rna.exp[rownames(after_slice_geneinfo),]     }
       
     }
     

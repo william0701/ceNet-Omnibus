@@ -16,12 +16,12 @@ To make sure all the dependency packages are installed, run  following codes to 
 source('https://raw.githubusercontent.com/william0701/ceNet-Omnibus/master/dependency.R')
 ```
 
-> Download [CeNetOmnibus](https://github.com/william0701/ceNet-Omnibus/releases/download/0.1.0/CeNetOmnibus_0.1.0.tar.gz)
+> Download [CeNetOmnibus.tar.gz](https://github.com/william0701/ceNet-Omnibus/releases/download/0.1.0/CeNetOmnibus_0.1.0.tar.gz)
 
 Install CeNetOmnibus package from local files
 
 ```r
-install.package("~/CeNetOmnibus_0.1.0.tar.gz",repos=NULL,type='source')
+install.package("dictionary/CeNetOmnibus_0.1.0.tar.gz",repos=NULL,type='source')
 ```
 
 ## Data Preparation

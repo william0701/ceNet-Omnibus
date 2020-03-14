@@ -2,24 +2,16 @@ dependency=data.frame(package=c('parallel','biomaRt','shiny','plyr','ggplot2','j
 rownames(dependency)=dependency$package
 installed=installed.packages()
 if(!"devtools" %in% installed)
-{
   install.packages('devtools')
-}
 if(!"BiocManager" %in% installed)
-{
   install.packages('BiocManager')
-}
 install=dependency[!(dependency$package %in% installed),]
 CRAN=install$package[which(install$repo=='CRAN')]
 Bioc=install$package[which(install$repo=='Bioc')]
 if(length(CRAN)>0)
-{
   devtools::install_cran(CRAN,upgrade='never')
-}
 if(length(Bioc)>0)
-{
   devtools::install_bioc(Bioc,upgrade = 'never')
-}
 if("ggthemr" %in% install$package)
   devtools::install_github("cttobin/ggthemr",upgrade='never')
 if("ProNet" %in% install$package)

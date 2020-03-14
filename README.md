@@ -13,7 +13,7 @@ CeNet Omnibus consists of five components, including **Data Input**, **Data Proc
 To make sure all the dependency packages are installed, run  following codes to install dependency packages.
 
 ```r
-source('https://github.com/william0701/ceNet-Omnibus/blob/master/dependency.R')
+source('https://raw.githubusercontent.com/william0701/ceNet-Omnibus/master/dependency.R')
 ```
 
 > Download [CeNetOmnibus](https://github.com/william0701/ceNet-Omnibus/releases/download/0.1.0/CeNetOmnibus_0.1.0.tar.gz)

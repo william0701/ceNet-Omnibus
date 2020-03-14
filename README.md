@@ -10,6 +10,12 @@ CeNet Omnibus consists of five components, including **Data Input**, **Data Proc
 
 ## How to Start
 
+To make sure all the dependency packages are installed, run  following codes to install dependency packages.
+
+```r
+source('')
+```
+
 > Download [CeNetOmnibus](https://github.com/william0701/ceNet-Omnibus/releases/download/0.1.0/CeNetOmnibus_0.1.0.tar.gz)
 
 Install CeNetOmnibus package from local files
@@ -17,10 +23,6 @@ Install CeNetOmnibus package from local files
 ```r
 install.package("~/CeNetOmnibus_0.1.0.tar.gz",repos=NULL,type='source')
 ```
-
-To make sure all the dependency packages are installed, run ```CeNetOmnibus::install_dependency()``` to check dependency.
-
-
 
 ## Data Preparation
 

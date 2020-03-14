@@ -20,12 +20,7 @@ install.package("~/CeNetOmnibus_0.1.0.tar.gz",repos=NULL,type='source')
 
 To make sure all the dependency packages are installed, run ```CeNetOmnibus::install_dependency()``` to check dependency.
 
-Finially, run the following codes to start CeNetOmnibus.
 
-```r
-library(CeNetOmnibus)
-CeNetOmnibus()
-```
 
 ## Data Preparation
 

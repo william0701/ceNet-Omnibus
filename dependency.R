@@ -21,7 +21,7 @@ dependency=data.frame(package=c('parallel','biomaRt','shiny','plyr','ggplot2','j
 
   if(length(CRAN)>0)
   {
-    install_cran(CRAN,upgrade='never')
+    devtools::install_cran(CRAN,upgrade='never')
   }
   if(length(Bioc)>0)
   {

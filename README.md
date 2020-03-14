@@ -8,15 +8,23 @@ CeNet Omnibus consists of five components, including **Data Input**, **Data Proc
 
 ![](Figures/framework.svg)
 
-## Installation
+## How to Start
 
-To install the package from the github repository please use the following code.
+> Download [CeNetOmnibus](https://github.com/william0701/ceNet-Omnibus/releases/download/0.1.0/CeNetOmnibus_0.1.0.tar.gz)
+
+Install CeNetOmnibus package from local files
 
 ```r
-if (!requireNamespace("BiocManager", quietly=TRUE))    install.packages("BiocManager")
-deps <- c("devtools")
-BiocManager::install("devtools", dependencies = TRUE)
-devtools::install_github("BioinformaticsFMRP/TCGAbiolinksGUI.data",ref = "R_3.4")
+install.package("~/CeNetOmnibus_0.1.0.tar.gz",repos=NULL,type='source')
+```
+
+To make sure all the dependency packages are installed, run ```CeNetOmnibus::install_dependency()``` to check dependency.
+
+Finially, run the following codes to start CeNetOmnibus.
+
+```r
+library(CeNetOmnibus)
+CeNetOmnibus()
 ```
 
 ## Data Preparation

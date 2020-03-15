@@ -242,12 +242,13 @@ Shiny.addCustomMessageHandler('ensembl_archieve_info',function(msg){
   });
   $('#modalSubmit').off('click').on('click',function(e){
     var value=$('#modaltable tr.selected>td:nth-child(4)').text();
-    if(value!="")
+    if(value!=="")
     {
      $('#'+$('#infolist').attr('currentTarget').toLowerCase()).val(value);
      $('#'+$('#infolist').attr('currentTarget').toLowerCase()).trigger('change');
     }
     $('#'+$('#infolist').attr('currentTarget').toLowerCase())
+    hiddenModal()
     if($('#infolist').attr('currenttarget')=='archieve'||$('#infolist').attr('currenttarget')=='database')
      Shiny.setInputValue('Update_Ensembl',Math.random())
   })
@@ -294,7 +295,7 @@ Shiny.addCustomMessageHandler('ensembl_filter_info',function(msg){
   });
   $('#modalSubmit').off('click').on('click',function(e){
     var value=$('#modaltable tr.selected>td:nth-child(2)').text();
-    if(value!="")
+    if(value!=="")
     {
      $('#'+$('#infolist').attr('currentTarget').toLowerCase()).val(value);
      $('#'+$('#infolist').attr('currentTarget').toLowerCase()).trigger('change');
@@ -358,7 +359,7 @@ Shiny.addCustomMessageHandler('select_gene',function(msg){
   $('#infolist').attr('currenttarget','gene');
   $('#modaltitle').text(msg.title);
   $('#modalbody').empty();
-  if(msg.body.all.length==0)
+  if(msg.body.all.length===0)
   {
     var obj={}
     obj['stamp']=Math.random()

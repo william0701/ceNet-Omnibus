@@ -369,12 +369,10 @@ Shiny.addCustomMessageHandler('network_construction',function(msg){
 comfirm_thresh=function(e)
 {
   var $thresh_panel=$(e).parent().prev()
-  if($(e).parent().parent().children(":first").find('h4>small').length==0)
-  {
-    $(e).parent().parent().children(":first").find('h4').append($("<small class='badge bg-green'>Added</small>"))
-  }
+  
   var threshs={}
   var type=""
+  var flag=true
   $thresh_panel.children().each(function(i,ele){
     type=$(ele).attr("type")
     var task=$(ele).attr('task')
@@ -383,13 +381,28 @@ comfirm_thresh=function(e)
     var direction=$(ele).find('select').val()
     t['direction']=direction
     t['thresh']=thresh
+    if(typeof(direction)=="undefined"||typeof(thresh)=="undefined")
+    {
+      flag=false
+    }
     threshs[task]=t
   })
   var obj={}
   obj['stamp']=Math.random()
   obj['type']=type
   obj['thresh']=threshs
-  Shiny.setInputValue("add_condition_thresh",obj)
+  if(flag)
+  {
+    Shiny.setInputValue("add_condition_thresh",obj)
+    if($(e).parent().parent().children(":first").find('h4>small').length==0)
+    {
+      $(e).parent().parent().children(":first").find('h4').append($("<small class='badge bg-green'>Added</small>"))
+    }
+  }
+  else
+  {
+    sweetAlert('warning','Warning..','Please Wait for Computation!')
+  }
 }
 cancel_thresh=function(e)
 {

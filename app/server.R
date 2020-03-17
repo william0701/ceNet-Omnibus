@@ -12,7 +12,7 @@ shinyServer(function(input,output,session) {
   source('www/R/analysis_tabServer.R',local = T)
   source('www/R/process_tabServer.R',local = T)
   
-  connectEnsembl(session)
+  #connectEnsembl(session)
   if(is.null(projName)){
     projName <<- session$token
   }
@@ -1611,6 +1611,11 @@ shinyServer(function(input,output,session) {
       newthresh=msg$thresh
       type=msg$type
     })
+    if(length(newthresh[[1]])==0)
+    {
+      sendSweetAlert(session = session,title = "Warning...",text = "Please Wait until Computation Finish...",type = 'warning',html = T)
+      return()
+    }
     thresh<<-thresh[thresh$type!=type,]
     for(name in names(newthresh))
     {

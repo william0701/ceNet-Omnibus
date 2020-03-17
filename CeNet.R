@@ -54,4 +54,5 @@ CeNetOmnibus <- function(maxRequestSize=5,workpath=tempdir(),projectName=NULL,ty
   usedcolors=swatch()
   options(shiny.maxRequestSize = maxRequestSize)
   suppressMessages(shiny::runApp(system.file("app", package = "CeNetOmnibus"),launch.browser=TRUE,...))
+  #shiny::runApp("app",launch.browser=TRUE,...)
 }

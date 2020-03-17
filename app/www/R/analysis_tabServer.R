@@ -80,7 +80,7 @@ cluster_cograph=function(netpath,outpath)
   }
   else
   {
-    cmd=paste("cd www/Program;java -cp .;Cograph.jar RunCograph",normalizePath(netpath),normalizePath(outpath))
+    cmd=paste("cd www/Program;java -cp .:Cograph.jar RunCograph",normalizePath(netpath),normalizePath(outpath))
     msg=system(command = cmd,wait = T,intern = T)  
   }
   result=readLines(con = paste(normalizePath(outpath),"Cograph community.txt",sep=""))

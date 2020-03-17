@@ -21,7 +21,7 @@ source('https://raw.githubusercontent.com/william0701/ceNet-Omnibus/master/depen
 Install CeNetOmnibus package from local files
 
 ```r
-install.package("user_path/CeNetOmnibus_0.1.0.tar.gz",repos=NULL,type='source')
+install.packages("user_path/CeNetOmnibus_0.1.0.tar.gz",repos=NULL,type='source')
 ```
 
 ## Data Preparation

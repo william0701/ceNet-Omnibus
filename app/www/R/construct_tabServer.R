@@ -110,7 +110,7 @@ condition_density_plot=function(basepath,data,type,task,value,direction="<")
   
   figurepath=paste(basepath,'/Plot/density_plot_',type,"_",task,".svg",sep="")
   print(figurepath)
-  svg(figurepath)
+  svglite(figurepath)
   p=ggplot(data = density)+geom_line(mapping = aes(x = x,y = y),size=1.5)+
     geom_area(mapping = aes(x = x,y=y,fill=area),alpha=0.8)+
     geom_vline(xintercept = value,size=1.2,colour=usedcolors[5],linetype="dashed")+

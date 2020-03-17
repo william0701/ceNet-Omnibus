@@ -1,5 +1,3 @@
-library(R.matlab)
-
 args=commandArgs(T)
 datapath=normalizePath(args[1],winslash = '/')
 logpath=normalizePath(args[2],winslash = '/')

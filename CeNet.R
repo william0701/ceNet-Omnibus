@@ -1,7 +1,17 @@
-#projName = NULL
-#tmpdir=NULL
-#typeLimit = 10
-Super <- function(run = TRUE,maxRequestSize=5*1024^2,workpath=tempdir(),projectName=NULL,typeLimit=10,...) {
+#' Run CeNetOmnibus App
+#'
+#' @param maxRequestSize Integer.The admitted file size for uploaded files. Unit MB. Default 5MB.
+#' @param workpath Character. The dictionary for temp files. Default is return value of tempdir()
+#' @param projectName Character. The name of this analysis. Default is session token.
+#' @param typeLimit Integer. The number of valid items. Default is 10.
+#' @param ... Other parameters passed to runApp()
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'    CeNetOmnibus()
+CeNetOmnibus <- function(maxRequestSize=5,workpath=tempdir(),projectName=NULL,typeLimit=10,...) {
   library(parallel)
   library(biomaRt)
   library(shiny)
@@ -12,25 +22,27 @@ Super <- function(run = TRUE,maxRequestSize=5*1024^2,workpath=tempdir(),projectN
   library(shinyWidgets)
   library(DT)
   library(ggthemr)
-  library(R.matlab)
   library(tibble)
   library(igraph)
   library(scales)
   library(rhandsontable)
   library(PerformanceAnalytics)
-  #library(rJava)
   library(linkcomm)
   library(MCL)
   library(visNetwork)
   library(colourpicker)
-  #library(ProNet)
   library(ggplotify)
   library(survival)
   library(survminer)
   library(ComplexHeatmap)
-  library(circlize) 
+  library(circlize)
   library(formattable)
   library(infotheo)
+  library(ProNet)
+  library(gprofiler2)
+  library(svglite)
+
+  maxRequestSize=maxRequestSize*1024^2
   tmpdir<<-normalizePath(workpath)
   projName<<-projectName
   if(!is.null(projectName))
@@ -41,16 +53,6 @@ Super <- function(run = TRUE,maxRequestSize=5*1024^2,workpath=tempdir(),projectN
   ggthemr('flat')
   usedcolors=swatch()
   options(shiny.maxRequestSize = maxRequestSize)
-  #if(run) suppressMessages(shiny::runApp(system.file("app", package = "shinyAppDemo"),launch.browser=TRUE,...))
-
-
-  runApp(appDir = "app",...)
-
+  suppressMessages(shiny::runApp(system.file("app", package = "CeNetOmnibus"),launch.browser=TRUE,...))
+  #shiny::runApp("app",launch.browser=TRUE,...)
 }
-
-
-#Super(run = T,workpath = "D://Test/",projectName = "Single_cell_case")
-Super(projectName ="Single cell case" ,typeLimit = 20)
-#Super(typeLimit = 10)
-
-

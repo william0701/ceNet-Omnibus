@@ -12,7 +12,7 @@ shinyServer(function(input,output,session) {
   source('www/R/analysis_tabServer.R',local = T)
   source('www/R/process_tabServer.R',local = T)
   
-  #connectEnsembl(session)
+  connectEnsembl(session)
   if(is.null(projName)){
     projName <<- session$token
   }
@@ -25,9 +25,6 @@ shinyServer(function(input,output,session) {
   dir.create(paste(basepath,'log',sep="/"))
   print(paste("Templete File Dictionary:",basepath))
   visual_layout=""
-  #load('D:/Test/ph3.RData',envir=environment())
-  #load('C:/Users/DELL/Desktop/single-cell/tmp.RData',envir=environment())
-  load('testdata/ph1.RData',envir = environment())
 
   ############Input Page Action##########
   observeEvent(input$onclick,{
@@ -185,7 +182,6 @@ shinyServer(function(input,output,session) {
     isolate({
       msg=fromJSON(input$ensembl_info)
     })
-    print(msg)
     if(msg$id=='database_choose')
     {
       session$sendCustomMessage('ensembl_database_info',list(title='Database',body=toJSON(specials)))
@@ -208,12 +204,10 @@ shinyServer(function(input,output,session) {
       special=input$database
       url=input$archieve
     })
-    print(paste(special,url))
     Sys.sleep(1)
     updateEnsembl(special,url,session)
   })
   observeEvent(input$attribution_update,{
-    print('attribution_update')
     addAttribution(session)
   })
   observeEvent(input$Update_Select_Gene,{
@@ -417,7 +411,7 @@ shinyServer(function(input,output,session) {
               legend.direction = "horizontal",
               legend.position = 'bottom',
               panel.background = element_rect(fill = NA))
-    svg(filename = paste(basepath,"Plot",'Gene_Group.svg',sep="/"),family = 'serif')
+    svglite(paste(basepath,"Plot",'Gene_Group.svg',sep="/"))
     print(p)
     dev.off()
     
@@ -497,7 +491,7 @@ shinyServer(function(input,output,session) {
         xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)
 
 
-      svg(filename = paste(basepath,"Plot","microSampleFilter.svg",sep = "/"),family = 'serif')
+      svglite(paste(basepath,"Plot","microSampleFilter.svg",sep = "/"))
       print(p)
       dev.off()
   
@@ -574,7 +568,7 @@ shinyServer(function(input,output,session) {
       p=p+geom_text(data=text,mapping = aes(x = x,y = y,label=label),size=6,family='serif',inherit.aes = F)+
         xlim(axis_x[1]-x_pianyi*5/150, axis_x[2]+x_pianyi*5/150)
       
-      svg(filename = paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"),family = 'serif')
+      svglite(paste(basepath,"Plot","RNASampleFilter.svg",sep = "/"))
       print(p)
       dev.off()
       if(exist=="F"){
@@ -762,7 +756,7 @@ shinyServer(function(input,output,session) {
                          color=as.character(c(xdata$SampleRatio>ratio)),
                          stringsAsFactors = F
       )
-      svg(filename = paste(basepath,"Plot","microStatistic.svg",sep = "/"),family = 'serif')
+      svglite(paste(basepath,"Plot","microStatistic.svg",sep = "/"))
       
       text1=paste("Thresh:",ratio)
       text2=paste("Remain:",number_after)
@@ -853,7 +847,7 @@ shinyServer(function(input,output,session) {
       number_ori=length(validGene)
       number_after=length(which(xdata$SampleRatio>ratio))
       ypoint =round(ypoint,2)
-      svg(filename = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),family = 'serif')
+      svglite(paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""))
       x1 = min(xdata$SampleRatio)+0.2*max(xdata$SampleRatio)+min(xdata$SampleRatio)
       text_to_plot=data.frame(x=c(x1,x1),y=c(0.95,0.90),col=c("blue","blue"),text=c(paste("Original genes:",number_ori),paste("After seg:",number_after)))
       
@@ -907,7 +901,7 @@ shinyServer(function(input,output,session) {
       #file.copy(from = paste(basepath,"/Plot/",group,"Statistic.svg",sep = ""),to = paste('www/templePlot/',group,'Statistic',session$token,'.svg',sep = ""))
       
       if(exist=="F"){
-        print(paste("#","gene_Group_",group,'_panel',sep=""))
+        (paste("#","gene_Group_",group,'_panel',sep=""))
         insertUI(
           selector = paste("#","gene_Group_",group,'_panel',sep=""),
           where='beforeEnd',
@@ -1443,7 +1437,6 @@ shinyServer(function(input,output,session) {
       {
         dir.create(path = normalizePath(paste(basepath,'/log/',sep="")),recursive = T)
       }
-      print('start')
       session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
       filepath=paste(basepath,"/data/rna.exp.RData",sep="")
       saveRDS(file=filepath,object=after_slice_rna.exp)
@@ -1460,7 +1453,6 @@ shinyServer(function(input,output,session) {
         dir.create(paths = paste(basepath,'/log/'),recursive = T)
       }
       file.create(logpath)
-      print('start')
       session$sendCustomMessage('calculation_eta',list(type=type,task="all",msg="Data Prepare",status='run'))
       datapath=paste(basepath,"/data/tmpdatas.RData",sep="")
       scriptpath="www/Program/ComputeCondition.R"
@@ -1486,12 +1478,10 @@ shinyServer(function(input,output,session) {
       save(rna.exp,micro.exp,target,geneinfo,file = datapath)
       if(condition[type,'others']=="")
       {
-        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks))
         system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath),wait = F)
       }
       else
       {
-        print(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,condition[type,'others']))
         system(paste("Rscript",scriptpath,datapath,codepath,type,core,logpath,tasks,resultpath,condition[type,'others']),wait = F)
       }
     }
@@ -1523,7 +1513,7 @@ shinyServer(function(input,output,session) {
       out=paste0(out,s,'s')
       return(out)
     }
-    print("check status")
+    print(paste("Check",type,'Status...'))
     logpath=paste(basepath,'/log/',type,'.txt',sep="")
     if(file.exists(logpath))
     {
@@ -1558,7 +1548,6 @@ shinyServer(function(input,output,session) {
           eta=(endtime-info$time)/complete*(info$total-complete)#预计时间
           finish.task=length(which(grepl(pattern = "^Finish",x = content)))#总完成任务数
           status="run"
-          print(eta)
           msg=paste("Running:",info$task,"&nbsp;&nbsp;&nbsp;&nbsp;ETA:",time(eta))
           progress=format(x = complete/info$total*100,nsmall=2)
           if(length(which(grepl(pattern = "^All Finish.$",x = content)))>0)
@@ -1622,6 +1611,11 @@ shinyServer(function(input,output,session) {
       newthresh=msg$thresh
       type=msg$type
     })
+    if(length(newthresh[[1]])==0)
+    {
+      sendSweetAlert(session = session,title = "Warning...",text = "Please Wait until Computation Finish...",type = 'warning',html = T)
+      return()
+    }
     thresh<<-thresh[thresh$type!=type,]
     for(name in names(newthresh))
     {
@@ -1812,7 +1806,6 @@ shinyServer(function(input,output,session) {
     if(R.oo::equals(net_igraph,"")){
       sendSweetAlert(session = session,title = "Error",text = "Please complete step 3 first",type = 'error')
     }else{
-      print(centrality)
       deleted=setdiff(node_property,centrality)
       deleted=sub(pattern = " ",replacement = "_",deleted)
       removeUI(selector = paste("#node_",deleted,sep=""),multiple = T,immediate = T)
@@ -1856,7 +1849,7 @@ shinyServer(function(input,output,session) {
           R.square=round(summary(model)[["r.squared"]],digits = 3)
           text=data.frame(label=paste0("R-square=",R.square),x=10^axis_x[2]*0.7,y=10^axis_y[2]*0.8,stringsAsFactors = F)
           p=p+geom_text(mapping = aes(x = x,y = y,label=label),data = text,inherit.aes = F,size=6,family='serif',fontface='bold')
-          svg(filename = paste(basepath,"Plot",'node_degree.svg',sep="/"),family = 'serif')
+          svglite(paste(basepath,"Plot",'node_degree.svg',sep="/"))
           print(p)
           dev.off()
           output$node_Degree_plot=renderImage({
@@ -1878,7 +1871,7 @@ shinyServer(function(input,output,session) {
                   plot.title = element_text(family = "serif", hjust = 0.5,size=14),
                   panel.background = element_rect(fill = NA),legend.position = 'none',
                   plot.subtitle = element_text(family = "serif",size = 12, colour = "black", hjust = 0.5,vjust = 1))
-          svg(filename = paste(basepath,"Plot",'node_betweenness.svg',sep="/"),family = 'serif')
+          svglite(paste(basepath,"Plot",'node_betweenness.svg',sep="/"))
           print(p)
           dev.off()
           output$node_Betweenness_plot=renderImage({
@@ -1900,7 +1893,7 @@ shinyServer(function(input,output,session) {
                   plot.title = element_text(family = "serif", hjust = 0.5,size=14),
                   panel.background = element_rect(fill = NA),legend.position = 'none',
                   plot.subtitle = element_text(family = "serif",size = 12, colour = "black", hjust = 0.5,vjust = 1))
-          svg(filename = paste(basepath,"Plot",'node_closeness.svg',sep="/"),family = 'serif')
+          svglite(paste(basepath,"Plot",'node_closeness.svg',sep="/"))
           print(p)
           dev.off()
           output$node_Closeness_plot=renderImage({
@@ -1922,7 +1915,7 @@ shinyServer(function(input,output,session) {
                   plot.title = element_text(family = "serif", hjust = 0.5,size=14),
                   panel.background = element_rect(fill = NA),legend.position = 'none',
                   plot.subtitle = element_text(family = "serif",size = 12, colour = "black", hjust = 0.5,vjust = 1))
-          svg(filename = paste(basepath,"Plot",'node_clustering_coefficient.svg',sep="/"),family = 'serif')
+          svglite(paste(basepath,"Plot",'node_clustering_coefficient.svg',sep="/"))
           print(p)
           dev.off()
           output$node_Clustering_Coefficient_plot=renderImage({
@@ -1943,7 +1936,6 @@ shinyServer(function(input,output,session) {
     if(R.oo::equals(net_igraph,"")){
       sendSweetAlert(session = session,title = "Error",text = "Please complete step 3 first",type = 'error')
     }else{
-      print(centrality)
       deleted=setdiff(edge_property,centrality)
       removeUI(selector = paste("#edge_",deleted,sep=""),multiple = T,immediate = T)
       newadd=setdiff(centrality,edge_property)
@@ -1980,7 +1972,7 @@ shinyServer(function(input,output,session) {
                   plot.title = element_text(family = "serif", hjust = 0.5,size=14),
                   panel.background = element_rect(fill = NA),legend.position = 'none',
                   plot.subtitle = element_text(family = "serif",size = 12, colour = "black", hjust = 0.5,vjust = 1))
-          svg(filename = paste(basepath,"Plot",'edge_betweenness.svg',sep="/"),family = 'serif')
+          svglite(paste(basepath,"Plot",'edge_betweenness.svg',sep="/"))
           print(p)
           dev.off()
           output$edge_Betweenness_plot=renderImage({
@@ -2677,8 +2669,6 @@ shinyServer(function(input,output,session) {
    {
      if(genesource=="module")
      {
-       print(moduleset)
-       
        for(m in moduleset)
        {
          tryCatch({
@@ -2699,7 +2689,7 @@ shinyServer(function(input,output,session) {
                    create_survival_result_box(session,label=paste("Survival Result of ",m,sep=""),id=m,model=model)
                    
                    imagepath=paste(basepath,"/Plot/",m,"_",model,"_survival_curve.svg",sep="")
-                   svg(imagepath,family = "serif")
+                   svglite(imagepath)
                    print(p$plot)
                    dev.off()
                    
@@ -2761,12 +2751,12 @@ shinyServer(function(input,output,session) {
            disp=SingleExpress(survival_exp[rg,],thresh,tmpclinical)
            
            imagepath=paste(basepath,"/Plot/",rg,"_",model,"_survival_curve.svg",sep="")
-           svg(imagepath,family = "serif")
+           svglite(imagepath)
            print(p$plot)
            dev.off()
            
            imagepath=paste(basepath,"/Plot/",rg,"_",model,"_survival_cluster.svg",sep="")
-           svg(imagepath,family = "serif")
+           svglite(imagepath)
            print(disp)
            dev.off()
            
@@ -2834,7 +2824,7 @@ shinyServer(function(input,output,session) {
          create_survival_result_box(session,label=paste("Survival Result of Custom Gene Set",sep=""),id="custom",model=model)
          
          imagepath=paste(basepath,"/Plot/",'custom',"_",model,"_survival_curve.svg",sep="")
-         svg(imagepath,family = "serif")
+         svglite(imagepath)
          print(p$plot)
          dev.off()
          
@@ -2890,7 +2880,6 @@ shinyServer(function(input,output,session) {
      }
      if(genesource=="module")
      {
-       print(moduleset)
        for(m in moduleset)
        {
          modulegene=modules[[m]]
@@ -2924,7 +2913,6 @@ shinyServer(function(input,output,session) {
      {
        research_gene=unlist(strsplit(x = singlelabel,split = "\n|\r\n"))
        research_gene=research_gene[research_gene%in%rownames(survival_exp)]
-       print(research_gene)
        for(rg in research_gene)
        {
          tmpclinical=clinical_data
@@ -3011,23 +2999,6 @@ shinyServer(function(input,output,session) {
        })
      }
    }
-   else if(model=="random.forest")
-   {
-     if(genesource=="module")
-     {
-       print(moduleset)
-     }
-     else if(genesource=="single.gene")
-     {
-       print(singlelabel)
-     }
-     else if(genesource=="custom")
-     {
-       print(customgene)
-     }
-   }
-    
-
   })
   observeEvent(input$export_survival_plot,{
     isolate({
@@ -3187,7 +3158,7 @@ shinyServer(function(input,output,session) {
           plotdata$p_value=-log(plotdata$p_value)
           plotdata=plotdata[order(plotdata$p_value,decreasing = T),]
           
-          svg(filename = paste(basepath,"Plot",paste(set_id,"_enrichment_plot_",ss,".svg",sep = ""),sep = "/"),family = 'serif')
+          svglite(paste(basepath,"Plot",paste(set_id,"_enrichment_plot_",ss,".svg",sep = ""),sep = "/"))
           if(choose_show=="bar_plot"){
             print(
               ggplot(plotdata,aes(x=factor(term_name,levels = plotdata$term_name),y=p_value,fill=recall))+

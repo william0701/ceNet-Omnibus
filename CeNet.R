@@ -1,6 +1,6 @@
 #' Run CeNetOmnibus App
 #'
-#' @param maxRequestSize Integer.The admitted file size for uploaded files. Unit MB. Default 5MB.
+#' @param maxRequestSize Integer.The admitted file size for uploaded files. Unit MB. Default 1000MB.
 #' @param workpath Character. The dictionary for temp files. Default is return value of tempdir()
 #' @param projectName Character. The name of this analysis. Default is session token.
 #' @param typeLimit Integer. The number of valid items. Default is 10.
@@ -11,7 +11,7 @@
 #'
 #' @examples
 #'    CeNetOmnibus()
-CeNetOmnibus <- function(maxRequestSize=5,workpath=tempdir(),projectName=NULL,typeLimit=10,...) {
+CeNetOmnibus <- function(maxRequestSize=1000,workpath=tempdir(),projectName=NULL,typeLimit=10,...) {
   library(parallel)
   library(biomaRt)
   library(shiny)
@@ -53,6 +53,6 @@ CeNetOmnibus <- function(maxRequestSize=5,workpath=tempdir(),projectName=NULL,ty
   ggthemr('flat')
   usedcolors=swatch()
   options(shiny.maxRequestSize = maxRequestSize)
-  suppressMessages(shiny::runApp(system.file("app", package = "CeNetOmnibus"),launch.browser=TRUE,...))
-  #shiny::runApp("app",launch.browser=TRUE,...)
+  #suppressMessages(shiny::runApp(system.file("app", package = "CeNetOmnibus"),launch.browser=TRUE,...))
+  shiny::runApp("app",launch.browser=TRUE,...)
 }

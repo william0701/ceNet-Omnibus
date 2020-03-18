@@ -15,9 +15,9 @@ LA=function(g2,g1)
     tZ=qnorm(rank(Z)/(length(Z)+1))
     la=mean(exp1*exp2*tZ)
   }
-  else if(length(share.micro==1))
+  else if(length(share.micro)==1)
   {
-    Z=colSums(micro.exp[share.micro,])
+    Z=micro.exp[share.micro,]
     tZ=qnorm(rank(Z)/(length(Z)+1))
     la=mean(exp1*exp2*tZ)
   }

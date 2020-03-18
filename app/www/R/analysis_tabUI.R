@@ -348,7 +348,7 @@ survival_panel=tabPanel(title="Survival Analysis",
                                                                 fileInput(inputId="clinical_file",label = "Clinical Data")
                                                             ),
                                                             div(class='col-lg-12',style="padding:0px",
-                                                                prettyRadioButtons(inputId = 'clinical_seperator',label = 'Seprator',choices = c("Tab"="\t",'Common'=',','Space'=' ','Semicolon'=';'),status='primary',inline=T)
+                                                                prettyRadioButtons(inputId = 'clinical_seperator',label = 'Seprator',choices = c("Tab"="\t",'Comma'=',','Space'=' ','Semicolon'=';'),status='primary',inline=T)
                                                             ),
                                                             div(class="col-lg-12",style="padding:0px",
                                                                 prettyRadioButtons(inputId = 'clinical_header',label = 'Header',choices = c("With header"=T,'Without header'=F),selected=T,status='primary',inline=T)
@@ -377,7 +377,7 @@ survival_panel=tabPanel(title="Survival Analysis",
                                                             conditionalPanel("!input.survival_exp_con",
                                                                              div(class="row",
                                                                                  div(class='col-lg-12',
-                                                                                     prettyRadioButtons(inputId = 'survival_exp_seperator',label = 'Seprator',choices = c("Tab"="\t",'Common'=',','Space'=' ','Semicolon'=';'),status='primary',inline=T)
+                                                                                     prettyRadioButtons(inputId = 'survival_exp_seperator',label = 'Seprator',choices = c("Tab"="\t",'Comma'=',','Space'=' ','Semicolon'=';'),status='primary',inline=T)
                                                                                  ),
                                                                                  div(class="col-lg-12",
                                                                                      prettyRadioButtons(inputId = 'survival_exp_header',label = 'Header',choices = c("With header"=T,'Without header'=F),selected=T,status='primary',inline=T)

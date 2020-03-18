@@ -2723,7 +2723,7 @@ shinyServer(function(input,output,session) {
                                    h4(paste("Survival Result of ",m,sep=""))
                                ),
                                div(class="box-body",
-                                   h4(e)
+                                   h4(e$message)
                                )
                                
                            )
@@ -2790,7 +2790,7 @@ shinyServer(function(input,output,session) {
                                    h4(paste("Survival Result of ",rg,sep=""))
                                ),
                                div(class="box-body",
-                                   h4(e)
+                                   h4(e$message)
                                )
                                
                            )
@@ -2858,7 +2858,7 @@ shinyServer(function(input,output,session) {
                                  h4(paste("Survival Result of ","custom",sep=""))
                              ),
                              div(class="box-body",
-                                 h4(e)
+                                 h4(e$message)
                              )
                              
                          )

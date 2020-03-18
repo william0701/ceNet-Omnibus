@@ -1771,6 +1771,7 @@ shinyServer(function(input,output,session) {
       vec = after_slice_geneinfo[,type]
       #vec = vec[[1]]
       vec = unique(vec)
+     
       if(length(vec)>typeLimit){
           sendSweetAlert(session = session,title = "Error",text = "Too Many Candidates",type = 'error')
       }else{

@@ -140,7 +140,7 @@ create_module_info=function()
       module_edges=edgeinfo[edgeinfo$N1%in%module_genes&edgeinfo$N2%in%module_genes,]
       scores=c(scores,mean(module_edges[,con]))
     }
-    names(scores)=paste0("Average.",condition$abbr[which(condition$used)])
+    names(scores)=paste0("Average.",unique(thresh$type))
     
     nodeDetails=paste("<a onclick=communityDetail('",community,"')>Details</a>",sep="")
     edgeDetails=paste("<a onclick=communityEdgeDetail('",community,"')>Details</a>",sep="")

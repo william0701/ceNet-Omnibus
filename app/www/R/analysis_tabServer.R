@@ -135,7 +135,7 @@ create_module_info=function()
     ave.micro=sum(path)/sum(subnet)
 
     scores=list()
-    for(con in condition$abbr[which(condition$used)])
+    for(con in unique(thresh$type))
     {
       module_edges=edgeinfo[edgeinfo$N1%in%module_genes&edgeinfo$N2%in%module_genes,]
       scores=c(scores,mean(module_edges[,con]))

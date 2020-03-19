@@ -289,15 +289,31 @@ CeNet Omnibus will summarize the communities in a table. Users can select module
 #### 5.3 Enrichment Analysis
 
 After **Network Module** we get some modules.Here we can perform enrichment analysis on these modules.Sure, you can also analyze other genes, by choosing **Gene Set Source** as **Custom Gene**.Then,input data as required.
-Then,choose **Enrichment Source**, **g:profiles** or **custom input**.If you choose **custom input**,you should upload a genes set file.Then you must Click **preview** to preview your uploaded file,It will show on the **Custom Gene Preview** panel.You can click **Details** to view genes.
+
+Next,we should choose **Enrichment Source**, **g:profiles** or **custom input**.If you choose **custom input**,you should upload a genes set  file(xxx.txt).We take hallmark.txt for example.Then you must Click **preview** to preview your uploaded file,It will show on the **Custom Gene Preview** panel.You can click **Details** to view genes.
+
+![](Figures/hallmark.png)
+
 The following is the parameter introduction:
+
 **Organism**: Select species for input data.
+
 **Gene ID Map**:Select Gene ID for input data.
+
 **Significance threshold**:Select enrichment calculation method.
+
 **Data Sources**:choose the data sources of interest（See R package: gprofiler2 for more details）
+
 **User threshold**:defines a custom p-value significance threshold for the results.
+
 **Module analysis**:Choose which modules to analyze.
+
 **Plot Type**:Select the type of picture to display.
+
+![](Figures/bar_Module0_enrichment_plot_GO_BP.svg)
+
+![](Figures/point_Module0_enrichment_plot_GO_BP.svg)
+
 You should confirm all parameter Meet your requirements.Finally click **Perform** Button.You will see pictures.
 
 > NOTE: You need to make sure that there are values at the top of the 2nd Step and **Network Modules** on 5th Step have been completed.Otherwise,**Gene ID Map** and **Module analysis** will be empty.

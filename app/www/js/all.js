@@ -474,3 +474,7 @@ hiddenModal=function()
   $('#infolist').modal('hide')
   $('#infolist button').css({ "display": "inline" });
 }
+next_tab=function(id)
+{
+  $('a[href="'+id+'"').trigger('click')
+}

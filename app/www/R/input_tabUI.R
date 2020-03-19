@@ -112,5 +112,10 @@ input_tab= tabItem(tabName = "input",
                      box(title = 'Gene Information Preview',collapsible = T,collapsed = F,status = 'warning',solidHeader = T,
                          tableOutput('geneinfo_preview_panel')
                      )
+                   ),
+                   fluidRow(
+                     div(class="col-lg-12",
+                         tags$button(HTML("Next"),onclick="next_tab('#shiny-tab-process')",class='btn btn-warning action-button shiny-bound-input')
+                     )
                    )
 )

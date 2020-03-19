@@ -79,6 +79,11 @@ $(document).ready(function(){
       sweetAlert('warning','Warning','Please Input New Group Name!');
       return;
     }
+    if(value.indexOf(" ")>=0)
+    {
+      sweetAlert('info','Note','All Blank will be replaced by "_"');
+    }
+    value=value.replace(/ /,"_")
     var $group=addGroup(value,false);
     $("#new_group_name").val("");
     $group.trigger('click')
@@ -132,6 +137,7 @@ create_editor=function(value)
   $submit.on('click',function(e){
     var value=$(e.currentTarget).parent().parent().parent().parent().parent().parent().prev().children('b').html()
     var currentvalue=$(e.currentTarget).parent().prev().children('input').val()
+    currentvalue=currentvalue.replace(/ /,"_")
     if(currentvalue=="")
     {
       sweetAlert('error','Error..','Group Name Can\' be Empty!');
@@ -146,6 +152,10 @@ create_editor=function(value)
     {
       sweetAlert('warning','Warning','Group Name Has existed');
       return
+    }
+    if(currentvalue.indexOf(" ")>=0)
+    {
+      sweetAlert('info','Note','All Blank will be replaced by "_"');
     }
     var v=biotype_group.get(value)
     biotype_group.delete(value)

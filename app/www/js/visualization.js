@@ -98,6 +98,7 @@ $(document).ready(function(){
   $("#change_network_shape").children('div.form-group').append($table_shape)
   //network export as png
   var $network_png = $('<span class="input-group-btn"><button type="button" class="btn btn-info btn-flat">Export</button></span>')
+  
   $("#export_network_png").append($network_png)
   $network_png.on('click',function(e){
     var b64key = 'base64';
@@ -108,6 +109,22 @@ $(document).ready(function(){
   create_color_all_node_module("All_node")
   create_shape_all_node_module("All_node")
 })
+function base64ToBlob(urlData, type) {
+
+    var mime = 'image/png';
+
+    var bytes = window.atob(urlData);
+    
+    var ab = new ArrayBuffer(bytes.length);
+
+    var ia = new Uint8Array(ab);
+    for (var i = 0; i < bytes.length; i++) {
+    ia[i] = bytes.charCodeAt(i);
+    }
+    return new Blob([ab], {
+          type: mime
+    });
+}
 create_net_layout = function(name){
     var $li =$('<li></li>')
     var $a =$('<a>'+name+'</a>')

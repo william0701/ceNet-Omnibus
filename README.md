@@ -178,6 +178,14 @@ Firstly, users should set the minimal expression thresh of a expressed microRNA 
 > NOTE: Please Remeber to Click **Filter** Button on the right-bottom corner of the panel once set parameters properly to execute the RNA Filter.
 
 #### 2.4 Value Transformation
+We may need to perform some transformation operations on the CeRNA and MicroRNA matrices. In this step, we operate CeRNA by default. You can also choose MicroRNA. Their operation method is the same.
+
+In Transform Operations, you can choose to perform log conversion or standardization. Hovering the mouse over each button will introduce detailed processing operations. It should be noted that we only allow log conversion first, or you can ignore the log step and standardize directly. Remember to click the Action button after the operation. If you are not satisfied with the operation, you can click the Cancel button to restore the original data.
+
+Note the Custom button. If you want to write a function to perform data conversion, you can click it. There will be detailed examples in the pop-up interface for you to write functions.
+
+![](Figures/Value_trans1.png)
+> Tips: Our operation will not be iterative. If you click the Action button again, it will perform the operation you selected on the initial data.
 
 ### 3. Network Construction
 
@@ -219,6 +227,36 @@ After save all the threshes, Click **Construct Network** button to create the ce
 
 ### 4. Network Visualization
 
+#### 4.1 Choose Layout
+
+We provide seven layouts for you to choose. Including: Circle Random Grid Concentric Breadth first Cose, it should be noted that the layout network needs to be constructed in the third step before selecting the layout.
+
+#### 4.2 Change Gene Name
+
+You can choose to change the name tag of the network node. The optional entry is the geneinfo information you provided.
+
+#### 4.3 Choose Node Color
+
+First select the grouping information you are interested in. After the selection, the group names of the nodes under the grouping condition will appear. You can change the color of each group of nodes at will. By default, it changes the color of all nodes.
+
+#### 4.4 Choose Node Shape
+
+Same as the previous step, you can change the shape of each node. We provide eight different shapes, such as Exlipse, Star ..
+
+#### 4.5 Select node
+
+First select the group that the node name belongs to, and then enter exactly the information of the node you need to search. If you can't find it, a prompt will pop up. If the search is successful, the node will enter the selected state. The label of the node will show another color. You can move the node by mouse.
+> Tips: Make sure the group you choose matches the one in Change Gene Name
+
+#### 4.6 Reset network
+
+Clicking this button will restore the location of the network to prevent mouse misoperations from moving the network out of the window. Note that this button only restores the location of the network. The color, shape, etc. will not change.
+
+#### 4.7 Export Network
+
+Export the visualized network in the fourth page as a image
+![](Figures/network_visual.png)
+
 ### 5. Network Analysis
 
 CeNet Omnibus provide four types of analysis to ceRNA network, including **Network Topological Property**, **Network Module**, **Enrichment Analysis** and **Survival Analysis**.
@@ -250,15 +288,31 @@ CeNet Omnibus will summarize the communities in a table. Users can select module
 #### 5.3 Enrichment Analysis
 
 After **Network Module** we get some modules.Here we can perform enrichment analysis on these modules.Sure, you can also analyze other genes, by choosing **Gene Set Source** as **Custom Gene**.Then,input data as required.
-Then,choose **Enrichment Source**, **g:profiles** or **custom input**.If you choose **custom input**,you should upload a genes set file.Then you must Click **preview** to preview your uploaded file,It will show on the **Custom Gene Preview** panel.You can click **Details** to view genes.
+
+Next,we should choose **Enrichment Source**, **g:profiles** or **custom input**.If you choose **custom input**,you should upload a genes set  file(xxx.txt).We take hallmark.txt for example.Then you must Click **preview** to preview your uploaded file,It will show on the **Custom Gene Preview** panel.You can click **Details** to view genes.
+
+![](Figures/hallmark.png)
+
 The following is the parameter introduction:
+
 **Organism**: Select species for input data.
+
 **Gene ID Map**:Select Gene ID for input data.
+
 **Significance threshold**:Select enrichment calculation method.
+
 **Data Sources**:choose the data sources of interest（See R package: gprofiler2 for more details）
+
 **User threshold**:defines a custom p-value significance threshold for the results.
+
 **Module analysis**:Choose which modules to analyze.
+
 **Plot Type**:Select the type of picture to display.
+
+![](Figures/bar_Module0_enrichment_plot_GO_BP.svg)
+
+![](Figures/point_Module0_enrichment_plot_GO_BP.svg)
+
 You should confirm all parameter Meet your requirements.Finally click **Perform** Button.You will see pictures.
 
 > NOTE: You need to make sure that there are values at the top of the 2nd Step and **Network Modules** on 5th Step have been completed.Otherwise,**Gene ID Map** and **Module analysis** will be empty.

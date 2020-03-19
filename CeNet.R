@@ -41,6 +41,7 @@ CeNetOmnibus <- function(maxRequestSize=1000,workpath=tempdir(),projectName=NULL
   library(ProNet)
   library(gprofiler2)
   library(svglite)
+  library(R.oo)
 
   maxRequestSize=maxRequestSize*1024^2
   tmpdir<<-normalizePath(workpath)

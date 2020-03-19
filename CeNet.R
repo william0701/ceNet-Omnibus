@@ -56,3 +56,4 @@ CeNetOmnibus <- function(maxRequestSize=1000,workpath=tempdir(),projectName=NULL
   #suppressMessages(shiny::runApp(system.file("app", package = "CeNetOmnibus"),launch.browser=TRUE,...))
   shiny::runApp("app",launch.browser=TRUE,...)
 }
+

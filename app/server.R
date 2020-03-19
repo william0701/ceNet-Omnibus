@@ -617,8 +617,8 @@ shinyServer(function(input,output,session) {
                      text = 'Please click one preview at least!..',type = 'warning')
     }
     else{
-      num1 = length(rownames(sect_output_micro.exp))
-      num2=length(rownames(sect_output_rna.exp))
+      num1 = length(colnames(sect_output_micro.exp))
+      num2=length(colnames(sect_output_rna.exp))
       flag_micro=0
       flag_ce=0
       for(type in names(sample_filter_choose)){

@@ -271,11 +271,11 @@ The following is the parameter introduction:
 
 **Plot Type**:Select the type of picture to display.
 
+You should confirm all parameter Meet your requirements.Finally click **Perform** Button.You will see pictures.
+
 ![](Figures/bar_Module0_enrichment_plot_GO_BP.svg)
 
 ![](Figures/point_Module0_enrichment_plot_GO_BP.svg)
-
-You should confirm all parameter Meet your requirements.Finally click **Perform** Button.You will see pictures.
 
 > NOTE: You need to make sure that there are values at the top of the 2nd Step and **Network Modules** on 5th Step have been completed.Otherwise,**Gene ID Map** and **Module analysis** will be empty.
 

@@ -141,6 +141,11 @@ process_tab=tabItem(tabName = "process",
                             )
                           )
                       )
+                    ),
+                    fluidRow(
+                      div(class="col-lg-12",
+                          tags$button(HTML("Next"),onclick="next_tab('#shiny-tab-construction')",class='btn btn-warning action-button shiny-bound-input')
+                      )
                     )
 )
 

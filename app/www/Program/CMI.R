@@ -2,7 +2,7 @@ CMI=function(g2,g1,param)
 {
   library(infotheo)
   micro=colnames(target)[which(target[g1,]&target[g2,]==T)]
-  if(length(microR)==1)
+  if(length(micro)==1)
   {
     S=micro.exp[micro,]
   }

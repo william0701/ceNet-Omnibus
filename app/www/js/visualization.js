@@ -204,7 +204,7 @@ create_net_change_module = function(type){
 
   $table_tdcolor.on("change",function(e){
     var color = (e.currentTarget).children[0].jscolor.rgb
-    if(type="All_node"){
+    if(type=="All_node"){
       cy.style().selector('node').style('background-color',color).update()
     }else{
       cy.style().selector('node['+network_group+'="'+type+'"]').style('background-color',color).update()

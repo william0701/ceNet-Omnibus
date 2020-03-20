@@ -12,7 +12,7 @@ shinyServer(function(input,output,session) {
   source('www/R/analysis_tabServer.R',local = T)
   source('www/R/process_tabServer.R',local = T)
   
-  #connectEnsembl(session)
+  connectEnsembl(session)
   if(is.null(projName)){
     projName <<- session$token
   }
@@ -1401,14 +1401,14 @@ shinyServer(function(input,output,session) {
       tasks=msg$tasks
       tasks=paste(unlist(tasks),collapse = ";")
       type=msg$type
-      description=input$custom_condition_description
-      abbr=input$custom_condition_abbr
-      code=input$custom_condition_code
+      description=msg$description
+      abbr=msg$abbr
+      code=msg$code
     })
     if(type=='custom')
     {
-      condition<<-rbind(condition,data.frame(description=description,abbr=abbr,used=T,core=core,task=tasks,stringsAsFactors = F))
-      rownames(condition)<<-condition$abbr
+      condition<<-rbind(condition,data.frame(description=description,abbr=abbr,used=T,core=core,task=tasks,others="",stringsAsFactors = F,row.names = abbr))
+      #rownames(condition)<<condition$abbr
       write(x = code,file = paste(basepath,"/code/",abbr,'.R',sep=""))
       #thresh<<-rbind(thresh,data.frame(type=condition$abbr,task=tasks,direction="<",thresh=0,stringsAsFactors = F))
     }
@@ -1444,7 +1444,6 @@ shinyServer(function(input,output,session) {
     isolate({
       type=input$compute_condition$type
     })
-
     core=condition[type,'core']
     tasks=condition[type,'task']
     logpath=normalizePath(paste(basepath,'/log/',type,'.txt',sep=""))

@@ -38,7 +38,7 @@ CeNetOmnibus <- function(maxRequestSize=1000,workpath=tempdir(),projectName=NULL
   library(circlize)
   library(formattable)
   library(infotheo)
-  #library(ProNet)
+  library(ProNet)
   library(gprofiler2)
   library(svglite)
   library(R.oo)

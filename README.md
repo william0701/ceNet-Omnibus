@@ -178,6 +178,7 @@ Firstly, users should set the minimal expression thresh of a expressed microRNA 
 > NOTE: Please Remeber to Click **Filter** Button on the right-bottom corner of the panel once set parameters properly to execute the RNA Filter.
 
 #### 2.4 Value Transformation
+
 We may need to perform some transformation operations on the CeRNA and MicroRNA matrices. In this step, we operate CeRNA by default. You can also choose MicroRNA. Their operation method is the same.
 
 In Transform Operations, you can choose to perform log conversion or standardization. Hovering the mouse over each button will introduce detailed processing operations. It should be noted that we only allow log conversion first, or you can ignore the log step and standardize directly. Remember to click the Action button after the operation. If you are not satisfied with the operation, you can click the Cancel button to restore the original data.
@@ -185,6 +186,7 @@ In Transform Operations, you can choose to perform log conversion or standardiza
 Note the Custom button. If you want to write a function to perform data conversion, you can click it. There will be detailed examples in the pop-up interface for you to write functions.
 
 ![](Figures/Value_trans1.png)
+
 > Tips: Our operation will not be iterative. If you click the Action button again, it will perform the operation you selected on the initial data.
 
 ### 3. Network Construction
@@ -221,7 +223,7 @@ After all settings, click **Confirm** button to save the threshes.
 
 #### 3.3 Network Construction
 
-After save all the threshes, Click **Construct Network** button to create the ceRNA network. The program will apply all the threshold setted in section 3.2. The program will summarize the network after the  constrction.
+After saving all the threshes, Click **Construct Network** button to create the ceRNA network. The program will apply all the threshold setted in section 3.2. The program will summarize the network after the  constrction.
 
 ![](Figures/network_summary.jpg)
 
@@ -246,6 +248,7 @@ Same as the previous step, you can change the shape of each node. We provide eig
 #### 4.5 Select node
 
 First select the group that the node name belongs to, and then enter exactly the information of the node you need to search. If you can't find it, a prompt will pop up. If the search is successful, the node will enter the selected state. The label of the node will show another color. You can move the node by mouse.
+
 > Tips: Make sure the group you choose matches the one in Change Gene Name
 
 #### 4.6 Reset network

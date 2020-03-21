@@ -16,7 +16,9 @@ To make sure all the dependency packages are installed, run  following codes to 
 source('https://raw.githubusercontent.com/william0701/ceNet-Omnibus/master/dependency.R')
 ```
 
-> Download [CeNetOmnibus.tar.gz](https://github.com/william0701/ceNet-Omnibus/releases/download/0.1.0/CeNetOmnibus_0.1.0.tar.gz)
+> Download [CeNetOmnibus_0.1.1.tar.gz](https://github.com/william0701/ceNet-Omnibus/releases/download/0.1.1/CeNetOmnibus_0.1.1.tar.gz)
+
+> Demo data can be downloaded with [demodata.zip](https://github.com/william0701/ceNet-Omnibus/releases/download/0.1.1/demodata.zip). The details about these files can be found in the *readme* in *demodata*
 
 Install CeNetOmnibus package from local files
 

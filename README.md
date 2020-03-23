@@ -233,19 +233,21 @@ After saving all the threshes, Click **Construct Network** button to create the 
 
 #### 4.1 Choose Layout
 
-We provide seven layouts for you to choose. Including: Circle Random Grid Concentric Breadth first Cose, it should be noted that the layout network needs to be constructed in the third step before selecting the layout.
+We provide seven layouts for you to choose. Including: *Circle*, *Random*, *Grid*, Concentric, *Breadth First* and *Cose*.
+
+> NOTE:  The network needs to be constructed in the third step before selecting the layout.
 
 #### 4.2 Change Gene Name
 
-You can choose to change the name tag of the network node. The optional entry is the geneinfo information you provided.
+You can choose to change the name tag of the network node. The optional entry is the gene information you provided in section 1.3.
 
 #### 4.3 Choose Node Color
 
-First select the grouping information you are interested in. After the selection, the group names of the nodes under the grouping condition will appear. You can change the color of each group of nodes at will. By default, it changes the color of all nodes.
+First select the grouping information you are interested in. After the selection, the group names of the nodes under the grouping condition will appear. You can change the color of each group of nodes as will. By default, it changes the color of all nodes.
 
 #### 4.4 Choose Node Shape
 
-Same as the previous step, you can change the shape of each node. We provide eight different shapes, such as Exlipse, Star ..
+Same as the previous step, you can change the shape of each node. We provide eight different shapes, such as Exlipse, Star.
 
 #### 4.5 Select node
 
@@ -292,9 +294,9 @@ CeNet Omnibus will summarize the communities in a table. Users can select module
 
 #### 5.3 Enrichment Analysis
 
-After **Network Module** we get some modules.Here we can perform enrichment analysis on these modules.Sure, you can also analyze other genes, by choosing **Gene Set Source** as **Custom Gene**.Then,input data as required.
+Here we can perform enrichment analysis to these modules. Sure, you can also analyze other genes sets, by choosing **Gene Set Source** as **Custom Gene** and inputing data as required.
 
-Next,we should choose **Enrichment Source**, **g:profiles** or **custom input**.If you choose **custom input**,you should upload a genes set  file(xxx.txt).We take hallmark.txt for example.Then you must Click **preview** to preview your uploaded file,It will show on the **Custom Gene Preview** panel.You can click **Details** to view genes.
+Currently, CeNet Omnibus integrates **g:Profiler** to do function enrichment analysis. Besides, CeNet Omnibus allows users to provide custom defined gene sets to other analysis. For user-defined data sets,  users should choose **custom input**, and upload a gene sets file. In this file, every line represents a gene set, seperated with tab. And the first element in every line should be the name of the gene set. Users can click **Preview** to check the uploaded file. The results will be shown in the **Custom Gene Preview** panel. Users can click **Details** button to view genes in corresponding gene sets.
 
 ![](Figures/hallmark.png)
 
@@ -304,7 +306,7 @@ The following is the parameter introduction:
 
 **Gene ID Map**:Select Gene ID for input data.
 
-**Significance threshold**:Select enrichment calculation method.
+**Significance threshold**: Select enrichment calculation method.
 
 **Data Sources**:choose the data sources of interest（See R package: gprofiler2 for more details）
 
@@ -314,7 +316,7 @@ The following is the parameter introduction:
 
 **Plot Type**:Select the type of picture to display.
 
-You should confirm all parameter Meet your requirements.Finally click **Perform** Button.You will see pictures.
+You should confirm all parameter Meet your requirements. Finally click **Perform** Button. You will see pictures.
 
 ![](Figures/bar_Module0_enrichment_plot_GO_BP.svg)
 

@@ -10,6 +10,8 @@ CeNet Omnibus consists of five components, including **Data Input**, **Data Proc
 
 ## How to Start
 
+CeNetOmnibus depends on multiple packages, including **biomaRt**, **circlize**, **colourpicker**, **ComplexHeatmap**, **DT**, **formattable**, **ggplot2**, **ggplotify**, **ggthemr**, **gprofiler2**, **igraph**, **infotheo**, **jsonlite**, **linkcomm**, **MCL**, **parallel**, **PerformanceAnalytics**, **plyr**, **ProNet**, **R.oo**, **rhandsontable**, **scales**, **shiny**, **shinydashboard**, **shinyWidgets**, **survival**, **survminer**, **svglite**, **tibble**, **visNetwork**.
+
 To make sure all the dependency packages are installed, run  following codes to install dependency packages.
 
 ```r

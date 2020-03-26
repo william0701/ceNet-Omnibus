@@ -42,7 +42,15 @@ if(type=="MI"||type=="CMI")
 {
   rna.exp=t(discretize(X = t(rna.exp),disc = param$disc,nbins = param$nbin))
 }
-
+if(type=='LA')
+{
+  normalize=function(x)
+  {
+    x=as.numeric(as.vector(x))
+    return((x-mean(x))/sd(x))
+  }
+  rna.exp=t(apply(X = rna.exp,MARGIN = 1,FUN = normalize))
+}
 if(length(which(tasks=='all'))>0)
 {
   geneset1=rownames(geneinfo)

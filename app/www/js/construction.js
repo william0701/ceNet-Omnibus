@@ -54,14 +54,15 @@ $(document).ready(function(){
           obj['type']='custom'
           obj['description']=description
           obj['abbr']=abbr
+          code=abbr+"="+code.substring(code.indexOf("function("))
           obj['code']=code
         }
       }
       else
       {
         var obj={}
-          obj['stamp']=Math.random()          
-          obj['type']=$('#condition_type').val()
+        obj['stamp']=Math.random()          
+        obj['type']=$('#condition_type').val()
       }
       
       if(tasks.indexOf('all')>=0)
@@ -109,9 +110,16 @@ $(document).ready(function(){
       Shiny.setInputValue('choose_new_condition',obj)
       var obj2={}
       obj2['stamp']=Math.random()
-      obj2['type']=type
+      if(type=='custom')
+      {
+        obj2['type']=abbr
+      }
+      else
+      {
+        obj2['type']=type
+      }
       obj2['tasks']=tasks
-      Shiny.setInputValue("condition_filter_response",obj)
+      Shiny.setInputValue("condition_filter_response",obj2)
     })
     if(!$('#infolist').hasClass('in'))
     {

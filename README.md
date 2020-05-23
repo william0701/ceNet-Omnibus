@@ -10,18 +10,22 @@ CeNet Omnibus consists of five components, including **Data Input**, **Data Proc
 
 ## How to Start
 
+CeNetOmnibus depends on multiple packages, including **biomaRt**, **circlize**, **colourpicker**, **ComplexHeatmap**, **DT**, **formattable**, **ggplot2**, **ggplotify**, **ggthemr**, **gprofiler2**, **igraph**, **infotheo**, **jsonlite**, **linkcomm**, **MCL**, **parallel**, **PerformanceAnalytics**, **plyr**, **ProNet**, **R.oo**, **rhandsontable**, **scales**, **shiny**, **shinydashboard**, **shinyWidgets**, **survival**, **survminer**, **svglite**, **tibble**, **visNetwork**.
+
 To make sure all the dependency packages are installed, run  following codes to install dependency packages.
 
 ```r
 source('https://raw.githubusercontent.com/william0701/ceNet-Omnibus/master/dependency.R')
 ```
 
-> Download [CeNetOmnibus.tar.gz](https://github.com/william0701/ceNet-Omnibus/releases/download/0.1.0/CeNetOmnibus_0.1.0.tar.gz)
+> Download [CeNetOmnibus_0.1.1.tar.gz](https://github.com/william0701/ceNet-Omnibus/releases/download/0.1.1/CeNetOmnibus_0.1.1.tar.gz)
+
+> Demo data can be downloaded with [demodata.zip](https://github.com/william0701/ceNet-Omnibus/releases/download/0.1.1/demodata.zip). The details about these files can be found in the *readme* in *demodata*
 
 Install CeNetOmnibus package from local files
 
 ```r
-install.packages("user_path/CeNetOmnibus_0.1.0.tar.gz",repos=NULL,type='source')
+install.packages("user_path/CeNetOmnibus_0.1.1.tar.gz",repos=NULL,type='source')
 ```
 
 ## Data Preparation
@@ -178,6 +182,7 @@ Firstly, users should set the minimal expression thresh of a expressed microRNA 
 > NOTE: Please Remeber to Click **Filter** Button on the right-bottom corner of the panel once set parameters properly to execute the RNA Filter.
 
 #### 2.4 Value Transformation
+
 We may need to perform some transformation operations on the CeRNA and MicroRNA matrices. In this step, we operate CeRNA by default. You can also choose MicroRNA. Their operation method is the same.
 
 In Transform Operations, you can choose to perform log conversion or standardization. Hovering the mouse over each button will introduce detailed processing operations. It should be noted that we only allow log conversion first, or you can ignore the log step and standardize directly. Remember to click the Action button after the operation. If you are not satisfied with the operation, you can click the Cancel button to restore the original data.
@@ -185,6 +190,7 @@ In Transform Operations, you can choose to perform log conversion or standardiza
 Note the Custom button. If you want to write a function to perform data conversion, you can click it. There will be detailed examples in the pop-up interface for you to write functions.
 
 ![](Figures/Value_trans1.png)
+
 > Tips: Our operation will not be iterative. If you click the Action button again, it will perform the operation you selected on the initial data.
 
 ### 3. Network Construction
@@ -221,7 +227,7 @@ After all settings, click **Confirm** button to save the threshes.
 
 #### 3.3 Network Construction
 
-After save all the threshes, Click **Construct Network** button to create the ceRNA network. The program will apply all the threshold setted in section 3.2. The program will summarize the network after the  constrction.
+After saving all the threshes, Click **Construct Network** button to create the ceRNA network. The program will apply all the threshold setted in section 3.2. The program will summarize the network after the  constrction.
 
 ![](Figures/network_summary.jpg)
 
@@ -229,23 +235,26 @@ After save all the threshes, Click **Construct Network** button to create the ce
 
 #### 4.1 Choose Layout
 
-We provide seven layouts for you to choose. Including: Circle Random Grid Concentric Breadth first Cose, it should be noted that the layout network needs to be constructed in the third step before selecting the layout.
+We provide seven layouts for you to choose. Including: *Circle*, *Random*, *Grid*, Concentric, *Breadth First* and *Cose*.
+
+> NOTE:  The network needs to be constructed in the third step before selecting the layout.
 
 #### 4.2 Change Gene Name
 
-You can choose to change the name tag of the network node. The optional entry is the geneinfo information you provided.
+You can choose to change the name tag of the network node. The optional entry is the gene information you provided in section 1.3.
 
 #### 4.3 Choose Node Color
 
-First select the grouping information you are interested in. After the selection, the group names of the nodes under the grouping condition will appear. You can change the color of each group of nodes at will. By default, it changes the color of all nodes.
+First select the grouping information you are interested in. After the selection, the group names of the nodes under the grouping condition will appear. You can change the color of each group of nodes as will. By default, it changes the color of all nodes.
 
 #### 4.4 Choose Node Shape
 
-Same as the previous step, you can change the shape of each node. We provide eight different shapes, such as Exlipse, Star ..
+Same as the previous step, you can change the shape of each node. We provide eight different shapes, such as Exlipse, Star.
 
 #### 4.5 Select node
 
 First select the group that the node name belongs to, and then enter exactly the information of the node you need to search. If you can't find it, a prompt will pop up. If the search is successful, the node will enter the selected state. The label of the node will show another color. You can move the node by mouse.
+
 > Tips: Make sure the group you choose matches the one in Change Gene Name
 
 #### 4.6 Reset network
@@ -287,9 +296,9 @@ CeNet Omnibus will summarize the communities in a table. Users can select module
 
 #### 5.3 Enrichment Analysis
 
-After **Network Module** we get some modules.Here we can perform enrichment analysis on these modules.Sure, you can also analyze other genes, by choosing **Gene Set Source** as **Custom Gene**.Then,input data as required.
+Here we can perform enrichment analysis to these modules. Sure, you can also analyze other genes sets, by choosing **Gene Set Source** as **Custom Gene** and inputing data as required.
 
-Next,we should choose **Enrichment Source**, **g:profiles** or **custom input**.If you choose **custom input**,you should upload a genes set  file(xxx.txt).We take hallmark.txt for example.Then you must Click **preview** to preview your uploaded file,It will show on the **Custom Gene Preview** panel.You can click **Details** to view genes.
+Currently, CeNet Omnibus integrates **g:Profiler** to do function enrichment analysis. Besides, CeNet Omnibus allows users to provide custom defined gene sets to other analysis. For user-defined data sets,  users should choose **custom input**, and upload a gene sets file. In this file, every line represents a gene set, seperated with tab. And the first element in every line should be the name of the gene set. Users can click **Preview** to check the uploaded file. The results will be shown in the **Custom Gene Preview** panel. Users can click **Details** button to view genes in corresponding gene sets.
 
 ![](Figures/hallmark.png)
 
@@ -299,7 +308,7 @@ The following is the parameter introduction:
 
 **Gene ID Map**:Select Gene ID for input data.
 
-**Significance threshold**:Select enrichment calculation method.
+**Significance threshold**: Select enrichment calculation method.
 
 **Data Sources**:choose the data sources of interest（See R package: gprofiler2 for more details）
 
@@ -309,11 +318,11 @@ The following is the parameter introduction:
 
 **Plot Type**:Select the type of picture to display.
 
+You should confirm all parameter Meet your requirements. Finally click **Perform** Button. You will see pictures.
+
 ![](Figures/bar_Module0_enrichment_plot_GO_BP.svg)
 
 ![](Figures/point_Module0_enrichment_plot_GO_BP.svg)
-
-You should confirm all parameter Meet your requirements.Finally click **Perform** Button.You will see pictures.
 
 > NOTE: You need to make sure that there are values at the top of the 2nd Step and **Network Modules** on 5th Step have been completed.Otherwise,**Gene ID Map** and **Module analysis** will be empty.
 

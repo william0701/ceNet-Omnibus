@@ -32,42 +32,45 @@ shinyServer(function(input,output,session) {
     if(msg$id=='express_preview')
     {
       ### ceRNA_preview
-      session$sendCustomMessage('reading',list(div='ceRNA_preview',status='ongoing'))
-      isolate({
-        sep_cus=input$ceRNA_seprator_cus;
-        sep=input$ceRNA_seperator;
-        filepath=input$ceRNA$datapath;
-        header=as.logical(input$ceRNA_header);
-        #quote=input$ceRNA_quote
-        #row=as.logical(input$ceRNA_row_col)
-        rowname=as.logical(input$ceRNA_first_col)
+      tryCatch({
+        session$sendCustomMessage('reading',list(div='ceRNA_preview',status='ongoing'))
+        isolate({
+          sep_cus=input$ceRNA_seprator_cus;
+          sep=input$ceRNA_seperator;
+          filepath=input$ceRNA$datapath;
+          header=as.logical(input$ceRNA_header);
+          #quote=input$ceRNA_quote
+          #row=as.logical(input$ceRNA_row_col)
+          rowname=as.logical(input$ceRNA_first_col)
+        })
+        if(sep_cus!="")
+        {
+          sep=sep_cus
+        }
+        if(is.null(filepath))
+        {
+          rna.exp<<-'No Data'
+        }else
+        {
+          rna.exp<<-read.table(file = filepath,header = header,sep = sep,quote = "",nrow=-1,stringsAsFactors = F,check.names = F)
+        }
+        if(rowname)
+        {
+          rownames(rna.exp)<<-rna.exp[,1];
+          rna.exp<<-rna.exp[,-1]
+        }
+        select.gene<<-rownames(rna.exp)
+        Sys.sleep(2)
+        session$sendCustomMessage('reading',list(div='ceRNA_preview',status='finish'))
+        output$ceRNA_preview=renderTable({
+          return(head(rna.exp,n = 20))
+        },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      },error=function(e)
+      {
+        session$sendCustomMessage('reading',list(div='ceRNA_preview',status='finish'))
+        sendSweetAlert(session = session,title = "Error...",text = e$message,type = 'error')
       })
-      if(sep_cus!="")
-      {
-        sep=sep_cus
-      }
-      if(is.null(filepath))
-      {
-        rna.exp<<-'No Data'
-      }else
-      {
-        rna.exp<<-read.table(file = filepath,header = header,sep = sep,quote = "",nrow=-1,stringsAsFactors = F,check.names = F)
-      }
-      # if(!row)
-      # {
-      #   rna.exp<<-t(rna.exp)
-      # }
-      if(rowname)
-      {
-        rownames(rna.exp)<<-rna.exp[,1];
-        rna.exp<<-rna.exp[,-1]
-      }
-      select.gene<<-rownames(rna.exp)
-      Sys.sleep(2)
-      session$sendCustomMessage('reading',list(div='ceRNA_preview',status='finish'))
-      output$ceRNA_preview=renderTable({
-        return(head(rna.exp,n = 20))
-      },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      
       ### micro_preview
       session$sendCustomMessage('reading',list(div='microRNA_preview',status='ongoing'))
       isolate({
@@ -79,31 +82,36 @@ shinyServer(function(input,output,session) {
         #row=as.logical(input$micro_row_col)
         rowname=as.logical(input$micro_first_col)
       })
-      if(sep_cus!="")
-      {
-        sep=sep_cus
-      }
-      if(is.null(filepath))
-      {
-        micro.ex<<-'No Data'
-      }else
-      {
-        micro.exp<<-read.table(file = filepath,header = header,sep = sep,quote = "",nrow=-1,stringsAsFactors = F,check.names = F)
-      }
-      # if(!row)
-      # {
-      #   micro.exp<<-t(micro.exp)
-      # }
-      if(rowname)
-      {
-        rownames(micro.exp)<<-micro.exp[,1]
-        micro.exp<<-micro.exp[,-1]
-      }
-      Sys.sleep(2)
-      session$sendCustomMessage('reading',list(div='microRNA_preview',status='finish'))
-      output$microRNA_preview=renderTable({
-        return(head(micro.exp,n = 20))
-      },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      tryCatch({
+        if(sep_cus!="")
+        {
+          sep=sep_cus
+        }
+        if(is.null(filepath))
+        {
+          micro.ex<<-'No Data'
+        }else
+        {
+          micro.exp<<-read.table(file = filepath,header = header,sep = sep,quote = "",nrow=-1,stringsAsFactors = F,check.names = F)
+        }
+        # if(!row)
+        # {
+        #   micro.exp<<-t(micro.exp)
+        # }
+        if(rowname)
+        {
+          rownames(micro.exp)<<-micro.exp[,1]
+          micro.exp<<-micro.exp[,-1]
+        }
+        Sys.sleep(2)
+        session$sendCustomMessage('reading',list(div='microRNA_preview',status='finish'))
+        output$microRNA_preview=renderTable({
+          return(head(micro.exp,n = 20))
+        },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      },error=function(e){
+        session$sendCustomMessage('reading',list(div='microRNA_preview',status='finish'))
+        sendSweetAlert(session = session,title = "Error...",text = e$message,type = 'error')
+      })
     }
     else if(msg$id=='target_preview')
     {
@@ -116,31 +124,38 @@ shinyServer(function(input,output,session) {
         #quote=input$target_quote
         rowname=as.logical(input$target_first_col)
       })
-      if(sep_cus!="")
-      {
-        sep=sep_cus
-      }
-      if(is.null(filepath))
-      {
-        target<<-'No Data'
-      }else
-      {
-        target<<-read.table(file = filepath,header = header,sep = sep,quote = "",stringsAsFactors = F,check.names = F)
-      }
-      if(rowname)
-      {
-        rownames(target)<<-target[,1]
-        target<<-target[,-1]
-      }
-      Sys.sleep(2)
-      session$sendCustomMessage('reading',list(div='target_preview_panel',status='finish'))
-      output$target_preview_panel=renderTable({
-        return(t(head(t(head(target,n = 20)),n = 20)))
-      },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      tryCatch({
+        if(sep_cus!="")
+        {
+          sep=sep_cus
+        }
+        if(is.null(filepath))
+        {
+          target<<-'No Data'
+        }else
+        {
+          target<<-read.table(file = filepath,header = header,sep = sep,quote = "",stringsAsFactors = F,check.names = F)
+        }
+        if(rowname)
+        {
+          rownames(target)<<-target[,1]
+          target<<-target[,-1]
+        }
+        Sys.sleep(2)
+        session$sendCustomMessage('reading',list(div='target_preview_panel',status='finish'))
+        output$target_preview_panel=renderTable({
+          return(t(head(t(head(target,n = 20)),n = 20)))
+        },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      },error=function(e){
+        session$sendCustomMessage('reading',list(div='target_preview_panel',status='finish'))
+        sendSweetAlert(session = session,title = "Error...",text = e$message,type = 'error')
+      })
+      
     }
     else if(msg$id=='geneinfo_preview')
     {
       session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='ongoing'))
+      
       isolate({
         sep_cus=input$geneinfo_seprator_cus;
         sep=input$geneinfo_seperator;
@@ -149,32 +164,38 @@ shinyServer(function(input,output,session) {
         #quote=input$geneinfo_quote
         rowname=as.logical(input$geneinfo_first_col)
       })
-      if(sep_cus!="")
-      {
-        sep=sep_cus
-      }
-      if(is.null(filepath))
-      {
-        geneinfo<<-'No Data'
-      }else
-      {
-        geneinfo<<-read.table(file = filepath,header = header,sep = sep,quote = "",nrow=-1,stringsAsFactors = F)
-      }
-      if(rowname)
-      {
-        rownames(geneinfo)<<-geneinfo[,1]
-      }
-      type=as.data.frame(lapply(X = geneinfo,FUN = class))
-      non_character=names(type[which(type!='character')])
-      for(col in non_character)
-      {
-        geneinfo[,col]<<-as.character(geneinfo[,col])
-      }
-      Sys.sleep(2);
-      session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='finish'))
-      output$geneinfo_preview_panel=renderTable({
-        return(head(geneinfo,n = 20))
-      },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      tryCatch({
+        if(sep_cus!="")
+        {
+          sep=sep_cus
+        }
+        if(is.null(filepath))
+        {
+          geneinfo<<-'No Data'
+        }else
+        {
+          geneinfo<<-read.table(file = filepath,header = header,sep = sep,quote = "",nrow=-1,stringsAsFactors = F)
+        }
+        if(rowname)
+        {
+          rownames(geneinfo)<<-geneinfo[,1]
+        }
+        type=as.data.frame(lapply(X = geneinfo,FUN = class))
+        non_character=names(type[which(type!='character')])
+        for(col in non_character)
+        {
+          geneinfo[,col]<<-as.character(geneinfo[,col])
+        }
+        Sys.sleep(2);
+        session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='finish'))
+        output$geneinfo_preview_panel=renderTable({
+          return(head(geneinfo,n = 20))
+        },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      },error=function(e){
+        session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='finish'))
+        sendSweetAlert(session = session,title = "Error...",text = e$message,type = 'error')
+      })
+      
     }
     FLAGS[['reintersect']]<<-T
   })
@@ -617,8 +638,8 @@ shinyServer(function(input,output,session) {
                      text = 'Please click one preview at least!..',type = 'warning')
     }
     else{
-      num1 = length(rownames(sect_output_micro.exp))
-      num2=length(rownames(sect_output_rna.exp))
+      num1 = length(colnames(sect_output_micro.exp))
+      num2=length(colnames(sect_output_rna.exp))
       flag_micro=0
       flag_ce=0
       for(type in names(sample_filter_choose)){
@@ -1380,14 +1401,14 @@ shinyServer(function(input,output,session) {
       tasks=msg$tasks
       tasks=paste(unlist(tasks),collapse = ";")
       type=msg$type
-      description=input$custom_condition_description
-      abbr=input$custom_condition_abbr
-      code=input$custom_condition_code
+      description=msg$description
+      abbr=msg$abbr
+      code=msg$code
     })
     if(type=='custom')
     {
-      condition<<-rbind(condition,data.frame(description=description,abbr=abbr,used=T,core=core,task=tasks,stringsAsFactors = F))
-      rownames(condition)<<-condition$abbr
+      condition<<-rbind(condition,data.frame(description=description,abbr=abbr,used=T,core=core,task=tasks,others="",stringsAsFactors = F,row.names = abbr))
+      #rownames(condition)<<condition$abbr
       write(x = code,file = paste(basepath,"/code/",abbr,'.R',sep=""))
       #thresh<<-rbind(thresh,data.frame(type=condition$abbr,task=tasks,direction="<",thresh=0,stringsAsFactors = F))
     }
@@ -1423,7 +1444,6 @@ shinyServer(function(input,output,session) {
     isolate({
       type=input$compute_condition$type
     })
-
     core=condition[type,'core']
     tasks=condition[type,'task']
     logpath=normalizePath(paste(basepath,'/log/',type,'.txt',sep=""))
@@ -2480,7 +2500,7 @@ shinyServer(function(input,output,session) {
         }
       },
       error=function(e){
-        sendSweetAlert(session = session,title = "Error...",text = e,type = 'error')
+        sendSweetAlert(session = session,title = "Error...",text = e$message,type = 'error')
         removeUI(selector = "#clinical_patient_count>",multiple = T,immediate = T)
         removeUI(selector = "#clinical_valid_patient_count>",multiple = T,immediate = T)
       }
@@ -2539,7 +2559,7 @@ shinyServer(function(input,output,session) {
         }
       },
       error=function(e){
-        sendSweetAlert(session = session,title = "Error...",text = e,type = 'error')
+        sendSweetAlert(session = session,title = "Error...",text = e$message,type = 'error')
         removeUI(selector = "#exp_patient_count>",multiple = T,immediate = T)
         removeUI(selector = "#clinical_valid_patient_count>",multiple = T,immediate = T)
       }

@@ -12,7 +12,7 @@ shinyServer(function(input,output,session) {
   source('www/R/analysis_tabServer.R',local = T)
   source('www/R/process_tabServer.R',local = T)
   
-  connectEnsembl(session)
+ #connectEnsembl(session)
   if(is.null(projName)){
     projName <<- session$token
   }
@@ -25,8 +25,158 @@ shinyServer(function(input,output,session) {
   dir.create(paste(basepath,'log',sep="/"))
   print(paste("Templete File Dictionary:",basepath))
   visual_layout=""
-
+  
   ############Input Page Action##########
+  observeEvent(input$Cenet_demo,{
+    removeUI(selector = "#modalbody>",multiple = T,immediate = T)
+    insertUI(selector = "#modalbody", ui=create_progress("Loading Demo Data..."),where = 'beforeEnd',immediate = T)
+    session$sendCustomMessage('network_construction',list(status='update',value="Input Demo Data...",id="modalbody"))
+    sep_cus = ""
+    sep = "\t"
+    header = TRUE
+    rowname = FALSE
+    filepath = paste(getwd(),"demo","ceRNA_exp.txt",sep = "/")
+    #filepath = gsub("/","\\\\",filepath)
+      ### ceRNA_preview
+    tryCatch({
+        
+        session$sendCustomMessage('reading',list(div='ceRNA_preview',status='ongoing'))
+        
+        if(sep_cus!="")
+        {
+          sep=sep_cus
+        }
+        if(is.null(filepath))
+        {
+          rna.exp<<-'No Data'
+        }else
+        {
+          rna.exp<<-read.table(file = filepath,header = header,sep = sep,quote = "",nrow=-1,stringsAsFactors = F,check.names = F)
+        }
+        if(rowname)
+        {
+          rownames(rna.exp)<<-rna.exp[,1];
+          rna.exp<<-rna.exp[,-1]
+        }
+        select.gene<<-rownames(rna.exp)
+        Sys.sleep(2)
+        session$sendCustomMessage('reading',list(div='ceRNA_preview',status='finish'))
+        output$ceRNA_preview=renderTable({
+          return(head(rna.exp,n = 20))
+        },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      },error=function(e)
+      {
+        session$sendCustomMessage('reading',list(div='ceRNA_preview',status='finish'))
+        sendSweetAlert(session = session,title = "Error...",text = e$message,type = 'error')
+      })
+      
+      ### micro_preview
+      rowname = TRUE
+      filepath = paste(getwd(),"demo","micro_exp.txt",sep = "/")
+     # filepath = gsub("/","\\\\",filepath)
+      session$sendCustomMessage('reading',list(div='microRNA_preview',status='ongoing'))
+      tryCatch({
+        if(sep_cus!="")
+        {
+          sep=sep_cus
+        }
+        if(is.null(filepath))
+        {
+          micro.ex<<-'No Data'
+        }else
+        {
+          micro.exp<<-read.table(file = filepath,header = header,sep = sep,quote = "",nrow=-1,stringsAsFactors = F,check.names = F)
+        }
+        # if(!row)
+        # {
+        #   micro.exp<<-t(micro.exp)
+        # }
+        if(rowname)
+        {
+          rownames(micro.exp)<<-micro.exp[,1]
+          micro.exp<<-micro.exp[,-1]
+        }
+        Sys.sleep(2)
+        session$sendCustomMessage('reading',list(div='microRNA_preview',status='finish'))
+        output$microRNA_preview=renderTable({
+          return(head(micro.exp,n = 20))
+        },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      },error=function(e){
+        session$sendCustomMessage('reading',list(div='microRNA_preview',status='finish'))
+        sendSweetAlert(session = session,title = "Error...",text = e$message,type = 'error')
+      })
+      ###target input
+      rowname = FALSE
+      filepath = paste(getwd(),"demo","target.txt",sep = "/")
+      #filepath = gsub("/","\\\\",filepath)
+      session$sendCustomMessage('reading',list(div='target_preview_panel',status='ongoing'))
+     
+      tryCatch({
+        if(sep_cus!="")
+        {
+          sep=sep_cus
+        }
+        if(is.null(filepath))
+        {
+          target<<-'No Data'
+        }else
+        {
+          target<<-read.table(file = filepath,header = header,sep = sep,quote = "",stringsAsFactors = F,check.names = F)
+        }
+        if(rowname)
+        {
+          rownames(target)<<-target[,1]
+          target<<-target[,-1]
+        }
+        Sys.sleep(2)
+        session$sendCustomMessage('reading',list(div='target_preview_panel',status='finish'))
+        output$target_preview_panel=renderTable({
+          return(t(head(t(head(target,n = 20)),n = 20)))
+        },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      },error=function(e){
+        session$sendCustomMessage('reading',list(div='target_preview_panel',status='finish'))
+        sendSweetAlert(session = session,title = "Error...",text = e$message,type = 'error')
+      })
+      ###geneinfo input
+      rowname = TRUE
+      filepath = paste(getwd(),"demo","geneinfo.txt",sep = "/")
+      #filepath = gsub("/","\\\\",filepath)
+      session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='ongoing'))
+    
+      tryCatch({
+        if(sep_cus!="")
+        {
+          sep=sep_cus
+        }
+        if(is.null(filepath))
+        {
+          geneinfo<<-'No Data'
+        }else
+        {
+          geneinfo<<-read.table(file = filepath,header = header,sep = sep,quote = "",nrow=-1,stringsAsFactors = F)
+        }
+        if(rowname)
+        {
+          rownames(geneinfo)<<-geneinfo[,1]
+        }
+        type=as.data.frame(lapply(X = geneinfo,FUN = class))
+        non_character=names(type[which(type!='character')])
+        for(col in non_character)
+        {
+          geneinfo[,col]<<-as.character(geneinfo[,col])
+        }
+        Sys.sleep(2);
+        session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='finish'))
+        output$geneinfo_preview_panel=renderTable({
+          return(head(geneinfo,n = 20))
+        },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      },error=function(e){
+        session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='finish'))
+        sendSweetAlert(session = session,title = "Error...",text = e$message,type = 'error')
+      })
+      session$sendCustomMessage('network_construction',list(status='finish',value="modalbody"))
+      
+  })
   observeEvent(input$onclick,{
     isolate({msg=fromJSON(input$onclick)})
     if(msg$id=='express_preview')
@@ -42,6 +192,7 @@ shinyServer(function(input,output,session) {
           #quote=input$ceRNA_quote
           #row=as.logical(input$ceRNA_row_col)
           rowname=as.logical(input$ceRNA_first_col)
+          #browser()
         })
         if(sep_cus!="")
         {
@@ -779,7 +930,7 @@ shinyServer(function(input,output,session) {
       )
       svglite(paste(basepath,"Plot","microStatistic.svg",sep = "/"))
       
-      text1=paste("Thresh:",ratio)
+      text1=paste("Sample Ratio:",ratio)
       text2=paste("Remain:",number_after)
       
       p=ggplot(xdata,aes(x=SampleRatio,fill=..x..>ratio))+
@@ -877,7 +1028,7 @@ shinyServer(function(input,output,session) {
                          stringsAsFactors = F
       )
       
-      text1=paste("Thresh:",ratio)
+      text1=paste("Sample Ratio:",ratio)
       text2=paste("Remain:",number_after)
       
       p=ggplot(xdata,aes(x=SampleRatio,fill=..x..>ratio))+

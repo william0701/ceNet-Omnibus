@@ -81,6 +81,20 @@ $(document).ready(function(){
        cy.elements('node['+network_select_group+'="'+value+'"]').select()
     }
   })
+  var $network_node_size_input= $('<input type="text" class="form-control">')
+  var $network_node_size_span = $('<span class="input-group-btn"><button type="button" class="btn btn-info btn-flat">Go!</button></span>')
+  $('#change_node_size').children('div').append($network_node_size_input).append($network_node_size_span)
+  $network_node_size_span.on('click',function(e){
+    
+    if(/^[0-9]+$/.test($network_node_size_input.val())){
+       var value = $network_node_size_input.val()+''
+       cy.style().selector('node').style('width',value).update()
+       cy.style().selector('node').style('height',value).update()
+    }else{
+      sweetAlert("error","Error...","Please input a integer!")
+    }
+
+  })
   $("#choose_differ_layout").append($button_change_layout)
   var layout_name=new Array("Circle","Random","Grid","Concentric","Breadthfirst","Cose")
   for(var i=0;i<layout_name.length;i++){
@@ -145,8 +159,14 @@ creat_changeName = function(name){
   $('#choose_differ_name').find('ul').append($li)
   $li.append($a)
   $li.on("click",function(e){
-    $('#choose_differ_name').children('button').html(name)
-    cy.style().selector('node').style('label', 'data('+name+')').update()
+    if(name=="No Label"){
+      $('#choose_differ_name').children('button').html(name)
+       cy.style().selector('node').style('label', '').update()
+    }
+    else{
+       $('#choose_differ_name').children('button').html(name)
+       cy.style().selector('node').style('label', 'data('+name+')').update()
+    }
   })
 }
 create_net_change_module_pre = function(name){
@@ -277,7 +297,7 @@ Shiny.addCustomMessageHandler("Gene_info_name_change",function(msg){
   $("#change_network_color").find('ul').empty();
   $("#change_network_shape").find('ul').empty();
   $("#select_network_node").find('ul').empty();
-  creat_changeName("All_node")
+  creat_changeName("No Label")
   create_net_change_module_pre("All_node")
   create_net_change_shape_pre("All_node")
   create_network_select_module("All_node")

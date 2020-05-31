@@ -179,19 +179,24 @@ visual_tab=tabItem(tabName = "visualization",
                                            div(class='col-lg-3',id='change_network_shape'),
                                            div(class='col-lg-3',
                                                div(id='select_network_node',
-                                                   h4("Select node",style="font-family:Georgia;font-weight:bold"),
+                                                   h4("Select Node",style="font-family:Georgia;font-weight:bold"),
                                                    div(class='input-group margin',style="margin:0px"
                                                    ) 
                                                ),
                                                div(
-                                                 h4("Reset network",style="font-family:Georgia;font-weight:bold"),
+                                                 h4("Reset Network",style="font-family:Georgia;font-weight:bold"),
                                                  actionBttn(
                                                    inputId = "reset_network",
                                                    label = "Reset",
                                                    style = "jelly", 
                                                    color = "danger"
                                                  )
-                                               )
+                                               ),
+                                               div(id='change_node_size',
+                                                   h4("Change Node Size",style="font-family:Georgia;font-weight:bold"),
+                                                   div(class='input-group margin',style="margin:0px"
+                                                   ) 
+                                               ),
                                             )
                                            
                                        )     

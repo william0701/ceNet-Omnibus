@@ -57,4 +57,4 @@ CeNetOmnibus <- function(maxRequestSize=1000,workpath=tempdir(),projectName=NULL
   #suppressMessages(shiny::runApp(system.file("app", package = "CeNetOmnibus"),launch.browser=TRUE,...))
   shiny::runApp("E:\\LA-api\\ceRNA-Analysis\\app",launch.browser=TRUE,...)
 }
-CeNetOmnibus()
+

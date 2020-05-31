@@ -11,8 +11,9 @@ shinyServer(function(input,output,session) {
   source('www/R/construct_tabServer.R',local = T)
   source('www/R/analysis_tabServer.R',local = T)
   source('www/R/process_tabServer.R',local = T)
-  
- #connectEnsembl(session)
+
+  connectEnsembl(session)
+
   if(is.null(projName)){
     projName <<- session$token
   }
@@ -3362,6 +3363,7 @@ shinyServer(function(input,output,session) {
                       legend.key = element_rect(fill = NA), 
                       legend.background = element_rect(fill = NA),
                       legend.direction = "horizontal",
+                      legend.box = "vertical",
                       legend.position = 'bottom',
                       panel.background = element_rect(fill = NA)) +labs(colour = "-log(P)")
             )

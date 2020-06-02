@@ -12,7 +12,7 @@ shinyServer(function(input,output,session) {
   source('www/R/analysis_tabServer.R',local = T)
   source('www/R/process_tabServer.R',local = T)
 
-  connectEnsembl(session)
+  #connectEnsembl(session)
 
   if(is.null(projName)){
     projName <<- session$token
@@ -3204,9 +3204,58 @@ shinyServer(function(input,output,session) {
     )
   })
   observeEvent(input$initialization_enrichment,{
-    updatePickerInput(session = session,inputId = "Organism_enrichment",
-                      choices = sub(pattern ="_gene_ensembl$",replacement = "",x = specials$dataset),selected = "hsapiens")
+    # updatePickerInput(session = session,inputId = "Organism_enrichment",
+    #                   choices = sub(pattern ="_gene_ensembl$",replacement = "",x = specials$dataset),selected = "hsapiens")
     updatePickerInput(session = session,inputId = "enrichment_Numeric_IDs_treated_as",choices = colnames(after_slice_geneinfo))
+  })
+  observeEvent(input$demo_clinic,{
+    tryCatch(
+    {
+      removeUI(selector = "#clinical_data_preview>",multiple = T,immediate = T)
+      insertUI(selector = "#clinical_data_preview",where = 'beforeEnd',ui = div(class="overlay",id="icon",tags$i(class="fa fa-spinner fa-spin",style="font-size:50px")))
+      insertUI(selector = "#clinical_data_preview",where = 'beforeEnd',ui = dataTableOutput(outputId = "clinical_data_table"))
+      clinical_data<<-read.table(file = paste(getwd(),'/demo/brca_subtype.csv',sep=""),header = T,sep = ",",stringsAsFactors = F,check.names = F)
+      rownames(clinical_data)<<-clinical_data[,1]
+      output[['clinical_data_table']]=renderDataTable({
+        head(clinical_data,n=20)
+      })
+      removeUI(selector = "#icon")
+      column=colnames(clinical_data)
+      names(column)=column
+      updatePickerInput(session = session,inputId = 'clinical_survival_time',choices = column)
+      updatePickerInput(session = session,inputId = 'clinical_survival_status',choices = column)
+      updatePickerInput(session = session,inputId = 'survival_extern_factor_continous',choices = column)
+      updatePickerInput(session = session,inputId = 'survival_extern_factor_categorical',choices = column)
+      updatePickerInput(session = session,inputId = 'survival_stratified_factor',choices = column)
+      
+      output$clinical_patient_count=renderUI({
+        div(class="external-event bg-light-blue",style="font-size:16px",
+            list(tags$span("Patients in Clinical Data"),
+                 tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(dim(clinical_data)[1])))
+        )
+      })
+      
+      survival_exp<<-after_slice_rna.exp
+      output$exp_patient_count=renderUI({
+        div(class="external-event bg-light-blue",style="font-size:16px",
+            list(tags$span("Patients in Expression Data"),
+                 tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(dim(survival_exp)[2])))
+        )
+      })
+      valid_patient<<-intersect(rownames(clinical_data),colnames(survival_exp))
+      output$clinical_valid_patient_count=renderUI({
+        div(class="external-event bg-light-blue",style="font-size:16px",
+            list(tags$span("Valid Patients"),
+                 tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(length(valid_patient))))
+        )
+      })
+    },
+    error=function(e){
+      sendSweetAlert(session = session,title = "Error...",text = e$message,type = 'error')
+      removeUI(selector = "#exp_patient_count>",multiple = T,immediate = T)
+      removeUI(selector = "#clinical_valid_patient_count>",multiple = T,immediate = T)
+    }
+  )
   })
   
   observeEvent(input$enrichment_finish,{
@@ -3421,7 +3470,7 @@ shinyServer(function(input,output,session) {
       formattable(df,align=c("c","r","c"),list(Size=my_color_bar("#2ecc71",250)))
     })
   })
-  
+ 
   observeEvent(input$showCustomDetails,{
     isolate({
       msg=input$showCustomDetails

@@ -1,4 +1,11 @@
 input_tab= tabItem(tabName = "input",
+                   div(class="row",
+                       div(class="col-lg-2",
+                           tags$button(id="Cenet_demo", type="button",class="btn bg-navy btn-block btn-flat",
+                              tags$i(class="fa fa-upload",'aria-hidden'="true"),HTML("Upload Demo Data")            
+                           )
+                       )
+                   ),
                    h2("Step1: Expression Input",style='font-family:Georgia'),
                    fluidRow(
                      box(#第一部分

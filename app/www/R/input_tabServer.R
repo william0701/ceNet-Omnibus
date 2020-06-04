@@ -4,8 +4,8 @@ connectEnsembl=function(session)
   insertUI(selector = "#modalbody", ui=create_progress("Connecting Ensembl Server..."),where = 'beforeEnd',immediate = T)
   session$sendCustomMessage('connect_biomart',"connection")
   currentSpecial<<-"hsapiens_gene_ensembl"
-  currentURL<<-"asia.ensembl.org"
-  ensembl<<-useMart(biomart='ensembl',dataset = currentSpecial,host=currentURL,ensemblRedirect=F)
+  currentURL<<-"www.ensembl.org"
+  ensembl<<-useMart(biomart='ensembl',dataset = currentSpecial,host=currentURL,ensemblRedirect=T)
   archieves<<-listEnsemblArchives()
   specials<<-listDatasets(ensembl)
   filters<<-listFilters(ensembl)

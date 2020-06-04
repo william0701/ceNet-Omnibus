@@ -11,8 +11,9 @@ shinyServer(function(input,output,session) {
   source('www/R/construct_tabServer.R',local = T)
   source('www/R/analysis_tabServer.R',local = T)
   source('www/R/process_tabServer.R',local = T)
-  
-  connectEnsembl(session)
+
+  #connectEnsembl(session)
+
   if(is.null(projName)){
     projName <<- session$token
   }
@@ -25,8 +26,158 @@ shinyServer(function(input,output,session) {
   dir.create(paste(basepath,'log',sep="/"))
   print(paste("Templete File Dictionary:",basepath))
   visual_layout=""
-
+  
   ############Input Page Action##########
+  observeEvent(input$Cenet_demo,{
+    removeUI(selector = "#modalbody>",multiple = T,immediate = T)
+    insertUI(selector = "#modalbody", ui=create_progress("Loading Demo Data..."),where = 'beforeEnd',immediate = T)
+    session$sendCustomMessage('network_construction',list(status='update',value="Input Demo Data...",id="modalbody"))
+    sep_cus = ""
+    sep = "\t"
+    header = TRUE
+    rowname = FALSE
+    filepath = paste(getwd(),"demo","ceRNA_exp.txt",sep = "/")
+    #filepath = gsub("/","\\\\",filepath)
+      ### ceRNA_preview
+    tryCatch({
+        
+        session$sendCustomMessage('reading',list(div='ceRNA_preview',status='ongoing'))
+        
+        if(sep_cus!="")
+        {
+          sep=sep_cus
+        }
+        if(is.null(filepath))
+        {
+          rna.exp<<-'No Data'
+        }else
+        {
+          rna.exp<<-read.table(file = filepath,header = header,sep = sep,quote = "",nrow=-1,stringsAsFactors = F,check.names = F)
+        }
+        if(rowname)
+        {
+          rownames(rna.exp)<<-rna.exp[,1];
+          rna.exp<<-rna.exp[,-1]
+        }
+        select.gene<<-rownames(rna.exp)
+        Sys.sleep(2)
+        session$sendCustomMessage('reading',list(div='ceRNA_preview',status='finish'))
+        output$ceRNA_preview=renderTable({
+          return(head(rna.exp,n = 20))
+        },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      },error=function(e)
+      {
+        session$sendCustomMessage('reading',list(div='ceRNA_preview',status='finish'))
+        sendSweetAlert(session = session,title = "Error...",text = e$message,type = 'error')
+      })
+      
+      ### micro_preview
+      rowname = TRUE
+      filepath = paste(getwd(),"demo","micro_exp.txt",sep = "/")
+     # filepath = gsub("/","\\\\",filepath)
+      session$sendCustomMessage('reading',list(div='microRNA_preview',status='ongoing'))
+      tryCatch({
+        if(sep_cus!="")
+        {
+          sep=sep_cus
+        }
+        if(is.null(filepath))
+        {
+          micro.ex<<-'No Data'
+        }else
+        {
+          micro.exp<<-read.table(file = filepath,header = header,sep = sep,quote = "",nrow=-1,stringsAsFactors = F,check.names = F)
+        }
+        # if(!row)
+        # {
+        #   micro.exp<<-t(micro.exp)
+        # }
+        if(rowname)
+        {
+          rownames(micro.exp)<<-micro.exp[,1]
+          micro.exp<<-micro.exp[,-1]
+        }
+        Sys.sleep(2)
+        session$sendCustomMessage('reading',list(div='microRNA_preview',status='finish'))
+        output$microRNA_preview=renderTable({
+          return(head(micro.exp,n = 20))
+        },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      },error=function(e){
+        session$sendCustomMessage('reading',list(div='microRNA_preview',status='finish'))
+        sendSweetAlert(session = session,title = "Error...",text = e$message,type = 'error')
+      })
+      ###target input
+      rowname = FALSE
+      filepath = paste(getwd(),"demo","target.txt",sep = "/")
+      #filepath = gsub("/","\\\\",filepath)
+      session$sendCustomMessage('reading',list(div='target_preview_panel',status='ongoing'))
+     
+      tryCatch({
+        if(sep_cus!="")
+        {
+          sep=sep_cus
+        }
+        if(is.null(filepath))
+        {
+          target<<-'No Data'
+        }else
+        {
+          target<<-read.table(file = filepath,header = header,sep = sep,quote = "",stringsAsFactors = F,check.names = F)
+        }
+        if(rowname)
+        {
+          rownames(target)<<-target[,1]
+          target<<-target[,-1]
+        }
+        Sys.sleep(2)
+        session$sendCustomMessage('reading',list(div='target_preview_panel',status='finish'))
+        output$target_preview_panel=renderTable({
+          return(t(head(t(head(target,n = 20)),n = 20)))
+        },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      },error=function(e){
+        session$sendCustomMessage('reading',list(div='target_preview_panel',status='finish'))
+        sendSweetAlert(session = session,title = "Error...",text = e$message,type = 'error')
+      })
+      ###geneinfo input
+      rowname = TRUE
+      filepath = paste(getwd(),"demo","geneinfo.txt",sep = "/")
+      #filepath = gsub("/","\\\\",filepath)
+      session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='ongoing'))
+    
+      tryCatch({
+        if(sep_cus!="")
+        {
+          sep=sep_cus
+        }
+        if(is.null(filepath))
+        {
+          geneinfo<<-'No Data'
+        }else
+        {
+          geneinfo<<-read.table(file = filepath,header = header,sep = sep,quote = "",nrow=-1,stringsAsFactors = F)
+        }
+        if(rowname)
+        {
+          rownames(geneinfo)<<-geneinfo[,1]
+        }
+        type=as.data.frame(lapply(X = geneinfo,FUN = class))
+        non_character=names(type[which(type!='character')])
+        for(col in non_character)
+        {
+          geneinfo[,col]<<-as.character(geneinfo[,col])
+        }
+        Sys.sleep(2);
+        session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='finish'))
+        output$geneinfo_preview_panel=renderTable({
+          return(head(geneinfo,n = 20))
+        },escape = F,hover=T,width='100%',bordered = T,striped=T,rownames=T,colnames=T,align='c')
+      },error=function(e){
+        session$sendCustomMessage('reading',list(div='geneinfo_preview_panel',status='finish'))
+        sendSweetAlert(session = session,title = "Error...",text = e$message,type = 'error')
+      })
+      session$sendCustomMessage('network_construction',list(status='finish',value="modalbody"))
+      
+  })
   observeEvent(input$onclick,{
     isolate({msg=fromJSON(input$onclick)})
     if(msg$id=='express_preview')
@@ -42,6 +193,7 @@ shinyServer(function(input,output,session) {
           #quote=input$ceRNA_quote
           #row=as.logical(input$ceRNA_row_col)
           rowname=as.logical(input$ceRNA_first_col)
+          #browser()
         })
         if(sep_cus!="")
         {
@@ -779,7 +931,7 @@ shinyServer(function(input,output,session) {
       )
       svglite(paste(basepath,"Plot","microStatistic.svg",sep = "/"))
       
-      text1=paste("Thresh:",ratio)
+      text1=paste("Sample Ratio:",ratio)
       text2=paste("Remain:",number_after)
       
       p=ggplot(xdata,aes(x=SampleRatio,fill=..x..>ratio))+
@@ -877,7 +1029,7 @@ shinyServer(function(input,output,session) {
                          stringsAsFactors = F
       )
       
-      text1=paste("Thresh:",ratio)
+      text1=paste("Sample Ratio:",ratio)
       text2=paste("Remain:",number_after)
       
       p=ggplot(xdata,aes(x=SampleRatio,fill=..x..>ratio))+
@@ -3052,15 +3204,63 @@ shinyServer(function(input,output,session) {
     )
   })
   observeEvent(input$initialization_enrichment,{
-    updatePickerInput(session = session,inputId = "Organism_enrichment",
-                      choices = sub(pattern ="_gene_ensembl$",replacement = "",x = specials$dataset),selected = "hsapiens")
+    # updatePickerInput(session = session,inputId = "Organism_enrichment",
+    #                   choices = sub(pattern ="_gene_ensembl$",replacement = "",x = specials$dataset),selected = "hsapiens")
     updatePickerInput(session = session,inputId = "enrichment_Numeric_IDs_treated_as",choices = colnames(after_slice_geneinfo))
+  })
+  observeEvent(input$demo_clinic,{
+    tryCatch(
+    {
+      removeUI(selector = "#clinical_data_preview>",multiple = T,immediate = T)
+      insertUI(selector = "#clinical_data_preview",where = 'beforeEnd',ui = div(class="overlay",id="icon",tags$i(class="fa fa-spinner fa-spin",style="font-size:50px")))
+      insertUI(selector = "#clinical_data_preview",where = 'beforeEnd',ui = dataTableOutput(outputId = "clinical_data_table"))
+      clinical_data<<-read.table(file = paste(getwd(),'/demo/brca_subtype.csv',sep=""),header = T,sep = ",",stringsAsFactors = F,check.names = F)
+      rownames(clinical_data)<<-clinical_data[,1]
+      output[['clinical_data_table']]=renderDataTable({
+        head(clinical_data,n=20)
+      })
+      removeUI(selector = "#icon")
+      column=colnames(clinical_data)
+      names(column)=column
+      updatePickerInput(session = session,inputId = 'clinical_survival_time',choices = column)
+      updatePickerInput(session = session,inputId = 'clinical_survival_status',choices = column)
+      updatePickerInput(session = session,inputId = 'survival_extern_factor_continous',choices = column)
+      updatePickerInput(session = session,inputId = 'survival_extern_factor_categorical',choices = column)
+      updatePickerInput(session = session,inputId = 'survival_stratified_factor',choices = column)
+      
+      output$clinical_patient_count=renderUI({
+        div(class="external-event bg-light-blue",style="font-size:16px",
+            list(tags$span("Patients in Clinical Data"),
+                 tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(dim(clinical_data)[1])))
+        )
+      })
+      
+      survival_exp<<-after_slice_rna.exp
+      output$exp_patient_count=renderUI({
+        div(class="external-event bg-light-blue",style="font-size:16px",
+            list(tags$span("Patients in Expression Data"),
+                 tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(dim(survival_exp)[2])))
+        )
+      })
+      valid_patient<<-intersect(rownames(clinical_data),colnames(survival_exp))
+      output$clinical_valid_patient_count=renderUI({
+        div(class="external-event bg-light-blue",style="font-size:16px",
+            list(tags$span("Valid Patients"),
+                 tags$small(class="badge pull-right bg-red",style="font-size:16px",HTML(length(valid_patient))))
+        )
+      })
+    },
+    error=function(e){
+      sendSweetAlert(session = session,title = "Error...",text = e$message,type = 'error')
+      removeUI(selector = "#exp_patient_count>",multiple = T,immediate = T)
+      removeUI(selector = "#clinical_valid_patient_count>",multiple = T,immediate = T)
+    }
+  )
   })
   
   observeEvent(input$enrichment_finish,{
     isolate({
       Organism=input$Organism_enrichment
-      # Organism='hsapiens'
       choose_analysis_tool=input$gProfileOnline_Or_custom_analysis
       Module_analysis=input$enrichment_Module_analysis1
       choose_analysis_gene=input$choose_which_gene_to_analysis
@@ -3073,11 +3273,12 @@ shinyServer(function(input,output,session) {
       filepath=input$enrichment_Custom_input_function_gene$datapath
       custom_significance_threshold_type=input$enrichment_Significance_threshold_custom
     })
-    
+
     removeUI(selector = '#all_enrichment_show>',immediate = T,multiple = T)
     # removeUI(selector = "#module_info_box>",multiple = T,immediate = T)
     # removeUI(selector = "#module_visualization>",multiple = T,immediate = T)
     insertUI(selector = "#all_enrichment_show",where = 'beforeEnd',ui = create_progress(paste0("Running ",choose_analysis_tool,"..."),id="enrichment_progress"),immediate = T)
+    
     
     if(choose_analysis_gene=="Custom_Gene"){
       gene_set=strsplit(x=Custom_input_gene,split = '\n')
@@ -3133,6 +3334,7 @@ shinyServer(function(input,output,session) {
     # insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = create_alert_box(header="Tips",msg="The <i>Module0</i> is consisted of all isolated nodes",class="col-lg-4"),immediate = T)
     # insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "moduleInfoTable"),immediate = T)
     
+    
     for(set_id in names(gene_set)){
       insertUI(
         selector ='#all_enrichment_show',
@@ -3146,40 +3348,9 @@ shinyServer(function(input,output,session) {
                        )
                    )
                ),
-               div(class="box-body",
-                   div(class="box-group",id=paste(set_id,"group",sep="_"),
-                       div(class="panel box box-info",
-                           div(class="box-header with-border",
-                               h4(class="box-title",
-                                  tags$a(class="collapsed","data-toggle"="collapse",href=paste("#",set_id,"_","enrichment_cluster_panel",sep=""),"aria-expanded"="false","data-parent"=paste("#",set_id,'_group',sep=""),
-                                         HTML("Enrichment plot")
-                                  )
-                               )
-                           ),
-                           div(class="panel-collapse collapse","aria-expanded"="false",id=paste(set_id,"_","enrichment_cluster_panel",sep=""),
-                               div(class="box-body",
-                                   div(class='row')
-                                   # imageOutput(outputId = paste(set_id,"enrichment_cluster",sep="_"),width = "100%",height = "100%")
-                               )
-                           )
-                       ),
-                       div(class="panel box box-warning",
-                           div(class="box-header with-border",
-                               h4(class="box-title",
-                                  tags$a(class="collapsed","data-toggle"="collapse",href=paste("#",set_id,"_","enrichment_table_panel",sep=""),"aria-expanded"="false","data-parent"=paste("#",set_id,'_group',sep=""),
-                                         HTML("Enrichment Table")
-                                  )
-                               )
-                           ),
-                           div(class="panel-collapse collapse","aria-expanded"="false",id=paste(set_id,"_","enrichment_table_panel",sep=""),
-                               div(class="box-body",
-                                   rHandsontableOutput(outputId = paste(set_id,"enrichment_table",sep="_"),width = "100%",height = "100%")
-                               )
-                           )
-                       )
-                   )
+               div(class='box-body',
+                   div(class='row')      
                ),
-               
                div(class='box-footer',downloadButton(outputId=paste('export_enrichment_',set_id,sep=""),
                                              onclick='export_enrichment_plot(this)',label = "Export"))
         ),
@@ -3188,16 +3359,10 @@ shinyServer(function(input,output,session) {
       temp_enrichment=enrichment[which(enrichment$set_id==set_id&enrichment$p_value<User_threshold),]
       if(is.character(temp_enrichment)||empty(temp_enrichment))
       {
-        removeUI(selector = paste('#enrichment_show_',set_id,' .box-body',sep = ""),immediate = T,multiple = T)
-        removeUI(selector = paste('#enrichment_show_',set_id,' .box-footer',sep = ""),immediate = T,multiple = T)
         insertUI(
-          selector = paste('#enrichment_show_',set_id,sep = ""),
+          selector =paste('#enrichment_show_',set_id,' .row',sep = ""),
           where='beforeEnd',
-          ui=div(class="box-body",
-            div(class="col-lg-12",
-                h3("There is no significant terms!")
-                )
-          ),
+          ui=div(class="col-lg-12",h3("There is no significant terms!")),
           immediate = T
         )
       }
@@ -3205,7 +3370,7 @@ shinyServer(function(input,output,session) {
       {
         for(ss in unique(temp_enrichment$source) ){
           insertUI(
-            selector =paste(paste("#",set_id,"_","enrichment_cluster_panel",sep=""),' .row',sep = ""),
+            selector =paste('#enrichment_show_',set_id,' .row',sep = ""),
             where='beforeEnd',
             ui=div(class='col-lg-6',
                    imageOutput(outputId = paste(set_id,'enrichment_out_pic',ss,sep = "_"),height = "100%")),
@@ -3217,7 +3382,6 @@ shinyServer(function(input,output,session) {
           
           svglite(paste(basepath,"Plot",paste(set_id,"_enrichment_plot_",ss,".svg",sep = ""),sep = "/"))
           if(choose_show=="bar_plot"){
-            
             print(
               ggplot(plotdata,aes(x=factor(term_name,levels = plotdata$term_name),y=p_value,fill=recall))+
                 geom_bar(stat = "identity")+labs(y="-log(P)",x="Term Name",title = paste(set_id,"enriched in",ss),fill="Recall")+
@@ -3236,7 +3400,6 @@ shinyServer(function(input,output,session) {
             )
           }
           else{
-            
             print(
               ggplot(plotdata,aes(y= factor(term_name,levels=plotdata$term_name),x=recall,colour=p_value,size=intersection_size))+
                 geom_point()+labs(x="Recall",y="Term Name",title = paste(set_id,"enriched in",ss))+
@@ -3249,35 +3412,23 @@ shinyServer(function(input,output,session) {
                       legend.key = element_rect(fill = NA), 
                       legend.background = element_rect(fill = NA),
                       legend.direction = "horizontal",
+                      legend.box = "vertical",
                       legend.position = 'bottom',
                       panel.background = element_rect(fill = NA)) +labs(colour = "-log(P)")
             )
           }
           dev.off()
-          
           local({
             temp_setid=set_id
             temp_ss=ss
-            output[[paste(temp_setid,"enrichment_out_pic",temp_ss,sep="_")]]=renderImage({
+            output[[paste(temp_setid,'enrichment_out_pic',temp_ss,sep = "_")]]=renderImage({
               list(src=paste(basepath,"Plot",paste(temp_setid,"_enrichment_plot_",temp_ss,".svg",sep = ""),sep = "/"),width="100%",height="100%")
             },deleteFile = F)
-            
           })
-          
         }
-        
-        local({
-          temp_setid=set_id
-          table=temp_enrichment
-          output[[paste(temp_setid,"enrichment_table",sep="_")]]=renderRHandsontable({
-            rhandsontable(table)
-          })
-        })
-        
       }
     }
   })
-  
   observeEvent(input$show_custom_input_file,{
     session$sendCustomMessage('reading',list(div='custom_preview_panel',status='ongoing'))
     isolate({
@@ -3319,7 +3470,7 @@ shinyServer(function(input,output,session) {
       formattable(df,align=c("c","r","c"),list(Size=my_color_bar("#2ecc71",250)))
     })
   })
-  
+ 
   observeEvent(input$showCustomDetails,{
     isolate({
       msg=input$showCustomDetails

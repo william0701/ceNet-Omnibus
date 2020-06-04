@@ -183,3 +183,10 @@ function showCustomGeneDetails(obj){
 Shiny.addCustomMessageHandler("update_progress_state",function(msg){
   $('#'+msg.id).find('span').html(msg.value)
 })
+
+function demo_clinical()
+{
+  var obj={}
+  obj['stamp']=Math.random()
+  Shiny.setInputValue("demo_clinic",obj)
+}

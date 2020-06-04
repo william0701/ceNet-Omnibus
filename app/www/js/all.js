@@ -3,7 +3,6 @@ $(document).ready(function(){
   $('a[href="#shiny-tab-input"]').on('click',function(e){
     initial(0)
   })
- 
   create_modal();
   $.fn.select2.defaults.set('width','100%');
   $('#database').attr('readonly','readonly');
@@ -15,11 +14,6 @@ $(document).ready(function(){
   $("#target_preview_panel").parent().css({'overflow':'auto','height':'300'});
   $("#geneinfo_preview_panel").parent().css({'overflow':'auto','height':'400'});
   $('button.action-button[id*=preview]').attr('count',0);
-  $('#Cenet_demo').on('click',function(e){
-    var obj={}
-    obj['stamp']=Math.random()
-    Shiny.setInputValue('Cenet_demo',obj);
-  })
   $('button.action-button[id*=preview]').on('click',function(e){
     if(e.currentTarget.id=='geneinfo_preview')
     {

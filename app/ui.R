@@ -6,6 +6,7 @@ source('www/R/input_tabUI.R',local = T)
 source('www/R/construct_tabUI.R',local = T)
 source('www/R/visualization_tabUI.R',local = T)
 source('www/R/analysis_tabUI.R',local = T)
+source('www/R/help_tabUI.R',local = T)
 includeScript('www/js/all.js')
 header=dashboardHeader(
   title='CeNet Omnibus',
@@ -17,7 +18,9 @@ sidebar=dashboardSidebar(
     menuItem("2nd Step: Data Preprocess", tabName = "process", icon = icon("cog"),badgeLabel = 4),
     menuItem("3rd Step: Network Construction", tabName = "construction", icon = icon("connectdevelop"),badgeLabel = 3),
     menuItem("4th Step: Network Visualization", tabName = "visualization", icon = icon("project-diagram"),badgeLabel = 1),
-    menuItem("5th Step: Network Analysis", tabName = "analysis", icon = icon("chart-line"),badgeLabel = 4)
+    menuItem("5th Step: Network Analysis", tabName = "analysis", icon = icon("chart-line"),badgeLabel = 4),
+    
+    menuItem("Help and About us", tabName = "help", icon = icon("chart-line"),badgeLabel = 4)
   ),width=280
 )
 
@@ -179,24 +182,19 @@ visual_tab=tabItem(tabName = "visualization",
                                            div(class='col-lg-3',id='change_network_shape'),
                                            div(class='col-lg-3',
                                                div(id='select_network_node',
-                                                   h4("Select Node",style="font-family:Georgia;font-weight:bold"),
+                                                   h4("Select node",style="font-family:Georgia;font-weight:bold"),
                                                    div(class='input-group margin',style="margin:0px"
                                                    ) 
                                                ),
                                                div(
-                                                 h4("Reset Network",style="font-family:Georgia;font-weight:bold"),
+                                                 h4("Reset network",style="font-family:Georgia;font-weight:bold"),
                                                  actionBttn(
                                                    inputId = "reset_network",
                                                    label = "Reset",
                                                    style = "jelly", 
                                                    color = "danger"
                                                  )
-                                               ),
-                                               div(id='change_node_size',
-                                                   h4("Change Node Size",style="font-family:Georgia;font-weight:bold"),
-                                                   div(class='input-group margin',style="margin:0px"
-                                                   ) 
-                                               ),
+                                               )
                                             )
                                            
                                        )     
@@ -206,13 +204,19 @@ visual_tab=tabItem(tabName = "visualization",
                    div(id='cy')
                   
 )
+
+
+
+
+
 body=dashboardBody(
   tabItems(
     input_tab,
     process_tab,
     construction_tab,
     visual_tab,
-    analysis_tab
+    analysis_tab,
+    help_tab
   ),
   useSweetAlert()
 )
@@ -233,7 +237,8 @@ dashboardPage(
     tags$script(src='js/visualization.js'),
     tags$script(src="js/jscolor.js"),
     tags$script(src='js/analysis.js'),tags$script(src='js/FileSaver.js'),
-    tags$link(href ='css/network-table.css',rel="stylesheet")
+    tags$link(href ='css/network-table.css',rel="stylesheet"),
+    tags$script(src="js/help.js")
     ),
   header=header,
   sidebar = sidebar,

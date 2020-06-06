@@ -20,7 +20,7 @@ sidebar=dashboardSidebar(
     menuItem("3rd Step: Network Construction", tabName = "construction", icon = icon("connectdevelop"),badgeLabel = 3),
     menuItem("4th Step: Network Visualization", tabName = "visualization", icon = icon("project-diagram"),badgeLabel = 1),
     menuItem("5th Step: Network Analysis", tabName = "analysis", icon = icon("chart-line"),badgeLabel = 4),
-    menuItem("Help and Tutorial", tabName = "help", icon = icon("question"),badgeLabel = 4)
+    menuItem("Help and Tutorial", tabName = "help", icon = icon("question"))
   ),width=280
 )
 

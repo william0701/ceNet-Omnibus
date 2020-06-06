@@ -31,7 +31,7 @@ shinyServer(function(input,output,session) {
   observeEvent(input$Cenet_demo,{
     removeUI(selector = "#modalbody>",multiple = T,immediate = T)
     insertUI(selector = "#modalbody", ui=create_progress("Loading Demo Data..."),where = 'beforeEnd',immediate = T)
-    session$sendCustomMessage('network_construction',list(status='update',value="Input Demo Data...",id="modalbody"))
+    session$sendCustomMessage('network_construction',list(status='update',value="Upload Demo Data...",id="modalbody"))
     sep_cus = ""
     sep = "\t"
     header = TRUE
@@ -3204,8 +3204,8 @@ shinyServer(function(input,output,session) {
     )
   })
   observeEvent(input$initialization_enrichment,{
-    # updatePickerInput(session = session,inputId = "Organism_enrichment",
-    #                   choices = sub(pattern ="_gene_ensembl$",replacement = "",x = specials$dataset),selected = "hsapiens")
+    updatePickerInput(session = session,inputId = "Organism_enrichment",
+                      choices = sub(pattern ="_gene_ensembl$",replacement = "",x = specials$dataset),selected = "hsapiens")
     updatePickerInput(session = session,inputId = "enrichment_Numeric_IDs_treated_as",choices = colnames(after_slice_geneinfo))
   })
   observeEvent(input$demo_clinic,{
@@ -3258,9 +3258,11 @@ shinyServer(function(input,output,session) {
   )
   })
   
+
   observeEvent(input$enrichment_finish,{
     isolate({
       Organism=input$Organism_enrichment
+      # Organism='hsapiens'
       choose_analysis_tool=input$gProfileOnline_Or_custom_analysis
       Module_analysis=input$enrichment_Module_analysis1
       choose_analysis_gene=input$choose_which_gene_to_analysis
@@ -3273,12 +3275,11 @@ shinyServer(function(input,output,session) {
       filepath=input$enrichment_Custom_input_function_gene$datapath
       custom_significance_threshold_type=input$enrichment_Significance_threshold_custom
     })
-
+    
     removeUI(selector = '#all_enrichment_show>',immediate = T,multiple = T)
     # removeUI(selector = "#module_info_box>",multiple = T,immediate = T)
     # removeUI(selector = "#module_visualization>",multiple = T,immediate = T)
     insertUI(selector = "#all_enrichment_show",where = 'beforeEnd',ui = create_progress(paste0("Running ",choose_analysis_tool,"..."),id="enrichment_progress"),immediate = T)
-    
     
     if(choose_analysis_gene=="Custom_Gene"){
       gene_set=strsplit(x=Custom_input_gene,split = '\n')
@@ -3334,7 +3335,6 @@ shinyServer(function(input,output,session) {
     # insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = create_alert_box(header="Tips",msg="The <i>Module0</i> is consisted of all isolated nodes",class="col-lg-4"),immediate = T)
     # insertUI(selector = "#module_info_box",where = 'beforeEnd',ui = rHandsontableOutput(outputId = "moduleInfoTable"),immediate = T)
     
-    
     for(set_id in names(gene_set)){
       insertUI(
         selector ='#all_enrichment_show',
@@ -3348,21 +3348,58 @@ shinyServer(function(input,output,session) {
                        )
                    )
                ),
-               div(class='box-body',
-                   div(class='row')      
+               div(class="box-body",
+                   div(class="box-group",id=paste(set_id,"group",sep="_"),
+                       div(class="panel box box-info",
+                           div(class="box-header with-border",
+                               h4(class="box-title",
+                                  tags$a(class="","data-toggle"="collapse",href=paste("#",set_id,"_","enrichment_cluster_panel",sep=""),"aria-expanded"="true","data-parent"=paste("#",set_id,'_group',sep=""),
+                                         HTML("Enrichment plot")
+                                  )
+                               )
+                           ),
+                           div(class="panel-collapse collapse in","aria-expanded"="true",id=paste(set_id,"_","enrichment_cluster_panel",sep=""),
+                               div(class="box-body",
+                                   div(class='row')
+                                   # imageOutput(outputId = paste(set_id,"enrichment_cluster",sep="_"),width = "100%",height = "100%")
+                               )
+                           )
+                       ),
+                       div(class="panel box box-warning",
+                           div(class="box-header with-border",
+                               h4(class="box-title",
+                                  tags$a(class="collapsed","data-toggle"="collapse",href=paste("#",set_id,"_","enrichment_table_panel",sep=""),"aria-expanded"="false","data-parent"=paste("#",set_id,'_group',sep=""),
+                                         HTML("Enrichment Table")
+                                  )
+                               )
+                           ),
+                           div(class="panel-collapse collapse","aria-expanded"="false",id=paste(set_id,"_","enrichment_table_panel",sep=""),
+                               div(class="box-body",
+                                   rHandsontableOutput(outputId = paste(set_id,"enrichment_table",sep="_"),width = "100%",height = "100%")
+                               )
+                           )
+                       )
+                   )
                ),
+               
                div(class='box-footer',downloadButton(outputId=paste('export_enrichment_',set_id,sep=""),
-                                             onclick='export_enrichment_plot(this)',label = "Export"))
+                                                     onclick='export_enrichment_plot(this)',label = "Export"))
         ),
         immediate = T
       )
       temp_enrichment=enrichment[which(enrichment$set_id==set_id&enrichment$p_value<User_threshold),]
       if(is.character(temp_enrichment)||empty(temp_enrichment))
       {
+        removeUI(selector = paste('#enrichment_show_',set_id,' .box-body',sep = ""),immediate = T,multiple = T)
+        removeUI(selector = paste('#enrichment_show_',set_id,' .box-footer',sep = ""),immediate = T,multiple = T)
         insertUI(
-          selector =paste('#enrichment_show_',set_id,' .row',sep = ""),
+          selector = paste('#enrichment_show_',set_id,sep = ""),
           where='beforeEnd',
-          ui=div(class="col-lg-12",h3("There is no significant terms!")),
+          ui=div(class="box-body",
+                 div(class="col-lg-12",
+                     h3("There is no significant terms!")
+                 )
+          ),
           immediate = T
         )
       }
@@ -3370,7 +3407,7 @@ shinyServer(function(input,output,session) {
       {
         for(ss in unique(temp_enrichment$source) ){
           insertUI(
-            selector =paste('#enrichment_show_',set_id,' .row',sep = ""),
+            selector =paste(paste("#",set_id,"_","enrichment_cluster_panel",sep=""),' .row',sep = ""),
             where='beforeEnd',
             ui=div(class='col-lg-6',
                    imageOutput(outputId = paste(set_id,'enrichment_out_pic',ss,sep = "_"),height = "100%")),
@@ -3382,9 +3419,10 @@ shinyServer(function(input,output,session) {
           
           svglite(paste(basepath,"Plot",paste(set_id,"_enrichment_plot_",ss,".svg",sep = ""),sep = "/"))
           if(choose_show=="bar_plot"){
+            
             print(
-              ggplot(plotdata,aes(x=factor(term_name,levels = plotdata$term_name),y=p_value,fill=recall))+
-                geom_bar(stat = "identity")+labs(y="-log(P)",x="Term Name",title = paste(set_id,"enriched in",ss),fill="Recall")+
+              ggplot(plotdata,aes(x=factor(term_id,levels = plotdata$term_id),y=p_value,fill=recall))+
+                geom_bar(stat = "identity")+labs(y="-log(P)",x="Term Id",title = paste(set_id,"enriched in",ss),fill="Recall")+
                 theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
                       axis.text.x = element_text(family = "serif",colour = "black"), 
                       axis.text.y = element_text(family = "serif",colour = "black"), 
@@ -3395,14 +3433,15 @@ shinyServer(function(input,output,session) {
                       legend.background = element_rect(fill = NA),
                       legend.direction = "horizontal",
                       legend.position = 'bottom',
-                      legend.key.width=unit(2,'cm'),
+                      legend.key.width=unit(1.5,'cm'),
                       panel.background = element_rect(fill = NA)) +coord_flip()
             )
           }
           else{
+            
             print(
-              ggplot(plotdata,aes(y= factor(term_name,levels=plotdata$term_name),x=recall,colour=p_value,size=intersection_size))+
-                geom_point()+labs(x="Recall",y="Term Name",title = paste(set_id,"enriched in",ss))+
+              ggplot(plotdata,aes(y= factor(term_id,levels=plotdata$term_id),x=recall,colour=p_value,size=intersection_size))+
+                geom_point()+labs(x="Recall",y="Term Id",title = paste(set_id,"enriched in",ss))+
                 theme(axis.title = element_text(family = "serif"),axis.text = element_text(family = "serif",colour = "black", vjust = 0.25), 
                       axis.text.x = element_text(family = "serif",colour = "black"), 
                       axis.text.y = element_text(family = "serif",colour = "black"), 
@@ -3412,23 +3451,37 @@ shinyServer(function(input,output,session) {
                       legend.key = element_rect(fill = NA), 
                       legend.background = element_rect(fill = NA),
                       legend.direction = "horizontal",
-                      legend.box = "vertical",
                       legend.position = 'bottom',
+                      legend.box = "vertical",
+                      legend.key.width=unit(1.5,'cm'),
                       panel.background = element_rect(fill = NA)) +labs(colour = "-log(P)")
             )
           }
           dev.off()
+          
           local({
             temp_setid=set_id
             temp_ss=ss
-            output[[paste(temp_setid,'enrichment_out_pic',temp_ss,sep = "_")]]=renderImage({
+            output[[paste(temp_setid,"enrichment_out_pic",temp_ss,sep="_")]]=renderImage({
               list(src=paste(basepath,"Plot",paste(temp_setid,"_enrichment_plot_",temp_ss,".svg",sep = ""),sep = "/"),width="100%",height="100%")
             },deleteFile = F)
+            
           })
+          
         }
+        
+        local({
+          temp_setid=set_id
+          table=temp_enrichment
+          output[[paste(temp_setid,"enrichment_table",sep="_")]]=renderRHandsontable({
+            rhandsontable(table)
+          })
+        })
+        
       }
     }
   })
+  
   observeEvent(input$show_custom_input_file,{
     session$sendCustomMessage('reading',list(div='custom_preview_panel',status='ongoing'))
     isolate({

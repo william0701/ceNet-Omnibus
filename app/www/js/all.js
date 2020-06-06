@@ -1,7 +1,7 @@
 var select_gene=new Array();
 $(document).ready(function(){
   $('a[href="#shiny-tab-input"]').on('click',function(e){
-    initial(0)
+    //initial(0)
   })
  
   create_modal();

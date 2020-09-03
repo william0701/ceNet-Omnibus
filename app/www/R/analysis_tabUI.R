@@ -344,7 +344,7 @@ survival_panel=tabPanel(title="Survival Analysis",
                                                       div(class="col-lg-4",style="padding:0px",
                                                           tags$fieldset(
                                                             tags$legend(HTML("Clinical Information")),
-                                                            div(class='col-lg-4',style="padding:0px",
+                                                            div(class='col-lg-6',style="padding:0px",
                                                                 tags$button(class="btn bg-navy btn-block btn-flat",
                                                                             onclick="demo_clinical()",
                                                                             tags$i(class='fa fa-upload'),
